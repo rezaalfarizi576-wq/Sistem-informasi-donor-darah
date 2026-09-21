@@ -38,10 +38,10 @@ class UserResponse(BaseModel):
     sumber_data: Optional[str] = "mandiri"
     is_activated: bool = True
     status_aktif: bool = True
-    nik: Optional[str] = None
+    izin_lokasi: bool = False
+    id_pmi: Optional[str] = None
     blood_type: Optional[str] = None
     rhesus: Optional[str] = None
-    address: Optional[str] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
@@ -87,16 +87,36 @@ class AccountActivationRequest(BaseModel):
     nik: Optional[str] = None
 
 
-# --- DONOR LOCATION SCHEMAS ---
+# --- HEALTH FACILITY SCHEMAS (tabel health_facilities) ---
+
+class HealthFacilityBase(BaseModel):
+    nama_faskes: str = Field(..., max_length=150)
+    alamat: str = Field(..., max_length=255)
+    latitude: float
+    longitude: float
+    telepon: Optional[str] = Field(None, max_length=20)
+    terverifikasi: bool = False
+
+
+class HealthFacilityCreate(HealthFacilityBase):
+    pass
+
+
+class HealthFacilityResponse(HealthFacilityBase):
+    id: int
+    created_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
+# --- DONOR LOCATION SCHEMAS (tabel donor_locations: lokasi donor) ---
 
 class DonorLocationBase(BaseModel):
-    name: str
-    address: str
-    latitude: Optional[float] = None
-    longitude: Optional[float] = None
-    contact_number: Optional[str] = None
-    operating_hours: Optional[str] = None
-    is_active: bool = True
+    latitude: float
+    longitude: float
+    akurasi_meter: Optional[float] = None
+    is_current: bool = True
 
 
 class DonorLocationCreate(DonorLocationBase):
@@ -105,23 +125,25 @@ class DonorLocationCreate(DonorLocationBase):
 
 class DonorLocationResponse(DonorLocationBase):
     id: int
-    created_at: datetime
+    user_id: int
     updated_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
 
 
-# --- BLOOD REQUEST SCHEMAS ---
+# --- BLOOD REQUEST SCHEMAS (tabel blood_requests) ---
 
 class BloodRequestBase(BaseModel):
-    patient_name: str
-    hospital_name: str
+    facility_id: Optional[int] = None
     blood_type: str = Field(..., pattern="^(A|B|AB|O)$")
-    rhesus: str = Field("+", pattern="^(\\+|\\-)$")
+    rhesus: Optional[str] = Field("+", pattern="^(\\+|\\-)$")
     bags_needed: int = Field(1, ge=1)
-    urgency_level: str = Field("normal", pattern="^(normal|urgent|critical)$")
-    notes: Optional[str] = None
+    urgency_level: str = Field("sedang", pattern="^(sedang|tinggi|kritis)$")
+    latitude_faskes: float
+    longitude_faskes: float
+    radius_km: float = Field(5.0, gt=0)
+    notes: Optional[str] = Field(None, max_length=500)
 
 
 class BloodRequestCreate(BloodRequestBase):
@@ -131,7 +153,7 @@ class BloodRequestCreate(BloodRequestBase):
 class BloodRequestResponse(BloodRequestBase):
     id: int
     requester_id: int
-    bags_collected: int
+    hospital_name: Optional[str] = None
     status: str
     created_at: datetime
     updated_at: Optional[datetime] = None
@@ -140,16 +162,17 @@ class BloodRequestResponse(BloodRequestBase):
         from_attributes = True
 
 
-# --- DONATION RESPONSE SCHEMAS ---
+# --- DONATION RESPONSE SCHEMAS (tabel request_responses) ---
 
 class DonationResponseCreate(BaseModel):
     request_id: int
 
 
 class DonationResponseUpdateStatus(BaseModel):
-    status: str = Field(..., pattern="^(accepted|heading_to_location|arrived|donated|cancelled)$")
+    status: str = Field(..., pattern="^(menunggu|diterima|ditolak|dibatalkan)$")
 
 
 class LocationUpdate(BaseModel):
     latitude: float
     longitude: float
+    akurasi_meter: Optional[float] = None

@@ -7,7 +7,12 @@ from app.database import engine, Base
 from app.routers import auth_router, admin_router
 
 # Inisialisasi model tabel (apabila belum dibuat oleh script SQL)
-Base.metadata.create_all(bind=engine)
+# Catatan: Gunakan setup_database.sql via phpMyAdmin untuk setup awal schema.
+try:
+    Base.metadata.create_all(bind=engine)
+except Exception as e:
+    import logging
+    logging.warning(f"Tabel sudah ada atau error saat create_all (abaikan jika schema sudah dibuat via SQL): {e}")
 
 # Inisialisasi FastAPI App
 app = FastAPI(
