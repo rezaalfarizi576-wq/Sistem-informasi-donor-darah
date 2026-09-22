@@ -24,11 +24,6 @@ class ActivateAccount(BaseModel):
     password_baru: str = Field(..., min_length=6)
 
 
-class Token(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
-
-
 class UserResponse(BaseModel):
     id: int
     nama: str
@@ -47,6 +42,12 @@ class UserResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: Optional[UserResponse] = None
 
 
 class TokenData(BaseModel):

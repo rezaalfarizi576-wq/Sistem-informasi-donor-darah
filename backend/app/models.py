@@ -78,6 +78,9 @@ class DonorLocation(Base):
     akurasi_meter = Column(Float, nullable=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+    # Synonym for backward compatibility
+    is_active = synonym("is_current")
+
     user = relationship("User", back_populates="locations")
 
 

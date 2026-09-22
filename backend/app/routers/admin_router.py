@@ -36,11 +36,11 @@ def get_dashboard_stats(
     total_requesters = db.query(User).filter(User.role == RoleEnum.requester).count()
     active_requests = (
         db.query(BloodRequest)
-        .filter(BloodRequest.status.in_(["pending", "in_progress"]))
+        .filter(BloodRequest.status.in_(["menunggu", "diproses", "pending", "in_progress"]))
         .count()
     )
     total_locations = (
-        db.query(DonorLocation).filter(DonorLocation.is_active == True).count()
+        db.query(DonorLocation).filter(DonorLocation.is_current == True).count()
     )
 
     return {

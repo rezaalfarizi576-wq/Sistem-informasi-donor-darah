@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -76,10 +76,37 @@ def activate_account(payload: ActivateAccount, db: Session = Depends(get_db)):
 
 
 @router.post("/login", response_model=Token)
-def login(payload: UserLogin, db: Session = Depends(get_db)):
-    """FR-01: Autentikasi pengguna, mengembalikan JWT access token."""
+async def login(request: Request, db: Session = Depends(get_db)):
+    """
+    FR-01: Autentikasi pengguna, mengembalikan JWT access token.
+    Mendukung format Form URL-Encoded (Swagger UI / OAuth2 / Flutter) dan JSON Body.
+    """
+    content_type = request.headers.get("content-type", "")
+    email = None
+    password = None
 
-    user = db.query(User).filter(User.email == payload.email).first()
+    if "application/x-www-form-urlencoded" in content_type or "multipart/form-data" in content_type:
+        form = await request.form()
+        email = form.get("username") or form.get("email")
+        password = form.get("password")
+    else:
+        try:
+            body = await request.json()
+            email = body.get("email") or body.get("username")
+            password = body.get("password")
+        except Exception:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Format data login tidak valid",
+            )
+
+    if not email or not password:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Email/username dan password wajib diisi",
+        )
+
+    user = db.query(User).filter(User.email == email).first()
 
     if not user:
         raise HTTPException(
@@ -93,7 +120,7 @@ def login(payload: UserLogin, db: Session = Depends(get_db)):
             detail="Akun belum diaktivasi. Silakan aktivasi dulu lewat /auth/activate",
         )
 
-    if not verify_password(payload.password, user.password_hash):
+    if not verify_password(password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Email atau password salah",
@@ -106,7 +133,11 @@ def login(payload: UserLogin, db: Session = Depends(get_db)):
         )
 
     token = create_access_token(user_id=user.id, role=user.role.value)
-    return Token(access_token=token)
+    return Token(
+        access_token=token,
+        token_type="bearer",
+        user=UserResponse.model_validate(user),
+    )
 
 
 @router.get("/me", response_model=UserResponse)
