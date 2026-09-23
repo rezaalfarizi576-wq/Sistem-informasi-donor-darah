@@ -7,8 +7,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 
 from app.database import SessionLocal
 from app.models import User, RoleEnum
-from app.auth import get_password_hash
-from scripts.pmi_schema import PMIDonorRecord
+from app.auth import hash_password
 
 def import_data():
     dataset_file = Path(__file__).parent.parent / "dummy_pmi_donors.json"
@@ -25,40 +24,47 @@ def import_data():
 
     try:
         for item in raw_donors:
-            record = PMIDonorRecord(**item)
+            nik = item.get("nik")
+            
+            # Skip if no NIK
+            if not nik:
+                skipped += 1
+                continue
 
-            # Cek apakah NIK sudah ada
-            existing = db.query(User).filter(User.nik == record.nik).first()
+            # Check if NIK already exists
+            existing = db.query(User).filter(User.nik == nik).first()
             if existing:
                 skipped += 1
                 continue
 
-            # Default password dummy untuk akun yang belum diaktivasi
-            temp_password_hash = get_password_hash("default_pmi_password")
-            dummy_email = f"{record.nik}@donordarah-lamongan.id"
+            # Use dummy email with NIK (will be replaced during activation)
+            dummy_email = f"{nik}@donordarah-lamongan.id"
+            
+            # Create temporary password hash (will be replaced during activation)
+            temp_password_hash = hash_password("default_pmi_password")
 
             user = User(
-                nik=record.nik,
-                nama=record.nama_lengkap,
+                nik=nik,
+                nama=item.get("nama", ""),
                 email=dummy_email,
+                no_hp=item.get("no_hp", ""),
                 password_hash=temp_password_hash,
                 role=RoleEnum.donor,
-                no_hp=record.no_telepon,
-                blood_type=record.golongan_darah,
-                rhesus=record.rhesus,
-                address=record.alamat,
+                blood_type=item.get("golongan_darah"),
+                rhesus=item.get("rhesus"),
                 sumber_data="pmi_pusat",
                 is_activated=False,
                 status_aktif=True,
+                id_pmi=item.get("id_pmi"),
             )
             db.add(user)
             imported += 1
 
         db.commit()
-        print(f"Proses impor selesai: {imported} pendonor diimpor, {skipped} dilewati (sudah terdaftar).")
+        print(f"✓ Proses impor selesai: {imported} pendonor diimpor, {skipped} dilewati (sudah terdaftar).")
     except Exception as e:
         db.rollback()
-        print(f"Error saat impor data: {e}")
+        print(f"✗ Error saat impor data: {e}")
     finally:
         db.close()
 

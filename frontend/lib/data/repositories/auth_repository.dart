@@ -37,7 +37,7 @@ class AuthRepository {
     required String nik,
     required String email,
     required String password,
-    String? phone,
+    required String phone,
   }) async {
     final response = await _apiClient.post('/auth/activate', body: {
       'nik': nik,

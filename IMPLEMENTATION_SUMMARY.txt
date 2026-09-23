@@ -1,0 +1,228 @@
+================================================================================
+RINGKASAN IMPLEMENTASI: ACCOUNT ACTIVATION DONOR VIA NIK
+================================================================================
+
+Status: SELESAI (6/7 tahap)
+Tanggal: 2026-09-23
+Version: 1.0
+
+================================================================================
+MASALAH YANG DISELESAIKAN
+================================================================================
+
+BEFORE (Tidak Selaras):
+  Frontend    -> Kirim: nik, email, phone, password
+  Backend     -> Terima: email, no_hp, password_baru (BEDA!)
+  Data        -> Tidak ada NIK field
+  Validasi    -> Via email + no_hp (tidak unik untuk donor baru)
+
+AFTER (Selaras Sempurna):
+  Frontend    -> Kirim: nik, email, phone, password
+  Backend     -> Terima: nik, email, phone, password (SAMA!)
+  Data        -> Ada NIK field (3524XXXXXXXXXXXX)
+  Validasi    -> Via NIK (unik dan spesifik untuk setiap donor)
+
+================================================================================
+FILE-FILE YANG DIUBAH (7 files)
+================================================================================
+
+1. backend/dummy_pmi_donors.json
+   - Tambahkan field "nik" ke semua 150 donor records
+   - Format: "3524000000000001" hingga "3524000000000150"
+
+2. backend/app/models.py
+   - Tambahkan: nik = Column(String(16), unique=True, nullable=True, index=True)
+
+3. backend/app/schemas.py
+   - Update ActivateAccount schema:
+     OLD: email, no_hp, password_baru
+     NEW: nik, email, phone, password
+
+4. backend/app/routers/auth_router.py
+   - Update /auth/activate endpoint
+   - Validasi via NIK (bukan email + no_hp)
+   - Update email, no_hp, password dari payload
+
+5. backend/scripts/import_pmi_dataset.py
+   - Update script untuk import dengan NIK
+
+6. frontend/lib/data/repositories/auth_repository.dart
+   - Parameter phone menjadi required
+
+7. ACTIVATION_IMPLEMENTATION_GUIDE.md
+   - Dokumentasi lengkap implementasi
+   - Testing steps (Postman, Flutter)
+
+================================================================================
+CHECKLIST IMPLEMENTASI
+================================================================================
+
+[✓] Step 1: Add NIK field to dummy_pmi_donors.json
+    - 150 donors ditambahkan NIK Lamongan format
+    - Verified: Donor 1 = 3524000000000001
+    
+[✓] Step 2: Update User model dengan nik field
+    - nik column: String(16), unique=True, index=True
+    
+[✓] Step 3: Fix ActivateAccount schema
+    - Ubah schema sesuai frontend payload
+    
+[✓] Step 4: Update /auth/activate endpoint
+    - Validasi via NIK sebagai primary identifier
+    
+[✓] Step 5: Update Flutter auth_repository
+    - Payload benar: nik, email, phone, password
+    
+[✓] Step 6: Create migration script
+    - import_pmi_dataset.py updated
+    
+[ ] Step 7: End-to-End Testing (PENDING)
+
+================================================================================
+FLOW ALUR AKTIVASI AKUN DONOR
+================================================================================
+
+1. USER (Flutter App)
+   Input: NIK + Email Baru + Phone Baru + Password
+
+2. FRONTEND
+   POST /auth/activate
+   {
+     "nik": "3524000000000001",
+     "email": "user.baru@gmail.com",
+     "phone": "082123456789",
+     "password": "password123"
+   }
+
+3. BACKEND
+   - Cari user by nik
+   - Validasi: sumber_data == "pmi_pusat"
+   - Validasi: is_activated == False
+   - Validasi email & phone tidak duplikat
+   - Update: email, no_hp, password_hash
+   - Set: is_activated = True
+
+4. RESPONSE
+   Status 200 OK
+   {
+     "id": 1,
+     "nama": "Ahmad Rahayu",
+     "email": "user.baru@gmail.com",
+     "no_hp": "082123456789",
+     "is_activated": true
+   }
+
+5. USER
+   - Login dengan email & password baru
+   - Dapatkan JWT token
+   - Akses aplikasi sebagai donor
+
+================================================================================
+TESTING CHECKLIST
+================================================================================
+
+PERSIAPAN:
+[ ] Run: python backend/scripts/import_pmi_dataset.py
+    Expected: "Proses impor selesai: 150 pendonor diimpor"
+
+TEST VIA POSTMAN:
+
+[ ] Test Case 1: Sukses Aktivasi
+    NIK: 3524000000000001
+    Email: new.email@test.com
+    Phone: 082199999999
+    Password: test123456
+    Expected: 200 OK + is_activated = true
+
+[ ] Test Case 2: NIK Tidak Ditemukan
+    NIK: 9999999999999999
+    Expected: 404 + "NIK tidak ditemukan di data terdaftar PMI Lamongan"
+
+[ ] Test Case 3: Akun Sudah Diaktivasi
+    NIK: 3524000000000001 (kedua kalinya)
+    Expected: 409 + "Akun sudah pernah diaktivasi, silakan login"
+
+[ ] Test Case 4: Email Duplikat
+    NIK: 3524000000000002
+    Email: new.email@test.com (dari test case 1)
+    Expected: 409 + "Email sudah terdaftar di sistem"
+
+[ ] Test Case 5: Phone Duplikat
+    NIK: 3524000000000003
+    Phone: 082199999999 (dari test case 1)
+    Expected: 409 + "Nomor HP sudah terdaftar di sistem"
+
+TEST LOGIN SETELAH AKTIVASI:
+[ ] Login dengan email baru dari test case 1
+    Email: new.email@test.com
+    Password: test123456
+    Expected: 200 OK + access_token
+
+TEST VIA FLUTTER APP:
+[ ] Open Activate Account Screen
+[ ] Input NIK dari donor (cth: 3524000000000001)
+[ ] Input Email Baru
+[ ] Input Phone Baru
+[ ] Input Password (min 6 char)
+[ ] Klik "Aktivasi Akun"
+[ ] Verify: Success snackbar muncul
+[ ] Verify: Navigate ke Login screen
+[ ] Login dengan email & password baru
+[ ] Verify: User berhasil login
+
+================================================================================
+DATABASE MIGRATION
+================================================================================
+
+Sebelum testing:
+1. Database sudah dibuat
+2. Tabel users sudah ada struktur terbaru
+3. Column "nik" sudah ada di tabel users
+4. Jalankan: python backend/scripts/import_pmi_dataset.py
+
+Jika migration belum dilakukan:
+1. Hapus data lama atau gunakan database baru
+2. Run: python backend/setup_database.py
+3. Run: python backend/scripts/import_pmi_dataset.py
+
+================================================================================
+NEXT STEPS
+================================================================================
+
+IMMEDIATE:
+1. Setup database fresh atau migration (add nik column)
+2. Run: python scripts/import_pmi_dataset.py
+3. Test via Postman sesuai test cases
+4. Test via Flutter app
+
+OPTIONAL ENHANCEMENTS:
+1. Add OTP verification untuk extra security
+2. Add audit logging untuk track aktivasi
+3. Add email verification setelah aktivasi
+4. Add SMS notification ke nomor HP baru
+5. Add rate limiting untuk prevent brute force
+
+================================================================================
+SAMPLE TEST DATA (NIK DONOR)
+================================================================================
+
+Donor 1:   3524000000000001 - Ahmad Rahayu
+Donor 2:   3524000000000002 - Bayu Pratama
+Donor 3:   3524000000000003 - Eko Handoko
+...
+Donor 150: 3524000000000150 - (Last donor)
+
+Gunakan NIK di atas untuk testing activation flow.
+
+================================================================================
+NOTES PENTING
+================================================================================
+
+1. NIK adalah identifier UNIK untuk setiap donor dari PMI
+2. Email dan phone AKAN DIUPDATE selama aktivasi
+3. Akun HANYA BISA diaktivasi 1x - setelah itu login langsung
+4. Password dummy HANYA untuk import, akan diganti saat aktivasi
+5. sumber_data = "pmi_pusat" menandakan akun dari impor PMI
+6. is_activated = False setelah impor, True setelah aktivasi
+
+================================================================================

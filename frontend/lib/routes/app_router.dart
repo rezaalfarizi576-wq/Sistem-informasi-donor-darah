@@ -9,7 +9,7 @@ import '../features/requester/screens/live_tracking_screen.dart';
 import '../features/donor/screens/notification_screen.dart';
 import '../features/donor/screens/respond_request_screen.dart';
 import '../features/donor/screens/donation_history_screen.dart';
-import '../features/admin/screens/dashboard_screen.dart';
+import '../features/admin/screens/admin_shell_screen.dart';
 
 class AppRouter {
   static const String initialRoute = '/';
@@ -67,7 +67,7 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const DonationHistoryScreen());
 
       case adminDashboardRoute:
-        return MaterialPageRoute(builder: (_) => const AdminDashboardScreen());
+        return MaterialPageRoute(builder: (_) => const AdminShellScreen());
 
       default:
         return MaterialPageRoute(

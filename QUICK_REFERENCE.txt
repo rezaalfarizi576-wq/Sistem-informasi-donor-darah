@@ -1,0 +1,244 @@
+QUICK REFERENCE: NIK-Based Account Activation
+===============================================
+
+PROJECT: Donor Darah Lamongan
+FEATURE: Account Activation via NIK (16 Digit)
+STATUS: IMPLEMENTATION COMPLETE
+
+===============================================
+WHAT CHANGED
+===============================================
+
+Before: Backend expected (email + no_hp) to find donor
+After:  Backend expects (nik) to find donor - MORE SECURE & UNIQUE
+
+Backend endpoint /auth/activate now:
+  INPUT:  { nik, email, phone, password }
+  LOOKUP: Find donor by nik (primary identifier)
+  UPDATE: Set email, phone, password_hash
+  OUTPUT: Updated user object with is_activated=true
+
+===============================================
+KEY FILES MODIFIED (7 TOTAL)
+===============================================
+
+1. dummy_pmi_donors.json
+   Added: nik field (3524000000000001 to 3524000000000150)
+
+2. models.py
+   Added: nik = Column(String(16), unique=True, index=True)
+
+3. schemas.py
+   Changed: ActivateAccount payload structure
+   
+4. auth_router.py
+   Changed: /auth/activate validation & logic
+
+5. auth_repository.dart
+   Changed: activateAccount() payload
+
+6. import_pmi_dataset.py
+   Changed: Updated for NIK import
+
+7. ACTIVATION_IMPLEMENTATION_GUIDE.md (NEW)
+   Testing documentation
+
+===============================================
+TO START TESTING
+===============================================
+
+Step 1: Setup Database
+  python backend/scripts/import_pmi_dataset.py
+
+Step 2: Test Endpoint (Postman)
+  POST http://localhost:8000/auth/activate
+  Content-Type: application/json
+  
+  {
+    "nik": "3524000000000001",
+    "email": "newuser@gmail.com",
+    "phone": "082123456789",
+    "password": "password123"
+  }
+
+Step 3: Verify Response
+  Should get 200 OK with is_activated=true
+
+Step 4: Login
+  POST http://localhost:8000/auth/login
+  Content-Type: application/x-www-form-urlencoded
+  
+  username=newuser@gmail.com&password=password123
+
+Step 5: Test Flutter App
+  - Open Activate Account Screen
+  - Input: NIK + Email + Phone + Password
+  - Verify: Success & redirect to login
+
+===============================================
+SAMPLE NIK FOR TESTING
+===============================================
+
+Use any of these NIK values:
+
+3524000000000001 - Ahmad Rahayu
+3524000000000002 - Bayu Pratama
+3524000000000003 - Eko Handoko
+3524000000000004 - Sari Rahayu
+3524000000000005 - Novita Nugroho
+...
+3524000000000150 - (Last donor)
+
+===============================================
+ERROR MESSAGES & MEANINGS
+===============================================
+
+404 - NIK tidak ditemukan di data terdaftar PMI Lamongan
+      => NIK tidak ada di database (typo atau belum diimpor)
+
+409 - Akun sudah pernah diaktivasi, silakan login
+      => Akun sudah pernah aktivasi, gunakan login biasa
+
+409 - Email sudah terdaftar di sistem
+      => Email yang diinput sudah dipakai user lain
+
+409 - Nomor HP sudah terdaftar di sistem
+      => Nomor HP yang diinput sudah dipakai user lain
+
+400 - Akun ini bukan hasil impor PMI Pusat
+      => User bukan dari impor (registrasi mandiri)
+
+===============================================
+SUCCESS INDICATORS
+===============================================
+
+✓ 150 donors imported with unique NIK
+✓ Database has nik column in users table
+✓ Postman returns 200 OK + is_activated=true
+✓ Login works with new email & password
+✓ Flutter app shows success message
+✓ User can access app as donor
+
+===============================================
+VALIDATION RULES
+===============================================
+
+NIK:
+  - Must be exactly 16 digits
+  - Must exist in database
+  - Must be from sumber_data = "pmi_pusat"
+  - Must not already be activated
+
+Email:
+  - Must be valid email format
+  - Must not already be in use
+
+Phone:
+  - Must be 8-20 characters
+  - Must not already be in use
+
+Password:
+  - Must be at least 6 characters
+  - Will be hashed before storage
+
+===============================================
+DATABASE REQUIREMENTS
+===============================================
+
+Table: users
+Columns needed:
+  - id (BigInteger, PK)
+  - nik (String 16, UNIQUE, INDEX) ← NEW
+  - email (String 150, UNIQUE)
+  - no_hp (String 20, UNIQUE)
+  - password_hash (String 255)
+  - sumber_data (String 20)
+  - is_activated (Boolean)
+  - All other existing columns
+
+===============================================
+FLOW DIAGRAM
+===============================================
+
+Flutter App
+    ↓
+[Input NIK + Email + Phone + Password]
+    ↓
+POST /auth/activate
+    ↓
+Backend: Find donor by NIK
+    ↓
+Validate: sumber_data=="pmi_pusat" && is_activated==false
+    ↓
+Check: Email & Phone not in use
+    ↓
+Update: email, no_hp, password_hash, is_activated=true
+    ↓
+Response: 200 OK + User object
+    ↓
+Flutter: Show success → Navigate to login
+    ↓
+POST /auth/login (with new email & password)
+    ↓
+Response: JWT Token
+    ↓
+User logged in as donor
+
+===============================================
+TROUBLESHOOTING
+===============================================
+
+Problem: NIK not found
+Solution: Run import script: python scripts/import_pmi_dataset.py
+
+Problem: Database error (column nik doesn't exist)
+Solution: Ensure database schema updated with nik column
+
+Problem: 409 Conflict on email/phone
+Solution: Use different email/phone or different NIK
+
+Problem: Flutter doesn't send phone parameter
+Solution: Check auth_repository.dart - phone should be required
+
+Problem: Backend receives wrong payload
+Solution: Check Content-Type header = application/json
+
+===============================================
+NEXT ENHANCEMENTS (OPTIONAL)
+===============================================
+
+1. Add OTP SMS verification
+2. Add email confirmation link
+3. Add rate limiting (max 5 attempts/hour)
+4. Add audit trail logging
+5. Add SMS notification to new phone
+6. Add password reset via email
+7. Add 2FA security option
+
+===============================================
+SUPPORT DOCUMENTS
+===============================================
+
+1. ACTIVATION_IMPLEMENTATION_GUIDE.md
+   - Full documentation
+   - Detailed testing steps
+   - Sample test data
+
+2. IMPLEMENTATION_SUMMARY.txt
+   - Complete change summary
+   - File-by-file breakdown
+   - Testing checklist
+
+3. This file
+   - Quick reference
+
+===============================================
+LAST UPDATED
+===============================================
+
+Date: 2026-09-23 09:58 UTC
+Version: 1.0
+Status: IMPLEMENTATION COMPLETE
+Author: Kiro Development Environment
+
+Ready for end-to-end testing!

@@ -11,7 +11,8 @@
     "latitude": -6.9770716,
     "longitude": 112.4054588,
     "tanggal_donor_terakhir": "2026-06-19",
-    "status_kelayakan": "belum_layak"
+    "status_kelayakan": "belum_layak",
+    "nik": "3524000000000001"
   },
   {
     "id_pmi": "PMI-LMG-00002",
@@ -25,7 +26,8 @@
     "latitude": -7.0924502,
     "longitude": 112.2051408,
     "tanggal_donor_terakhir": "2025-07-14",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000002"
   },
   {
     "id_pmi": "PMI-LMG-00003",
@@ -39,7 +41,8 @@
     "latitude": -7.1316851,
     "longitude": 112.4055126,
     "tanggal_donor_terakhir": "2025-10-07",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000003"
   },
   {
     "id_pmi": "PMI-LMG-00004",
@@ -53,7 +56,8 @@
     "latitude": -7.119262,
     "longitude": 112.374377,
     "tanggal_donor_terakhir": "2026-05-12",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000004"
   },
   {
     "id_pmi": "PMI-LMG-00005",
@@ -67,7 +71,8 @@
     "latitude": -7.0792178,
     "longitude": 112.3604505,
     "tanggal_donor_terakhir": "2025-11-24",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000005"
   },
   {
     "id_pmi": "PMI-LMG-00006",
@@ -81,7 +86,8 @@
     "latitude": -6.9487892,
     "longitude": 112.453807,
     "tanggal_donor_terakhir": "2026-07-05",
-    "status_kelayakan": "belum_layak"
+    "status_kelayakan": "belum_layak",
+    "nik": "3524000000000006"
   },
   {
     "id_pmi": "PMI-LMG-00007",
@@ -95,7 +101,8 @@
     "latitude": -6.8714735,
     "longitude": 112.3867846,
     "tanggal_donor_terakhir": "2025-10-19",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000007"
   },
   {
     "id_pmi": "PMI-LMG-00008",
@@ -109,7 +116,8 @@
     "latitude": -7.0284746,
     "longitude": 112.3696872,
     "tanggal_donor_terakhir": "2025-10-29",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000008"
   },
   {
     "id_pmi": "PMI-LMG-00009",
@@ -123,7 +131,8 @@
     "latitude": -6.9301349,
     "longitude": 112.4124547,
     "tanggal_donor_terakhir": "2025-12-21",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000009"
   },
   {
     "id_pmi": "PMI-LMG-00010",
@@ -137,7 +146,8 @@
     "latitude": -7.0682594,
     "longitude": 112.3142313,
     "tanggal_donor_terakhir": "2026-05-27",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000010"
   },
   {
     "id_pmi": "PMI-LMG-00011",
@@ -151,7 +161,8 @@
     "latitude": -7.0131551,
     "longitude": 112.2281646,
     "tanggal_donor_terakhir": "2026-09-05",
-    "status_kelayakan": "belum_layak"
+    "status_kelayakan": "belum_layak",
+    "nik": "3524000000000011"
   },
   {
     "id_pmi": "PMI-LMG-00012",
@@ -165,7 +176,8 @@
     "latitude": -7.1696094,
     "longitude": 112.2591489,
     "tanggal_donor_terakhir": "2025-12-21",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000012"
   },
   {
     "id_pmi": "PMI-LMG-00013",
@@ -179,7 +191,8 @@
     "latitude": -7.0588864,
     "longitude": 112.3775004,
     "tanggal_donor_terakhir": "2026-09-16",
-    "status_kelayakan": "belum_layak"
+    "status_kelayakan": "belum_layak",
+    "nik": "3524000000000013"
   },
   {
     "id_pmi": "PMI-LMG-00014",
@@ -193,7 +206,8 @@
     "latitude": -7.1867651,
     "longitude": 111.8793943,
     "tanggal_donor_terakhir": "2026-06-28",
-    "status_kelayakan": "belum_layak"
+    "status_kelayakan": "belum_layak",
+    "nik": "3524000000000014"
   },
   {
     "id_pmi": "PMI-LMG-00015",
@@ -207,7 +221,8 @@
     "latitude": -7.2613949,
     "longitude": 112.126107,
     "tanggal_donor_terakhir": "2025-07-10",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000015"
   },
   {
     "id_pmi": "PMI-LMG-00016",
@@ -221,7 +236,8 @@
     "latitude": -7.1490154,
     "longitude": 112.1670594,
     "tanggal_donor_terakhir": "2026-01-06",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000016"
   },
   {
     "id_pmi": "PMI-LMG-00017",
@@ -235,7 +251,8 @@
     "latitude": -7.1120603,
     "longitude": 112.2017441,
     "tanggal_donor_terakhir": "2026-01-25",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000017"
   },
   {
     "id_pmi": "PMI-LMG-00018",
@@ -249,7 +266,8 @@
     "latitude": -7.0434306,
     "longitude": 112.3759341,
     "tanggal_donor_terakhir": "2025-05-20",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000018"
   },
   {
     "id_pmi": "PMI-LMG-00019",
@@ -263,7 +281,8 @@
     "latitude": -7.2295559,
     "longitude": 112.3265535,
     "tanggal_donor_terakhir": "2026-07-23",
-    "status_kelayakan": "belum_layak"
+    "status_kelayakan": "belum_layak",
+    "nik": "3524000000000019"
   },
   {
     "id_pmi": "PMI-LMG-00020",
@@ -277,7 +296,8 @@
     "latitude": -7.0435486,
     "longitude": 112.3526073,
     "tanggal_donor_terakhir": "2026-03-13",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000020"
   },
   {
     "id_pmi": "PMI-LMG-00021",
@@ -291,7 +311,8 @@
     "latitude": -7.1703142,
     "longitude": 111.8783235,
     "tanggal_donor_terakhir": "2026-09-01",
-    "status_kelayakan": "belum_layak"
+    "status_kelayakan": "belum_layak",
+    "nik": "3524000000000021"
   },
   {
     "id_pmi": "PMI-LMG-00022",
@@ -305,7 +326,8 @@
     "latitude": -7.0038411,
     "longitude": 112.4814124,
     "tanggal_donor_terakhir": "2025-12-19",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000022"
   },
   {
     "id_pmi": "PMI-LMG-00023",
@@ -319,7 +341,8 @@
     "latitude": -7.178292,
     "longitude": 112.2433393,
     "tanggal_donor_terakhir": "2026-07-16",
-    "status_kelayakan": "belum_layak"
+    "status_kelayakan": "belum_layak",
+    "nik": "3524000000000023"
   },
   {
     "id_pmi": "PMI-LMG-00024",
@@ -333,7 +356,8 @@
     "latitude": -6.8674463,
     "longitude": 112.2691409,
     "tanggal_donor_terakhir": "2026-07-09",
-    "status_kelayakan": "belum_layak"
+    "status_kelayakan": "belum_layak",
+    "nik": "3524000000000024"
   },
   {
     "id_pmi": "PMI-LMG-00025",
@@ -347,7 +371,8 @@
     "latitude": -7.1716247,
     "longitude": 111.873469,
     "tanggal_donor_terakhir": "2025-03-30",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000025"
   },
   {
     "id_pmi": "PMI-LMG-00026",
@@ -361,7 +386,8 @@
     "latitude": -6.9131324,
     "longitude": 112.4019999,
     "tanggal_donor_terakhir": "2025-10-28",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000026"
   },
   {
     "id_pmi": "PMI-LMG-00027",
@@ -375,7 +401,8 @@
     "latitude": -7.0447646,
     "longitude": 112.3522983,
     "tanggal_donor_terakhir": "2025-09-24",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000027"
   },
   {
     "id_pmi": "PMI-LMG-00028",
@@ -389,7 +416,8 @@
     "latitude": -7.0881855,
     "longitude": 112.1986841,
     "tanggal_donor_terakhir": "2026-06-02",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000028"
   },
   {
     "id_pmi": "PMI-LMG-00029",
@@ -403,7 +431,8 @@
     "latitude": -7.0445748,
     "longitude": 112.2207152,
     "tanggal_donor_terakhir": "2025-12-20",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000029"
   },
   {
     "id_pmi": "PMI-LMG-00030",
@@ -417,7 +446,8 @@
     "latitude": -6.8799328,
     "longitude": 112.3341418,
     "tanggal_donor_terakhir": "2026-05-06",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000030"
   },
   {
     "id_pmi": "PMI-LMG-00031",
@@ -431,7 +461,8 @@
     "latitude": -7.1394902,
     "longitude": 112.3108243,
     "tanggal_donor_terakhir": "2026-04-17",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000031"
   },
   {
     "id_pmi": "PMI-LMG-00032",
@@ -445,7 +476,8 @@
     "latitude": -7.1840697,
     "longitude": 111.8926593,
     "tanggal_donor_terakhir": "2026-08-07",
-    "status_kelayakan": "belum_layak"
+    "status_kelayakan": "belum_layak",
+    "nik": "3524000000000032"
   },
   {
     "id_pmi": "PMI-LMG-00033",
@@ -459,7 +491,8 @@
     "latitude": -7.0230209,
     "longitude": 112.2440306,
     "tanggal_donor_terakhir": "2026-01-17",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000033"
   },
   {
     "id_pmi": "PMI-LMG-00034",
@@ -473,7 +506,8 @@
     "latitude": -7.2116321,
     "longitude": 112.1560511,
     "tanggal_donor_terakhir": "2025-08-21",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000034"
   },
   {
     "id_pmi": "PMI-LMG-00035",
@@ -487,7 +521,8 @@
     "latitude": -6.8591862,
     "longitude": 112.3431038,
     "tanggal_donor_terakhir": "2026-08-23",
-    "status_kelayakan": "belum_layak"
+    "status_kelayakan": "belum_layak",
+    "nik": "3524000000000035"
   },
   {
     "id_pmi": "PMI-LMG-00036",
@@ -501,7 +536,8 @@
     "latitude": -6.8786238,
     "longitude": 112.4051807,
     "tanggal_donor_terakhir": "2025-10-12",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000036"
   },
   {
     "id_pmi": "PMI-LMG-00037",
@@ -515,7 +551,8 @@
     "latitude": -7.0356174,
     "longitude": 112.2361418,
     "tanggal_donor_terakhir": "2025-10-30",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000037"
   },
   {
     "id_pmi": "PMI-LMG-00038",
@@ -529,7 +566,8 @@
     "latitude": -7.0645577,
     "longitude": 112.3547968,
     "tanggal_donor_terakhir": "2026-02-27",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000038"
   },
   {
     "id_pmi": "PMI-LMG-00039",
@@ -543,7 +581,8 @@
     "latitude": -7.1640794,
     "longitude": 112.2097902,
     "tanggal_donor_terakhir": "2025-11-13",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000039"
   },
   {
     "id_pmi": "PMI-LMG-00040",
@@ -557,7 +596,8 @@
     "latitude": -7.0481821,
     "longitude": 112.3846145,
     "tanggal_donor_terakhir": "2026-03-22",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000040"
   },
   {
     "id_pmi": "PMI-LMG-00041",
@@ -571,7 +611,8 @@
     "latitude": -7.0478045,
     "longitude": 112.3701994,
     "tanggal_donor_terakhir": "2025-10-22",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000041"
   },
   {
     "id_pmi": "PMI-LMG-00042",
@@ -585,7 +626,8 @@
     "latitude": -7.1663819,
     "longitude": 112.2663176,
     "tanggal_donor_terakhir": "2025-10-08",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000042"
   },
   {
     "id_pmi": "PMI-LMG-00043",
@@ -599,7 +641,8 @@
     "latitude": -7.1866063,
     "longitude": 111.8757055,
     "tanggal_donor_terakhir": "2026-07-04",
-    "status_kelayakan": "belum_layak"
+    "status_kelayakan": "belum_layak",
+    "nik": "3524000000000043"
   },
   {
     "id_pmi": "PMI-LMG-00044",
@@ -613,7 +656,8 @@
     "latitude": -6.9800971,
     "longitude": 112.4035049,
     "tanggal_donor_terakhir": "2026-05-30",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000044"
   },
   {
     "id_pmi": "PMI-LMG-00045",
@@ -627,7 +671,8 @@
     "latitude": -6.9493012,
     "longitude": 112.3808543,
     "tanggal_donor_terakhir": "2026-05-03",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000045"
   },
   {
     "id_pmi": "PMI-LMG-00046",
@@ -641,7 +686,8 @@
     "latitude": -7.2127772,
     "longitude": 112.3139149,
     "tanggal_donor_terakhir": "2026-04-07",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000046"
   },
   {
     "id_pmi": "PMI-LMG-00047",
@@ -655,7 +701,8 @@
     "latitude": -6.8894302,
     "longitude": 112.3955949,
     "tanggal_donor_terakhir": "2025-11-28",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000047"
   },
   {
     "id_pmi": "PMI-LMG-00048",
@@ -669,7 +716,8 @@
     "latitude": -6.9706786,
     "longitude": 112.3821122,
     "tanggal_donor_terakhir": "2026-02-09",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000048"
   },
   {
     "id_pmi": "PMI-LMG-00049",
@@ -683,7 +731,8 @@
     "latitude": -6.8741943,
     "longitude": 112.3701935,
     "tanggal_donor_terakhir": "2026-08-27",
-    "status_kelayakan": "belum_layak"
+    "status_kelayakan": "belum_layak",
+    "nik": "3524000000000049"
   },
   {
     "id_pmi": "PMI-LMG-00050",
@@ -697,7 +746,8 @@
     "latitude": -7.2380994,
     "longitude": 112.1268453,
     "tanggal_donor_terakhir": "2026-02-03",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000050"
   },
   {
     "id_pmi": "PMI-LMG-00051",
@@ -711,7 +761,8 @@
     "latitude": -7.2963982,
     "longitude": 112.2076956,
     "tanggal_donor_terakhir": "2026-05-09",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000051"
   },
   {
     "id_pmi": "PMI-LMG-00052",
@@ -725,7 +776,8 @@
     "latitude": -6.9053259,
     "longitude": 112.3972692,
     "tanggal_donor_terakhir": "2025-12-24",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000052"
   },
   {
     "id_pmi": "PMI-LMG-00053",
@@ -739,7 +791,8 @@
     "latitude": -7.1846036,
     "longitude": 112.1468123,
     "tanggal_donor_terakhir": "2026-07-25",
-    "status_kelayakan": "belum_layak"
+    "status_kelayakan": "belum_layak",
+    "nik": "3524000000000053"
   },
   {
     "id_pmi": "PMI-LMG-00054",
@@ -753,7 +806,8 @@
     "latitude": -7.0314308,
     "longitude": 112.3718534,
     "tanggal_donor_terakhir": "2026-01-15",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000054"
   },
   {
     "id_pmi": "PMI-LMG-00055",
@@ -767,7 +821,8 @@
     "latitude": -7.1532442,
     "longitude": 112.3302357,
     "tanggal_donor_terakhir": "2026-05-22",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000055"
   },
   {
     "id_pmi": "PMI-LMG-00056",
@@ -781,7 +836,8 @@
     "latitude": -6.9803412,
     "longitude": 112.3989332,
     "tanggal_donor_terakhir": "2026-01-11",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000056"
   },
   {
     "id_pmi": "PMI-LMG-00057",
@@ -795,7 +851,8 @@
     "latitude": -6.9416902,
     "longitude": 112.4534609,
     "tanggal_donor_terakhir": "2026-07-08",
-    "status_kelayakan": "belum_layak"
+    "status_kelayakan": "belum_layak",
+    "nik": "3524000000000057"
   },
   {
     "id_pmi": "PMI-LMG-00058",
@@ -809,7 +866,8 @@
     "latitude": -6.9375766,
     "longitude": 112.4601483,
     "tanggal_donor_terakhir": "2026-04-13",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000058"
   },
   {
     "id_pmi": "PMI-LMG-00059",
@@ -823,7 +881,8 @@
     "latitude": -7.1486601,
     "longitude": 112.323423,
     "tanggal_donor_terakhir": "2025-12-16",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000059"
   },
   {
     "id_pmi": "PMI-LMG-00060",
@@ -837,7 +896,8 @@
     "latitude": -7.1505867,
     "longitude": 112.3581596,
     "tanggal_donor_terakhir": "2026-08-18",
-    "status_kelayakan": "belum_layak"
+    "status_kelayakan": "belum_layak",
+    "nik": "3524000000000060"
   },
   {
     "id_pmi": "PMI-LMG-00061",
@@ -851,7 +911,8 @@
     "latitude": -7.0249526,
     "longitude": 112.2180507,
     "tanggal_donor_terakhir": "2026-09-06",
-    "status_kelayakan": "belum_layak"
+    "status_kelayakan": "belum_layak",
+    "nik": "3524000000000061"
   },
   {
     "id_pmi": "PMI-LMG-00062",
@@ -865,7 +926,8 @@
     "latitude": -7.0629563,
     "longitude": 112.3624737,
     "tanggal_donor_terakhir": "2025-06-15",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000062"
   },
   {
     "id_pmi": "PMI-LMG-00063",
@@ -879,7 +941,8 @@
     "latitude": -6.9440696,
     "longitude": 112.4482369,
     "tanggal_donor_terakhir": "2025-07-08",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000063"
   },
   {
     "id_pmi": "PMI-LMG-00064",
@@ -893,7 +956,8 @@
     "latitude": -6.9811738,
     "longitude": 112.3837034,
     "tanggal_donor_terakhir": "2026-05-17",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000064"
   },
   {
     "id_pmi": "PMI-LMG-00065",
@@ -907,7 +971,8 @@
     "latitude": -7.1890166,
     "longitude": 112.1670643,
     "tanggal_donor_terakhir": "2025-03-28",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000065"
   },
   {
     "id_pmi": "PMI-LMG-00066",
@@ -921,7 +986,8 @@
     "latitude": -7.0069093,
     "longitude": 112.4703207,
     "tanggal_donor_terakhir": "2026-05-10",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000066"
   },
   {
     "id_pmi": "PMI-LMG-00067",
@@ -935,7 +1001,8 @@
     "latitude": -7.0919374,
     "longitude": 112.1952759,
     "tanggal_donor_terakhir": "2025-06-22",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000067"
   },
   {
     "id_pmi": "PMI-LMG-00068",
@@ -949,7 +1016,8 @@
     "latitude": -6.9983301,
     "longitude": 112.4140808,
     "tanggal_donor_terakhir": "2026-07-24",
-    "status_kelayakan": "belum_layak"
+    "status_kelayakan": "belum_layak",
+    "nik": "3524000000000068"
   },
   {
     "id_pmi": "PMI-LMG-00069",
@@ -963,7 +1031,8 @@
     "latitude": -7.2374223,
     "longitude": 112.1292527,
     "tanggal_donor_terakhir": "2026-01-28",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000069"
   },
   {
     "id_pmi": "PMI-LMG-00070",
@@ -977,7 +1046,8 @@
     "latitude": -7.0505908,
     "longitude": 112.2454044,
     "tanggal_donor_terakhir": "2026-06-07",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000070"
   },
   {
     "id_pmi": "PMI-LMG-00071",
@@ -991,7 +1061,8 @@
     "latitude": -6.8952387,
     "longitude": 112.2827407,
     "tanggal_donor_terakhir": "2025-05-23",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000071"
   },
   {
     "id_pmi": "PMI-LMG-00072",
@@ -1005,7 +1076,8 @@
     "latitude": -7.1864869,
     "longitude": 112.1530023,
     "tanggal_donor_terakhir": "2026-02-26",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000072"
   },
   {
     "id_pmi": "PMI-LMG-00073",
@@ -1019,7 +1091,8 @@
     "latitude": -7.1897631,
     "longitude": 111.8690045,
     "tanggal_donor_terakhir": "2025-11-25",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000073"
   },
   {
     "id_pmi": "PMI-LMG-00074",
@@ -1033,7 +1106,8 @@
     "latitude": -7.2482482,
     "longitude": 112.1082177,
     "tanggal_donor_terakhir": "2026-08-07",
-    "status_kelayakan": "belum_layak"
+    "status_kelayakan": "belum_layak",
+    "nik": "3524000000000074"
   },
   {
     "id_pmi": "PMI-LMG-00075",
@@ -1047,7 +1121,8 @@
     "latitude": -7.0749171,
     "longitude": 112.2033913,
     "tanggal_donor_terakhir": "2025-12-15",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000075"
   },
   {
     "id_pmi": "PMI-LMG-00076",
@@ -1061,7 +1136,8 @@
     "latitude": -7.1575646,
     "longitude": 112.3755698,
     "tanggal_donor_terakhir": "2026-06-15",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000076"
   },
   {
     "id_pmi": "PMI-LMG-00077",
@@ -1075,7 +1151,8 @@
     "latitude": -7.2182531,
     "longitude": 112.3035287,
     "tanggal_donor_terakhir": "2025-08-02",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000077"
   },
   {
     "id_pmi": "PMI-LMG-00078",
@@ -1089,7 +1166,8 @@
     "latitude": -7.0550029,
     "longitude": 112.284046,
     "tanggal_donor_terakhir": "2025-05-31",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000078"
   },
   {
     "id_pmi": "PMI-LMG-00079",
@@ -1103,7 +1181,8 @@
     "latitude": -7.0543178,
     "longitude": 112.3522405,
     "tanggal_donor_terakhir": "2025-11-26",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000079"
   },
   {
     "id_pmi": "PMI-LMG-00080",
@@ -1117,7 +1196,8 @@
     "latitude": -7.267453,
     "longitude": 112.1213196,
     "tanggal_donor_terakhir": "2026-01-29",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000080"
   },
   {
     "id_pmi": "PMI-LMG-00081",
@@ -1131,7 +1211,8 @@
     "latitude": -7.0597835,
     "longitude": 112.3006196,
     "tanggal_donor_terakhir": "2025-05-10",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000081"
   },
   {
     "id_pmi": "PMI-LMG-00082",
@@ -1145,7 +1226,8 @@
     "latitude": -7.2678269,
     "longitude": 112.2235611,
     "tanggal_donor_terakhir": "2025-12-08",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000082"
   },
   {
     "id_pmi": "PMI-LMG-00083",
@@ -1159,7 +1241,8 @@
     "latitude": -6.8675225,
     "longitude": 112.3739561,
     "tanggal_donor_terakhir": "2025-05-03",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000083"
   },
   {
     "id_pmi": "PMI-LMG-00084",
@@ -1173,7 +1256,8 @@
     "latitude": -7.025769,
     "longitude": 112.3565522,
     "tanggal_donor_terakhir": "2025-08-20",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000084"
   },
   {
     "id_pmi": "PMI-LMG-00085",
@@ -1187,7 +1271,8 @@
     "latitude": -7.246407,
     "longitude": 112.2350499,
     "tanggal_donor_terakhir": "2025-10-12",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000085"
   },
   {
     "id_pmi": "PMI-LMG-00086",
@@ -1201,7 +1286,8 @@
     "latitude": -6.8602017,
     "longitude": 112.3809931,
     "tanggal_donor_terakhir": "2025-12-19",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000086"
   },
   {
     "id_pmi": "PMI-LMG-00087",
@@ -1215,7 +1301,8 @@
     "latitude": -7.266564,
     "longitude": 112.1077368,
     "tanggal_donor_terakhir": "2025-11-26",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000087"
   },
   {
     "id_pmi": "PMI-LMG-00088",
@@ -1229,7 +1316,8 @@
     "latitude": -7.0700214,
     "longitude": 112.3351579,
     "tanggal_donor_terakhir": "2025-10-19",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000088"
   },
   {
     "id_pmi": "PMI-LMG-00089",
@@ -1243,7 +1331,8 @@
     "latitude": -7.147728,
     "longitude": 112.3502023,
     "tanggal_donor_terakhir": "2026-03-21",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000089"
   },
   {
     "id_pmi": "PMI-LMG-00090",
@@ -1257,7 +1346,8 @@
     "latitude": -6.9307125,
     "longitude": 112.4155162,
     "tanggal_donor_terakhir": "2025-06-03",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000090"
   },
   {
     "id_pmi": "PMI-LMG-00091",
@@ -1271,7 +1361,8 @@
     "latitude": -6.8838308,
     "longitude": 112.2802226,
     "tanggal_donor_terakhir": "2025-11-14",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000091"
   },
   {
     "id_pmi": "PMI-LMG-00092",
@@ -1285,7 +1376,8 @@
     "latitude": -7.2807339,
     "longitude": 112.2452546,
     "tanggal_donor_terakhir": "2025-09-14",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000092"
   },
   {
     "id_pmi": "PMI-LMG-00093",
@@ -1299,7 +1391,8 @@
     "latitude": -7.1403973,
     "longitude": 112.3741325,
     "tanggal_donor_terakhir": "2026-07-28",
-    "status_kelayakan": "belum_layak"
+    "status_kelayakan": "belum_layak",
+    "nik": "3524000000000093"
   },
   {
     "id_pmi": "PMI-LMG-00094",
@@ -1313,7 +1406,8 @@
     "latitude": -6.9605353,
     "longitude": 112.4008356,
     "tanggal_donor_terakhir": "2026-04-29",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000094"
   },
   {
     "id_pmi": "PMI-LMG-00095",
@@ -1327,7 +1421,8 @@
     "latitude": -7.1604056,
     "longitude": 112.3482565,
     "tanggal_donor_terakhir": "2025-11-18",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000095"
   },
   {
     "id_pmi": "PMI-LMG-00096",
@@ -1341,7 +1436,8 @@
     "latitude": -7.1847811,
     "longitude": 112.1382788,
     "tanggal_donor_terakhir": "2025-05-11",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000096"
   },
   {
     "id_pmi": "PMI-LMG-00097",
@@ -1355,7 +1451,8 @@
     "latitude": -7.1690313,
     "longitude": 112.2201977,
     "tanggal_donor_terakhir": "2025-09-07",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000097"
   },
   {
     "id_pmi": "PMI-LMG-00098",
@@ -1369,7 +1466,8 @@
     "latitude": -7.159759,
     "longitude": 112.368542,
     "tanggal_donor_terakhir": "2025-09-01",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000098"
   },
   {
     "id_pmi": "PMI-LMG-00099",
@@ -1383,7 +1481,8 @@
     "latitude": -6.8964713,
     "longitude": 112.4109542,
     "tanggal_donor_terakhir": "2025-11-11",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000099"
   },
   {
     "id_pmi": "PMI-LMG-00100",
@@ -1397,7 +1496,8 @@
     "latitude": -7.1386123,
     "longitude": 112.3109904,
     "tanggal_donor_terakhir": "2026-05-01",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000100"
   },
   {
     "id_pmi": "PMI-LMG-00101",
@@ -1411,7 +1511,8 @@
     "latitude": -7.2198031,
     "longitude": 112.3253477,
     "tanggal_donor_terakhir": "2025-07-26",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000101"
   },
   {
     "id_pmi": "PMI-LMG-00102",
@@ -1425,7 +1526,8 @@
     "latitude": -7.1032629,
     "longitude": 112.2901934,
     "tanggal_donor_terakhir": "2025-09-14",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000102"
   },
   {
     "id_pmi": "PMI-LMG-00103",
@@ -1439,7 +1541,8 @@
     "latitude": -6.8734203,
     "longitude": 112.4168437,
     "tanggal_donor_terakhir": "2026-07-27",
-    "status_kelayakan": "belum_layak"
+    "status_kelayakan": "belum_layak",
+    "nik": "3524000000000103"
   },
   {
     "id_pmi": "PMI-LMG-00104",
@@ -1453,7 +1556,8 @@
     "latitude": -7.0415447,
     "longitude": 112.3795221,
     "tanggal_donor_terakhir": "2026-01-21",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000104"
   },
   {
     "id_pmi": "PMI-LMG-00105",
@@ -1467,7 +1571,8 @@
     "latitude": -7.2579738,
     "longitude": 112.1119799,
     "tanggal_donor_terakhir": "2026-08-21",
-    "status_kelayakan": "belum_layak"
+    "status_kelayakan": "belum_layak",
+    "nik": "3524000000000105"
   },
   {
     "id_pmi": "PMI-LMG-00106",
@@ -1481,7 +1586,8 @@
     "latitude": -7.215904,
     "longitude": 112.1576687,
     "tanggal_donor_terakhir": "2025-03-27",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000106"
   },
   {
     "id_pmi": "PMI-LMG-00107",
@@ -1495,7 +1601,8 @@
     "latitude": -6.9481834,
     "longitude": 112.3777346,
     "tanggal_donor_terakhir": "2025-04-01",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000107"
   },
   {
     "id_pmi": "PMI-LMG-00108",
@@ -1509,7 +1616,8 @@
     "latitude": -7.1936815,
     "longitude": 112.2094961,
     "tanggal_donor_terakhir": "2025-06-19",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000108"
   },
   {
     "id_pmi": "PMI-LMG-00109",
@@ -1523,7 +1631,8 @@
     "latitude": -6.8755854,
     "longitude": 112.4064861,
     "tanggal_donor_terakhir": "2025-08-22",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000109"
   },
   {
     "id_pmi": "PMI-LMG-00110",
@@ -1537,7 +1646,8 @@
     "latitude": -6.8729633,
     "longitude": 112.4087585,
     "tanggal_donor_terakhir": "2026-02-08",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000110"
   },
   {
     "id_pmi": "PMI-LMG-00111",
@@ -1551,7 +1661,8 @@
     "latitude": -7.2991966,
     "longitude": 112.2060706,
     "tanggal_donor_terakhir": "2025-12-29",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000111"
   },
   {
     "id_pmi": "PMI-LMG-00112",
@@ -1565,7 +1676,8 @@
     "latitude": -7.2421374,
     "longitude": 112.3215518,
     "tanggal_donor_terakhir": "2026-05-06",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000112"
   },
   {
     "id_pmi": "PMI-LMG-00113",
@@ -1579,7 +1691,8 @@
     "latitude": -6.9280557,
     "longitude": 112.4646452,
     "tanggal_donor_terakhir": "2025-07-10",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000113"
   },
   {
     "id_pmi": "PMI-LMG-00114",
@@ -1593,7 +1706,8 @@
     "latitude": -7.0794904,
     "longitude": 112.3102695,
     "tanggal_donor_terakhir": "2026-01-30",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000114"
   },
   {
     "id_pmi": "PMI-LMG-00115",
@@ -1607,7 +1721,8 @@
     "latitude": -7.1038355,
     "longitude": 112.3784386,
     "tanggal_donor_terakhir": "2026-08-21",
-    "status_kelayakan": "belum_layak"
+    "status_kelayakan": "belum_layak",
+    "nik": "3524000000000115"
   },
   {
     "id_pmi": "PMI-LMG-00116",
@@ -1621,7 +1736,8 @@
     "latitude": -7.1076438,
     "longitude": 112.1822301,
     "tanggal_donor_terakhir": "2025-08-02",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000116"
   },
   {
     "id_pmi": "PMI-LMG-00117",
@@ -1635,7 +1751,8 @@
     "latitude": -7.0012067,
     "longitude": 112.4046358,
     "tanggal_donor_terakhir": "2025-09-03",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000117"
   },
   {
     "id_pmi": "PMI-LMG-00118",
@@ -1649,7 +1766,8 @@
     "latitude": -6.9888226,
     "longitude": 112.4439905,
     "tanggal_donor_terakhir": "2026-06-25",
-    "status_kelayakan": "belum_layak"
+    "status_kelayakan": "belum_layak",
+    "nik": "3524000000000118"
   },
   {
     "id_pmi": "PMI-LMG-00119",
@@ -1663,7 +1781,8 @@
     "latitude": -7.0348023,
     "longitude": 112.3515527,
     "tanggal_donor_terakhir": "2025-07-03",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000119"
   },
   {
     "id_pmi": "PMI-LMG-00120",
@@ -1677,7 +1796,8 @@
     "latitude": -6.9786222,
     "longitude": 112.3931913,
     "tanggal_donor_terakhir": "2026-02-19",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000120"
   },
   {
     "id_pmi": "PMI-LMG-00121",
@@ -1691,7 +1811,8 @@
     "latitude": -7.0950046,
     "longitude": 112.1937262,
     "tanggal_donor_terakhir": "2026-05-07",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000121"
   },
   {
     "id_pmi": "PMI-LMG-00122",
@@ -1705,7 +1826,8 @@
     "latitude": -7.3013079,
     "longitude": 112.1897497,
     "tanggal_donor_terakhir": "2026-06-29",
-    "status_kelayakan": "belum_layak"
+    "status_kelayakan": "belum_layak",
+    "nik": "3524000000000122"
   },
   {
     "id_pmi": "PMI-LMG-00123",
@@ -1719,7 +1841,8 @@
     "latitude": -7.0171657,
     "longitude": 112.4039907,
     "tanggal_donor_terakhir": "2025-06-02",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000123"
   },
   {
     "id_pmi": "PMI-LMG-00124",
@@ -1733,7 +1856,8 @@
     "latitude": -6.9970415,
     "longitude": 112.4068307,
     "tanggal_donor_terakhir": "2025-11-03",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000124"
   },
   {
     "id_pmi": "PMI-LMG-00125",
@@ -1747,7 +1871,8 @@
     "latitude": -7.0676019,
     "longitude": 112.3202369,
     "tanggal_donor_terakhir": "2025-09-24",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000125"
   },
   {
     "id_pmi": "PMI-LMG-00126",
@@ -1761,7 +1886,8 @@
     "latitude": -6.9095914,
     "longitude": 112.4162204,
     "tanggal_donor_terakhir": "2026-03-19",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000126"
   },
   {
     "id_pmi": "PMI-LMG-00127",
@@ -1775,7 +1901,8 @@
     "latitude": -7.1082301,
     "longitude": 112.4219887,
     "tanggal_donor_terakhir": "2026-04-15",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000127"
   },
   {
     "id_pmi": "PMI-LMG-00128",
@@ -1789,7 +1916,8 @@
     "latitude": -6.9427065,
     "longitude": 112.4394163,
     "tanggal_donor_terakhir": "2025-06-11",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000128"
   },
   {
     "id_pmi": "PMI-LMG-00129",
@@ -1803,7 +1931,8 @@
     "latitude": -7.0726207,
     "longitude": 112.3072132,
     "tanggal_donor_terakhir": "2026-08-05",
-    "status_kelayakan": "belum_layak"
+    "status_kelayakan": "belum_layak",
+    "nik": "3524000000000129"
   },
   {
     "id_pmi": "PMI-LMG-00130",
@@ -1817,7 +1946,8 @@
     "latitude": -7.1783791,
     "longitude": 111.8891387,
     "tanggal_donor_terakhir": "2025-09-30",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000130"
   },
   {
     "id_pmi": "PMI-LMG-00131",
@@ -1831,7 +1961,8 @@
     "latitude": -7.0670901,
     "longitude": 112.2903498,
     "tanggal_donor_terakhir": "2025-08-31",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000131"
   },
   {
     "id_pmi": "PMI-LMG-00132",
@@ -1845,7 +1976,8 @@
     "latitude": -7.1390198,
     "longitude": 112.4240352,
     "tanggal_donor_terakhir": "2025-11-30",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000132"
   },
   {
     "id_pmi": "PMI-LMG-00133",
@@ -1859,7 +1991,8 @@
     "latitude": -6.8710608,
     "longitude": 112.3936783,
     "tanggal_donor_terakhir": "2026-06-22",
-    "status_kelayakan": "belum_layak"
+    "status_kelayakan": "belum_layak",
+    "nik": "3524000000000133"
   },
   {
     "id_pmi": "PMI-LMG-00134",
@@ -1873,7 +2006,8 @@
     "latitude": -6.8721818,
     "longitude": 112.3983395,
     "tanggal_donor_terakhir": "2026-08-29",
-    "status_kelayakan": "belum_layak"
+    "status_kelayakan": "belum_layak",
+    "nik": "3524000000000134"
   },
   {
     "id_pmi": "PMI-LMG-00135",
@@ -1887,7 +2021,8 @@
     "latitude": -6.9338022,
     "longitude": 112.4018317,
     "tanggal_donor_terakhir": "2026-06-05",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000135"
   },
   {
     "id_pmi": "PMI-LMG-00136",
@@ -1901,7 +2036,8 @@
     "latitude": -6.9161101,
     "longitude": 112.3961701,
     "tanggal_donor_terakhir": "2026-03-15",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000136"
   },
   {
     "id_pmi": "PMI-LMG-00137",
@@ -1915,7 +2051,8 @@
     "latitude": -7.0416029,
     "longitude": 112.2369415,
     "tanggal_donor_terakhir": "2025-06-14",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000137"
   },
   {
     "id_pmi": "PMI-LMG-00138",
@@ -1929,7 +2066,8 @@
     "latitude": -7.1601148,
     "longitude": 112.2203776,
     "tanggal_donor_terakhir": "2025-06-01",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000138"
   },
   {
     "id_pmi": "PMI-LMG-00139",
@@ -1943,7 +2081,8 @@
     "latitude": -6.9050799,
     "longitude": 112.3920872,
     "tanggal_donor_terakhir": "2025-05-12",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000139"
   },
   {
     "id_pmi": "PMI-LMG-00140",
@@ -1957,7 +2096,8 @@
     "latitude": -7.1615875,
     "longitude": 112.3239728,
     "tanggal_donor_terakhir": "2025-04-09",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000140"
   },
   {
     "id_pmi": "PMI-LMG-00141",
@@ -1971,7 +2111,8 @@
     "latitude": -7.2438697,
     "longitude": 112.3120803,
     "tanggal_donor_terakhir": "2026-01-18",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000141"
   },
   {
     "id_pmi": "PMI-LMG-00142",
@@ -1985,7 +2126,8 @@
     "latitude": -6.9384679,
     "longitude": 112.4266958,
     "tanggal_donor_terakhir": "2025-05-21",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000142"
   },
   {
     "id_pmi": "PMI-LMG-00143",
@@ -1999,7 +2141,8 @@
     "latitude": -7.2093738,
     "longitude": 112.1339808,
     "tanggal_donor_terakhir": "2025-03-25",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000143"
   },
   {
     "id_pmi": "PMI-LMG-00144",
@@ -2013,7 +2156,8 @@
     "latitude": -7.2204419,
     "longitude": 112.3169124,
     "tanggal_donor_terakhir": "2026-07-14",
-    "status_kelayakan": "belum_layak"
+    "status_kelayakan": "belum_layak",
+    "nik": "3524000000000144"
   },
   {
     "id_pmi": "PMI-LMG-00145",
@@ -2027,7 +2171,8 @@
     "latitude": -7.2459374,
     "longitude": 112.3061126,
     "tanggal_donor_terakhir": "2025-07-17",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000145"
   },
   {
     "id_pmi": "PMI-LMG-00146",
@@ -2041,7 +2186,8 @@
     "latitude": -7.1709732,
     "longitude": 111.8959416,
     "tanggal_donor_terakhir": "2025-12-31",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000146"
   },
   {
     "id_pmi": "PMI-LMG-00147",
@@ -2055,7 +2201,8 @@
     "latitude": -7.2727328,
     "longitude": 112.1943364,
     "tanggal_donor_terakhir": "2025-09-21",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000147"
   },
   {
     "id_pmi": "PMI-LMG-00148",
@@ -2069,7 +2216,8 @@
     "latitude": -7.1156059,
     "longitude": 112.3846418,
     "tanggal_donor_terakhir": "2025-06-05",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000148"
   },
   {
     "id_pmi": "PMI-LMG-00149",
@@ -2083,7 +2231,8 @@
     "latitude": -7.072071,
     "longitude": 112.3166162,
     "tanggal_donor_terakhir": "2025-05-20",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000149"
   },
   {
     "id_pmi": "PMI-LMG-00150",
@@ -2097,6 +2246,7 @@
     "latitude": -7.213021,
     "longitude": 112.1427208,
     "tanggal_donor_terakhir": "2025-08-03",
-    "status_kelayakan": "layak"
+    "status_kelayakan": "layak",
+    "nik": "3524000000000150"
   }
 ]

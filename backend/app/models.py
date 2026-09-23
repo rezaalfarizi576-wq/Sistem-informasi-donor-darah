@@ -25,6 +25,7 @@ class User(Base):
     nama = Column(String(100), nullable=False)
     email = Column(String(150), unique=True, index=True, nullable=False)
     no_hp = Column(String(20), unique=True, nullable=False)
+    nik = Column(String(16), unique=True, nullable=True, index=True)
     password_hash = Column(String(255), nullable=True)
     role = Column(SQLEnum(RoleEnum), nullable=False, default=RoleEnum.donor)
     # Atribut Python tetap `blood_type`, kolom di database bernama `golongan_darah`

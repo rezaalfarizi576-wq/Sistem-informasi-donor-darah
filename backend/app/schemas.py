@@ -19,9 +19,10 @@ class UserLogin(BaseModel):
 
 
 class ActivateAccount(BaseModel):
+    nik: str = Field(..., min_length=16, max_length=16)
     email: EmailStr
-    no_hp: str
-    password_baru: str = Field(..., min_length=6)
+    phone: str = Field(..., min_length=8, max_length=20)
+    password: str = Field(..., min_length=6)
 
 
 class UserResponse(BaseModel):

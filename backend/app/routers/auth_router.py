@@ -45,17 +45,19 @@ def activate_account(payload: ActivateAccount, db: Session = Depends(get_db)):
     Aktivasi akun donor hasil impor PMI Pusat: donor men-set password
     pertama kalinya sebelum bisa login dan dipakai untuk menerima
     notifikasi permintaan darah.
+    
+    Validasi via NIK (16 digit), kemudian update email, phone, dan password baru.
     """
 
     user = (
         db.query(User)
-        .filter(User.email == payload.email, User.no_hp == payload.no_hp)
+        .filter(User.nik == payload.nik)
         .first()
     )
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Data tidak ditemukan. Pastikan email & no HP sesuai data terdaftar di PMI",
+            detail="NIK tidak ditemukan di data terdaftar PMI Lamongan",
         )
     if user.sumber_data != "pmi_pusat":
         raise HTTPException(
@@ -68,7 +70,25 @@ def activate_account(payload: ActivateAccount, db: Session = Depends(get_db)):
             detail="Akun sudah pernah diaktivasi, silakan login",
         )
 
-    user.password_hash = hash_password(payload.password_baru)
+    # Check if email already in use by another user
+    existing_email = db.query(User).filter(User.email == payload.email, User.id != user.id).first()
+    if existing_email:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Email sudah terdaftar di sistem",
+        )
+    
+    # Check if phone already in use by another user
+    existing_phone = db.query(User).filter(User.no_hp == payload.phone, User.id != user.id).first()
+    if existing_phone:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Nomor HP sudah terdaftar di sistem",
+        )
+
+    user.email = payload.email
+    user.no_hp = payload.phone
+    user.password_hash = hash_password(payload.password)
     user.is_activated = True
     db.commit()
     db.refresh(user)
