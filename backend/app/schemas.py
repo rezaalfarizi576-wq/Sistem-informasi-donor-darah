@@ -1,6 +1,6 @@
-from typing import Optional, List
+from typing import Optional, List, Any
 from datetime import datetime
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, model_validator
 from app.models import RoleEnum
 
 # --- AUTH & USER SCHEMAS ---
@@ -11,6 +11,20 @@ class UserRegister(BaseModel):
     no_hp: str = Field(..., min_length=8, max_length=20)
     password: str = Field(..., min_length=6)
     role: RoleEnum = Field(default=RoleEnum.requester)
+    nik: Optional[str] = None
+    blood_type: Optional[str] = None
+    rhesus: Optional[str] = None
+    address: Optional[str] = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def map_aliases(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            if "name" in data and "nama" not in data:
+                data["nama"] = data["name"]
+            if "phone" in data and "no_hp" not in data:
+                data["no_hp"] = data["phone"]
+        return data
 
 
 class UserLogin(BaseModel):
@@ -138,14 +152,37 @@ class DonorLocationResponse(DonorLocationBase):
 
 class BloodRequestBase(BaseModel):
     facility_id: Optional[int] = None
+    patient_name: Optional[str] = None
+    hospital_name: Optional[str] = None
     blood_type: str = Field(..., pattern="^(A|B|AB|O)$")
     rhesus: Optional[str] = Field("+", pattern="^(\\+|\\-)$")
     bags_needed: int = Field(1, ge=1)
-    urgency_level: str = Field("sedang", pattern="^(sedang|tinggi|kritis)$")
-    latitude_faskes: float
-    longitude_faskes: float
+    urgency_level: str = Field("sedang")
+    latitude_faskes: Optional[float] = -7.1118120
+    longitude_faskes: Optional[float] = 112.4131550
     radius_km: float = Field(5.0, gt=0)
-    notes: Optional[str] = Field(None, max_length=500)
+    notes: Optional[str] = Field(None, max_length=1000)
+    surat_dokter: Optional[str] = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_blood_request(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            urg = str(data.get("urgency_level", "sedang")).lower()
+            urg_map = {
+                "normal": "sedang",
+                "urgent": "tinggi",
+                "critical": "kritis",
+                "sedang": "sedang",
+                "tinggi": "tinggi",
+                "kritis": "kritis",
+            }
+            data["urgency_level"] = urg_map.get(urg, "sedang")
+            if not data.get("latitude_faskes"):
+                data["latitude_faskes"] = -7.1118120
+            if not data.get("longitude_faskes"):
+                data["longitude_faskes"] = 112.4131550
+        return data
 
 
 class BloodRequestCreate(BloodRequestBase):
@@ -156,6 +193,8 @@ class BloodRequestResponse(BloodRequestBase):
     id: int
     requester_id: int
     hospital_name: Optional[str] = None
+    patient_name: Optional[str] = None
+    surat_dokter: Optional[str] = None
     status: str
     created_at: datetime
     updated_at: Optional[datetime] = None

@@ -15,9 +15,11 @@ class BloodRequestModel {
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
-  // Fields for UI display (populated locally)
+  // Fields for UI display
   final String? requesterName;
   final String? requesterPhone;
+  final String? _rawPatientName;
+  final String? suratDokter;
 
   BloodRequestModel({
     required this.id,
@@ -37,12 +39,14 @@ class BloodRequestModel {
     this.updatedAt,
     this.requesterName,
     this.requesterPhone,
-  });
+    String? patientName,
+    this.suratDokter,
+  }) : _rawPatientName = patientName;
 
   factory BloodRequestModel.fromJson(Map<String, dynamic> json) {
     return BloodRequestModel(
       id: json['id'] as int,
-      requesterId: json['requester_id'] as int,
+      requesterId: json['requester_id'] as int? ?? 1,
       facilityId: json['facility_id'] as int?,
       bloodType: json['blood_type'] as String? ?? '',
       rhesus: json['rhesus'] as String? ?? '+',
@@ -58,6 +62,8 @@ class BloodRequestModel {
       updatedAt: json['updated_at'] != null ? DateTime.tryParse(json['updated_at']) : null,
       requesterName: json['requester_name'] as String?,
       requesterPhone: json['requester_phone'] as String?,
+      patientName: json['patient_name'] as String?,
+      suratDokter: json['surat_dokter'] as String?,
     );
   }
 
@@ -76,11 +82,13 @@ class BloodRequestModel {
       'notes': notes,
       'hospital_name': hospitalName,
       'status': status,
+      'patient_name': patientName,
+      'surat_dokter': suratDokter,
     };
   }
 
   /// Backward-compatibility getters
-  String get patientName => requesterName ?? 'Pemohon #$requesterId';
+  String get patientName => _rawPatientName ?? requesterName ?? 'Pemohon #$requesterId';
   int get bagsCollected => 0;
 
   /// Display label for blood type + rhesus (e.g. "O+")

@@ -22,8 +22,30 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
   void _loadRequests() {
     setState(() {
-      _requestsFuture = _requestRepo.getRequests(status: 'pending');
+      _requestsFuture = _loadAllActiveRequests();
     });
+  }
+
+  /// Muat semua permintaan aktif: yang sudah disetujui (diproses) + menunggu
+  Future<List<BloodRequestModel>> _loadAllActiveRequests() async {
+    try {
+      // Pertama, ambil permintaan yang sudah disetujui admin
+      final diproses = await _requestRepo.getRequests(status: 'diproses');
+      // Juga ambil yang menunggu verifikasi
+      final menunggu = await _requestRepo.getRequests(status: 'menunggu');
+      // Gabungkan dan urutkan berdasarkan urgency
+      final all = [...diproses, ...menunggu];
+      // Urutkan: kritis > tinggi > sedang
+      all.sort((a, b) {
+        const order = {'kritis': 0, 'critical': 0, 'tinggi': 1, 'urgent': 1, 'sedang': 2, 'normal': 2};
+        final oA = order[a.urgencyLevel.toLowerCase()] ?? 2;
+        final oB = order[b.urgencyLevel.toLowerCase()] ?? 2;
+        return oA.compareTo(oB);
+      });
+      return all;
+    } catch (_) {
+      return [];
+    }
   }
 
   @override

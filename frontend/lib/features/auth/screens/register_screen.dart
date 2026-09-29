@@ -31,13 +31,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     setState(() => _isLoading = true);
     try {
+      final nikVal = _nikController.text.trim();
       await _authRepo.register({
-        'nik': _nikController.text.trim(),
+        'nama': _nameController.text.trim(),
         'name': _nameController.text.trim(),
         'email': _emailController.text.trim(),
         'password': _passwordController.text,
+        'no_hp': _phoneController.text.trim(),
         'phone': _phoneController.text.trim(),
         'role': _selectedRole,
+        if (nikVal.isNotEmpty) 'nik': nikVal,
         'blood_type': _selectedBloodType,
         'rhesus': _selectedRhesus,
         'address': _addressController.text.trim(),

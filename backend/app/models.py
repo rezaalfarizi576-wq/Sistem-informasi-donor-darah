@@ -2,7 +2,7 @@ from datetime import datetime
 import enum
 from sqlalchemy import (
     Column, BigInteger, SmallInteger, String, Boolean, DateTime, Float,
-    ForeignKey, Numeric, UniqueConstraint, Enum as SQLEnum,
+    ForeignKey, Numeric, UniqueConstraint, Enum as SQLEnum, Text,
 )
 from sqlalchemy.orm import relationship, synonym
 from app.database import Base
@@ -97,6 +97,8 @@ class BloodRequest(Base):
     urgency_level = Column("tingkat_urgensi", SQLEnum('kritis', 'tinggi', 'sedang', name='urgency_levels'), nullable=False, default='sedang')
     latitude_faskes = Column(Numeric(10, 7), nullable=False)
     longitude_faskes = Column(Numeric(10, 7), nullable=False)
+    patient_name = Column(String(150), nullable=True)
+    surat_dokter = Column(Text, nullable=True)
     radius_km = Column(Numeric(4, 1), nullable=False, default=5.0)
     notes = Column("catatan", String(500), nullable=True)
     # Di database berupa ENUM: 'menunggu', 'diproses', 'terpenuhi', 'kedaluwarsa', ...
@@ -112,8 +114,10 @@ class BloodRequest(Base):
 
     @property
     def hospital_name(self):
-        """Nama faskes, diambil dari relasi `facility` (tidak ada kolom sendiri)."""
-        return self.facility.nama_faskes if self.facility else None
+        """Nama faskes, diambil dari relasi `facility`."""
+        if self.facility and self.facility.nama_faskes:
+            return self.facility.nama_faskes
+        return "RSUD Dr. Soegiri Lamongan"
 
 
 class DonationResponse(Base):

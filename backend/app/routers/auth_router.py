@@ -11,7 +11,16 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def register(payload: UserRegister, db: Session = Depends(get_db)):
-    """FR-01: Registrasi mandiri, khusus peminta darah (requester)."""
+    """FR-01: Registrasi mandiri (requester atau pendonor mandiri)."""
+
+    clean_nik = payload.nik.strip() if payload.nik and payload.nik.strip() else None
+    if clean_nik:
+        existing_nik = db.query(User).filter(User.nik == clean_nik).first()
+        if existing_nik:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="NIK sudah terdaftar di sistem",
+            )
 
     existing = (
         db.query(User)
@@ -19,17 +28,21 @@ def register(payload: UserRegister, db: Session = Depends(get_db)):
         .first()
     )
     if existing:
+        detail = "Email sudah terdaftar di sistem" if existing.email == payload.email else "Nomor HP sudah terdaftar di sistem"
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Email atau nomor HP sudah terdaftar",
+            detail=detail,
         )
 
     new_user = User(
         nama=payload.nama,
         email=payload.email,
         no_hp=payload.no_hp,
+        nik=clean_nik,
         password_hash=hash_password(payload.password),
-        role=payload.role,  # selalu 'requester', divalidasi di schema
+        role=payload.role,
+        blood_type=payload.blood_type if payload.blood_type else None,
+        rhesus=payload.rhesus if payload.rhesus else None,
         sumber_data="mandiri",
         is_activated=True,
     )

@@ -34,6 +34,7 @@ app.add_middleware(
 # Register Routers
 app.include_router(auth_router.router)
 app.include_router(admin_router.router)
+app.include_router(admin_router.requests_router)
 
 # WebSocket Connection Manager for Realtime Live Tracking
 class ConnectionManager:

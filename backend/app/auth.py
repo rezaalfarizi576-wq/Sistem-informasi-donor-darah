@@ -100,5 +100,26 @@ def require_role(*allowed_roles: RoleEnum):
     return role_checker
 
 
+# Optional OAuth2 scheme for endpoints that work with or without auth token
+oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="/auth/login", auto_error=False)
+
+
+def get_current_user_optional(
+    token: str = Depends(oauth2_scheme_optional),
+    db: Session = Depends(get_db),
+):
+    """Dependency: ambil user jika token tersedia, return None jika tidak ada token atau invalid."""
+    if not token:
+        return None
+    try:
+        payload = decode_access_token(token)
+        user_id = payload.get("sub")
+        if user_id:
+            return db.query(User).filter(User.id == int(user_id)).first()
+    except Exception:
+        return None
+    return None
+
+
 # Backward compatibility alias
 get_password_hash = hash_password

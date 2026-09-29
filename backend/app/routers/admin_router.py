@@ -1,27 +1,28 @@
-from typing import List, Optional
+from typing import List, Optional, Any
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.models import User, RoleEnum, DonorLocation, BloodRequest
+from app.models import User, RoleEnum, DonorLocation, BloodRequest, HealthFacility
 from app.schemas import (
     UserResponse,
     DonorLocationResponse,
     DonorLocationCreate,
     BloodRequestResponse,
+    BloodRequestCreate,
 )
-from app.auth import require_role
+from app.auth import require_role, get_current_user_optional
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
+requests_router = APIRouter(prefix="/requests", tags=["Requests"])
 
 
 @router.get("/users", response_model=list[UserResponse])
 def list_all_users(
     db: Session = Depends(get_db),
-    # Hanya role admin yang boleh mengakses endpoint ini (RBAC).
     _admin: User = Depends(require_role(RoleEnum.admin)),
 ):
-    """Contoh endpoint ber-RBAC: daftar seluruh pengguna, khusus admin."""
+    """Daftar seluruh pengguna, khusus admin."""
     return db.query(User).all()
 
 
@@ -79,13 +80,86 @@ def create_donor_location(
     return new_location
 
 
+def _handle_create_request(
+    request_in: BloodRequestCreate,
+    db: Session,
+    current_user: Optional[User],
+) -> BloodRequest:
+    # 1. Tentukan pemohon (requester_id)
+    requester_id = None
+    if current_user:
+        requester_id = current_user.id
+    else:
+        requester = db.query(User).filter(User.role == RoleEnum.requester).first()
+        if requester:
+            requester_id = requester.id
+        else:
+            first_user = db.query(User).first()
+            requester_id = first_user.id if first_user else 1
+
+    # 2. Cocokkan faskes rumah sakit
+    facility_id = request_in.facility_id
+    lat = request_in.latitude_faskes or -7.1118120
+    lng = request_in.longitude_faskes or 112.4131550
+
+    if request_in.hospital_name:
+        match_faskes = (
+            db.query(HealthFacility)
+            .filter(HealthFacility.nama_faskes.ilike(f"%{request_in.hospital_name}%"))
+            .first()
+        )
+        if match_faskes:
+            facility_id = match_faskes.id
+            lat = float(match_faskes.latitude)
+            lng = float(match_faskes.longitude)
+
+    if not facility_id:
+        first_fac = db.query(HealthFacility).first()
+        if first_fac:
+            facility_id = first_fac.id
+            lat = float(first_fac.latitude)
+            lng = float(first_fac.longitude)
+
+    new_request = BloodRequest(
+        requester_id=requester_id,
+        facility_id=facility_id,
+        patient_name=request_in.patient_name,
+        blood_type=request_in.blood_type,
+        rhesus=request_in.rhesus,
+        bags_needed=request_in.bags_needed,
+        urgency_level=request_in.urgency_level,
+        latitude_faskes=lat,
+        longitude_faskes=lng,
+        radius_km=request_in.radius_km or 5.0,
+        notes=request_in.notes,
+        surat_dokter=request_in.surat_dokter,
+        status="menunggu",
+    )
+    db.add(new_request)
+    db.commit()
+    db.refresh(new_request)
+    return new_request
+
+
+@router.post("/requests", response_model=BloodRequestResponse, status_code=status.HTTP_201_CREATED)
+@requests_router.post("", response_model=BloodRequestResponse, status_code=status.HTTP_201_CREATED)
+def create_blood_request(
+    request_in: BloodRequestCreate,
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user_optional),
+):
+    """Membuat permohonan darah baru (lengkap dengan foto surat dokter jika ada)."""
+    return _handle_create_request(request_in, db, current_user)
+
+
 @router.get("/requests", response_model=List[BloodRequestResponse])
+@requests_router.get("", response_model=List[BloodRequestResponse])
 def get_all_blood_requests(
     status_filter: Optional[str] = Query(None, alias="status"),
     skip: int = 0,
     limit: int = 50,
     db: Session = Depends(get_db),
-    _admin: User = Depends(require_role(RoleEnum.admin)),
+    _user: Optional[User] = Depends(get_current_user_optional),
 ):
     """Melihat seluruh permohonan darah yang terdaftar."""
     query = db.query(BloodRequest)
@@ -97,3 +171,26 @@ def get_all_blood_requests(
         .limit(limit)
         .all()
     )
+
+
+@router.put("/requests/{request_id}", response_model=BloodRequestResponse)
+@requests_router.put("/{request_id}", response_model=BloodRequestResponse)
+def update_blood_request_status(
+    request_id: int,
+    payload: dict,
+    db: Session = Depends(get_db),
+    _user: Optional[User] = Depends(get_current_user_optional),
+):
+    """Update status permohonan darah (misal: verifikasi disetujui / ditolak)."""
+    request_obj = db.query(BloodRequest).filter(BloodRequest.id == request_id).first()
+    if not request_obj:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Permohonan darah tidak ditemukan",
+        )
+    new_status = payload.get("status")
+    if new_status:
+        request_obj.status = new_status
+    db.commit()
+    db.refresh(request_obj)
+    return request_obj
