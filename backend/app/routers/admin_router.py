@@ -3,7 +3,8 @@ from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.models import User, RoleEnum, DonorLocation, BloodRequest, HealthFacility
+from datetime import datetime
+from app.models import User, RoleEnum, DonorLocation, BloodRequest, HealthFacility, DonationResponse
 from app.schemas import (
     UserResponse,
     DonorLocationResponse,
@@ -194,3 +195,68 @@ def update_blood_request_status(
     db.commit()
     db.refresh(request_obj)
     return request_obj
+
+
+@router.get("/requests/{request_id}", response_model=BloodRequestResponse)
+@requests_router.get("/{request_id}", response_model=BloodRequestResponse)
+def get_blood_request_by_id(
+    request_id: int,
+    db: Session = Depends(get_db),
+    _user: Optional[User] = Depends(get_current_user_optional),
+):
+    """Mendapatkan detail permohonan darah berdasarkan ID."""
+    req = db.query(BloodRequest).filter(BloodRequest.id == request_id).first()
+    if not req:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Permohonan darah tidak ditemukan",
+        )
+    return req
+
+
+@requests_router.post("/{request_id}/respond")
+def respond_to_blood_request(
+    request_id: int,
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user_optional),
+):
+    """Merespon/menerima permohonan darah oleh donor."""
+    req = db.query(BloodRequest).filter(BloodRequest.id == request_id).first()
+    if not req:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Permohonan darah tidak ditemukan",
+        )
+
+    donor_id = current_user.id if current_user else 1
+    existing = (
+        db.query(DonationResponse)
+        .filter(
+            DonationResponse.request_id == request_id,
+            DonationResponse.donor_id == donor_id,
+        )
+        .first()
+    )
+
+    if existing:
+        existing.status = "diterima"
+        existing.waktu_respon = datetime.utcnow()
+    else:
+        new_resp = DonationResponse(
+            request_id=request_id,
+            donor_id=donor_id,
+            status="diterima",
+            waktu_respon=datetime.utcnow(),
+        )
+        db.add(new_resp)
+
+    if req.status == "menunggu":
+        req.status = "diproses"
+
+    db.commit()
+    return {
+        "status": "success",
+        "message": "Terima kasih! Anda bersedia menjadi pendonor untuk permohonan ini.",
+        "request_id": request_id,
+    }
+

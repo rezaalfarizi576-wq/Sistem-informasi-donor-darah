@@ -20,6 +20,11 @@ class BloodRequestRepository {
     return [];
   }
 
+  Future<BloodRequestModel> getRequestById(int requestId) async {
+    final response = await _apiClient.get('/requests/$requestId');
+    return BloodRequestModel.fromJson(response);
+  }
+
   Future<Map<String, dynamic>> respondToRequest(int requestId) async {
     final response = await _apiClient.post('/requests/$requestId/respond');
     return response as Map<String, dynamic>;

@@ -142,7 +142,7 @@ class _RequestStatusScreenState extends State<RequestStatusScreen> {
                           ),
                         ],
                       ),
-                      if (item.status == 'in_progress') ...[
+                      if (item.status == 'diproses' || item.status == 'in_progress' || item.status == 'menunggu') ...[
                         const SizedBox(height: 8),
                         SizedBox(
                           width: double.infinity,
