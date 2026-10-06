@@ -42,8 +42,8 @@ class DonationHistoryScreen extends StatelessWidget {
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
                 const SizedBox(height: 6),
-                Row(
-                  children: const [
+                const Row(
+                  children: [
                     Icon(Icons.check_circle, color: Colors.green, size: 20),
                     SizedBox(width: 8),
                     Text(

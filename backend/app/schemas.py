@@ -126,6 +126,15 @@ class HealthFacilityResponse(HealthFacilityBase):
         from_attributes = True
 
 
+class HealthFacilityUpdate(BaseModel):
+    nama_faskes: Optional[str] = None
+    alamat: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    telepon: Optional[str] = None
+    terverifikasi: Optional[bool] = None
+
+
 # --- DONOR LOCATION SCHEMAS (tabel donor_locations: lokasi donor) ---
 
 class DonorLocationBase(BaseModel):

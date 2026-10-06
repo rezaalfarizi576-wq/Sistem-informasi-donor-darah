@@ -9,6 +9,7 @@ class UserModel {
   final String? rhesus;
   final String? address;
   final bool isActive;
+  final DateTime? createdAt;
 
   UserModel({
     required this.id,
@@ -21,20 +22,22 @@ class UserModel {
     this.rhesus,
     this.address,
     required this.isActive,
+    this.createdAt,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       id: json['id'] as int,
-      nik: json['nik'] as String? ?? '',
-      name: json['name'] as String? ?? '',
+      nik: json['nik'] as String? ?? json['id_pmi'] as String? ?? '',
+      name: json['nama'] as String? ?? json['name'] as String? ?? '',
       email: json['email'] as String? ?? '',
       role: json['role'] as String? ?? 'donor',
-      phone: json['phone'] as String?,
+      phone: json['no_hp'] as String? ?? json['phone'] as String?,
       bloodType: json['blood_type'] as String?,
       rhesus: json['rhesus'] as String?,
       address: json['address'] as String?,
-      isActive: json['is_active'] as bool? ?? true,
+      isActive: json['status_aktif'] as bool? ?? json['is_activated'] as bool? ?? json['is_active'] as bool? ?? true,
+      createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'].toString()) : null,
     );
   }
 
@@ -42,14 +45,21 @@ class UserModel {
     return {
       'id': id,
       'nik': nik,
-      'name': name,
+      'nama': name,
       'email': email,
       'role': role,
-      'phone': phone,
+      'no_hp': phone,
       'blood_type': bloodType,
       'rhesus': rhesus,
       'address': address,
-      'is_active': isActive,
+      'status_aktif': isActive,
     };
   }
+
+  /// Display label: blood type + rhesus
+  String get bloodLabel {
+    if (bloodType == null || bloodType!.isEmpty) return '-';
+    return '$bloodType${rhesus ?? "+"}';
+  }
 }
+

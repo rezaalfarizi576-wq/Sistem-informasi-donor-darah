@@ -6,6 +6,7 @@ import '../features/auth/screens/activate_account_screen.dart';
 import '../features/requester/screens/request_form_screen.dart';
 import '../features/requester/screens/request_status_screen.dart';
 import '../features/requester/screens/live_tracking_screen.dart';
+import '../features/donor/screens/donor_dashboard_screen.dart';
 import '../features/donor/screens/notification_screen.dart';
 import '../features/donor/screens/respond_request_screen.dart';
 import '../features/donor/screens/donation_history_screen.dart';
@@ -23,6 +24,7 @@ class AppRouter {
   static const String liveTrackingRoute = '/requester/tracking';
 
   // Donor
+  static const String donorDashboardRoute = '/donor/dashboard';
   static const String donorNotificationRoute = '/donor/notifications';
   static const String respondRequestRoute = '/donor/respond';
   static const String donationHistoryRoute = '/donor/history';
@@ -54,8 +56,14 @@ class AppRouter {
           builder: (_) => LiveTrackingScreen(requestId: requestId),
         );
 
+      case donorDashboardRoute:
+        return MaterialPageRoute(builder: (_) => const DonorDashboardScreen());
+
       case donorNotificationRoute:
-        return MaterialPageRoute(builder: (_) => const NotificationScreen());
+        final request = settings.arguments as BloodRequestModel?;
+        return MaterialPageRoute(
+          builder: (_) => NotificationScreen(initialRequest: request),
+        );
 
       case respondRequestRoute:
         final request = settings.arguments as BloodRequestModel;
@@ -90,7 +98,7 @@ class AppRouter {
         break;
       case 'donor':
       default:
-        Navigator.pushReplacementNamed(context, donorNotificationRoute);
+        Navigator.pushReplacementNamed(context, donorDashboardRoute);
         break;
     }
   }
