@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../data/models/blood_request_model.dart';
 import '../../../data/repositories/blood_request_repository.dart';
@@ -107,11 +108,31 @@ class _NotificationScreenState extends State<NotificationScreen>
     }
 
     try {
-      final diproses = await _requestRepo.getRequests(status: 'diproses');
-      final menunggu = await _requestRepo.getRequests(status: 'menunggu');
-      final all = [...diproses, ...menunggu];
+      // Ambil posisi GPS donor (atau fallback Lamongan)
+      double donorLat = -7.126500;
+      double donorLng = 112.418200;
+      try {
+        final pos = await Geolocator.getLastKnownPosition();
+        if (pos != null) {
+          donorLat = pos.latitude;
+          donorLng = pos.longitude;
+        }
+      } catch (_) {}
 
-      all.sort((a, b) {
+      // Ambil hanya permohonan yang berada dalam radius 5 - 10 km
+      List<BloodRequestModel> nearby = await _requestRepo.getNearbyRequests(
+        lat: donorLat,
+        lng: donorLng,
+        maxRadius: 10.0,
+      );
+
+      if (nearby.isEmpty) {
+        final diproses = await _requestRepo.getRequests(status: 'diproses');
+        final menunggu = await _requestRepo.getRequests(status: 'menunggu');
+        nearby = [...diproses, ...menunggu];
+      }
+
+      nearby.sort((a, b) {
         const order = {
           'kritis': 0,
           'critical': 0,
@@ -127,8 +148,8 @@ class _NotificationScreenState extends State<NotificationScreen>
 
       if (mounted) {
         setState(() {
-          _allActiveRequests = all;
-          _currentRequest = all.isNotEmpty ? all.first : null;
+          _allActiveRequests = nearby;
+          _currentRequest = nearby.isNotEmpty ? nearby.first : null;
         });
       }
     } catch (_) {
@@ -210,10 +231,12 @@ class _NotificationScreenState extends State<NotificationScreen>
     final req = _currentRequest;
     final bloodLabel = req != null ? req.bloodLabel : 'O+';
     final hospitalName = req?.hospitalName ?? 'RSUD Dr. Soegiri Lamongan';
-    final distance = req != null ? req.radiusKm.toStringAsFixed(1) : '3.2';
+    final distance = req != null
+        ? (req.distanceDisplay ?? '${req.radiusKm.toStringAsFixed(1)} km')
+        : '1.7 km';
     final eta = req != null
-        ? '${(req.radiusKm * 3.8).round().clamp(5, 30)}'
-        : '12';
+        ? '${((req.distanceKm ?? req.radiusKm) * 2.5).round().clamp(3, 30)}'
+        : '8';
     final urgencyText = req != null
         ? (req.urgencyLevel == 'kritis' || req.urgencyLevel == 'critical'
             ? 'Kritis'

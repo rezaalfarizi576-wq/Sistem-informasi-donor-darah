@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import '../../../core/services/routing_service.dart';
 import '../../../data/models/blood_request_model.dart';
 import '../../../data/repositories/blood_request_repository.dart';
 import '../../../data/repositories/tracking_repository.dart';
@@ -19,6 +20,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen>
     with SingleTickerProviderStateMixin {
   final _trackingRepo = TrackingRepository();
   final _requestRepo = BloodRequestRepository();
+  final _routingService = RoutingService();
   final MapController _mapController = MapController();
 
   Map<String, dynamic>? _lastLocationData;
@@ -33,6 +35,11 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen>
 
   LatLng? _donorLocation;
   LatLng _hospitalLocation = _defaultHospitalLocation;
+
+  // Rute Jalan Riil (Jalur Belokan & Jalan Raya)
+  List<LatLng> _routePoints = [];
+  double _totalRoadDistance = 0.0;
+  bool _isLoadingRoute = false;
 
   StreamSubscription? _locationSubscription;
   Timer? _simulationTimer;
@@ -71,11 +78,40 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen>
             }
             _isLoading = false;
           });
+          // Ambil rute jalan riil dari donor ke rumah sakit
+          _fetchRoadRoute();
         }
       }
     } catch (_) {
       if (mounted) {
         setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  /// Mengambil rute yang persis mengikuti jaringan jalan raya di Lamongan
+  Future<void> _fetchRoadRoute() async {
+    final start = _donorLocation ?? _defaultDonorLocation;
+    final end = _hospitalLocation;
+
+    setState(() => _isLoadingRoute = true);
+    try {
+      final result = await _routingService.getRoadRoute(start, end);
+      if (mounted) {
+        setState(() {
+          _routePoints = result.points;
+          _totalRoadDistance = result.distanceMeters;
+          _isLoadingRoute = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Gagal load rute jalan: $e');
+      if (mounted) {
+        setState(() {
+          _routePoints = List<LatLng>.from(RoutingService.defaultLamonganRoad);
+          _totalRoadDistance = 2287.0;
+          _isLoadingRoute = false;
+        });
       }
     }
   }
@@ -93,6 +129,11 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen>
             _donorLocation = LatLng(lat, lng);
           });
 
+          // Jika belum ada rute jalan atau posisi awal baru diketahui, perbarui rute jalan
+          if (_routePoints.isEmpty) {
+            _fetchRoadRoute();
+          }
+
           if (_autoFollow) {
             try {
               _mapController.move(_donorLocation!, _mapController.camera.zoom);
@@ -103,7 +144,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen>
     });
   }
 
-  /// Simulasi gerakan pendonor di peta ala Gojek dari titik awal ke RS
+  /// Simulasi gerakan pendonor yang berjalan persis menyusuri jalan raya (bukan garis diagonal)
   void _toggleSimulation() {
     if (_isSimulating) {
       _simulationTimer?.cancel();
@@ -111,43 +152,47 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen>
       return;
     }
 
+    // Pastikan rute titik jalan riil tersedia
+    if (_routePoints.isEmpty) {
+      _routePoints = List<LatLng>.from(RoutingService.defaultLamonganRoad);
+      _totalRoadDistance = 2287.0;
+    }
+
     setState(() {
       _isSimulating = true;
       _simProgress = 0.0;
     });
 
-    const start = _defaultDonorLocation;
-    final end = _hospitalLocation;
-
-    _simulationTimer = Timer.periodic(const Duration(milliseconds: 1500), (timer) {
+    // Jalankan timer per 600ms dengan 50 tahap perpindahan menyusuri lekukan jalan
+    _simulationTimer = Timer.periodic(const Duration(milliseconds: 600), (timer) {
       if (!mounted) {
         timer.cancel();
         return;
       }
 
       setState(() {
-        _simProgress += 0.08;
+        _simProgress += 0.02;
         if (_simProgress >= 1.0) {
           _simProgress = 1.0;
           timer.cancel();
           _isSimulating = false;
         }
 
-        final curLat = start.latitude + (end.latitude - start.latitude) * _simProgress;
-        final curLng = start.longitude + (end.longitude - start.longitude) * _simProgress;
-        _donorLocation = LatLng(curLat, curLng);
+        // Ambil titik koordinat di sepanjang jalan raya
+        final curPos = _routingService.getPointAlongRoute(_routePoints, _simProgress);
+        _donorLocation = curPos;
         _lastLocationData = {
-          'latitude': curLat,
-          'longitude': curLng,
+          'latitude': curPos.latitude,
+          'longitude': curPos.longitude,
           'timestamp': DateTime.now().toIso8601String(),
         };
 
-        // Kirim juga ke WebSocket agar synchronized jika ada screen lain terbuka
-        _trackingRepo.updateLocation(curLat, curLng);
+        // Kirim juga ke WebSocket agar sinkron dengan sisi donor/admin
+        _trackingRepo.updateLocation(curPos.latitude, curPos.longitude);
       });
 
       if (_autoFollow && _donorLocation != null) {
-        _mapController.move(_donorLocation!, 15.5);
+        _mapController.move(_donorLocation!, 16.0);
       }
     });
   }
@@ -161,18 +206,29 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen>
     super.dispose();
   }
 
-  // Hitung jarak dan ETA ala Gojek
+  // Hitung jarak dan ETA riil berdasarkan jalur jalan
   Map<String, String> _calculateDistanceAndEta() {
-    if (_donorLocation == null) {
+    if (_donorLocation == null && !_isSimulating) {
       return {'distance': 'Mencari GPS...', 'eta': '--'};
     }
 
-    const Distance distanceCalc = Distance();
-    final double meter = distanceCalc.as(
-      LengthUnit.Meter,
-      _donorLocation!,
-      _hospitalLocation,
-    );
+    double meter;
+    if (_routePoints.length >= 2) {
+      if (_isSimulating) {
+        meter = _totalRoadDistance * (1.0 - _simProgress).clamp(0.0, 1.0);
+      } else {
+        meter = _totalRoadDistance > 0
+            ? _totalRoadDistance
+            : _routingService.calculateTotalRoadDistance(_routePoints);
+      }
+    } else {
+      const Distance distanceCalc = Distance();
+      meter = distanceCalc.as(
+        LengthUnit.Meter,
+        _donorLocation ?? _defaultDonorLocation,
+        _hospitalLocation,
+      );
+    }
 
     String distStr;
     if (meter >= 1000) {
@@ -181,9 +237,9 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen>
       distStr = '${meter.round()} m';
     }
 
-    // Asumsi kecepatan rata-rata sepeda motor di Lamongan = 30 km/jam (~500 meter/menit)
+    // Kecepatan rata-rata motor di Lamongan ~30 km/jam (~500 meter/menit)
     final int minutes = (meter / 500).ceil();
-    final String etaStr = minutes <= 1 ? 'Tiba di lokasi' : '± $minutes menit';
+    final String etaStr = minutes <= 1 ? 'Hampir tiba di lokasi' : '± $minutes menit';
 
     return {'distance': distStr, 'eta': etaStr};
   }
@@ -197,6 +253,11 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen>
     final timeFormatted = timestamp != null && timestamp.length >= 19
         ? timestamp.substring(11, 19)
         : 'Menunggu sinyal';
+
+    // Rute yang ditampilkan di peta (mengikuti jalan riil)
+    final activePath = _routePoints.isNotEmpty
+        ? _routePoints
+        : [activeDonorPos, _hospitalLocation];
 
     return Scaffold(
       body: Stack(
@@ -216,13 +277,20 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen>
                 userAgentPackageName: 'id.pmi.donordarah.lamongan',
               ),
 
-              // Rute garis penghubung dari Pendonor ke Rumah Sakit
+              // Rute garis penghubung yang MENGIKUTI JALAN RAYA (Dual Layer Outline + Solid)
               PolylineLayer(
                 polylines: [
+                  // Layer 1: Garis Bayangan / Border Luar
                   Polyline(
-                    points: [activeDonorPos, _hospitalLocation],
-                    strokeWidth: 4.5,
-                    color: const Color(0xFFD32F2F).withValues(alpha: 0.85),
+                    points: activePath,
+                    strokeWidth: 8.0,
+                    color: const Color(0x33D32F2F),
+                  ),
+                  // Layer 2: Garis Inti Rute Jalan Raya
+                  Polyline(
+                    points: activePath,
+                    strokeWidth: 4.8,
+                    color: const Color(0xFFD32F2F),
                   ),
                 ],
               ),
@@ -406,7 +474,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen>
                                   color: hasRealLocation || _isSimulating ? Colors.green.shade700 : Colors.grey,
                                 ),
                               ),
-                              if (_isLoading)
+                              if (_isLoading || _isLoadingRoute)
                                 const Padding(
                                   padding: EdgeInsets.only(top: 4),
                                   child: LinearProgressIndicator(minHeight: 2),

@@ -144,9 +144,9 @@ class DonationHistory(Base):
     __tablename__ = "donation_history"
 
     id = Column(BigInteger, primary_key=True, index=True, autoincrement=True)
-    response_id = Column(BigInteger, ForeignKey("request_responses.id", ondelete="CASCADE"), unique=True, nullable=False)
+    response_id = Column(BigInteger, ForeignKey("request_responses.id", ondelete="CASCADE"), unique=True, nullable=True)
     donor_id = Column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    request_id = Column(BigInteger, ForeignKey("blood_requests.id", ondelete="CASCADE"), nullable=False)
+    request_id = Column(BigInteger, ForeignKey("blood_requests.id", ondelete="CASCADE"), nullable=True)
     tanggal_donor = Column(DateTime, nullable=False)
     lokasi_donor = Column(String(255), nullable=False)
     jumlah_kantong = Column(SmallInteger, nullable=False, default=1)
@@ -155,3 +155,16 @@ class DonationHistory(Base):
     response = relationship("DonationResponse")
     donor = relationship("User")
     request = relationship("BloodRequest")
+
+
+class BloodStock(Base):
+    """Ketersediaan stok kantong darah di UDD PMI Lamongan (tabel `blood_stocks`)."""
+    __tablename__ = "blood_stocks"
+
+    id = Column(BigInteger, primary_key=True, index=True, autoincrement=True)
+    blood_type = Column(String(10), nullable=False)
+    rhesus = Column(String(5), nullable=False, default="+")
+    label = Column(String(50), nullable=False)
+    jumlah_kantong = Column(SmallInteger, nullable=False, default=0)
+    status_stok = Column(String(20), nullable=False, default="Aman")
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

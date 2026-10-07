@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../data/models/blood_request_model.dart';
+import '../../../data/models/blood_stock_model.dart';
+import '../../../data/models/donor_stats_model.dart';
 import '../../../data/models/user_model.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../../data/repositories/blood_request_repository.dart';
+import '../../../data/repositories/donor_repository.dart';
 import '../../../routes/app_router.dart';
 import 'donation_history_screen.dart';
 import 'notification_screen.dart';
@@ -19,9 +23,12 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
   int _currentTabIndex = 0;
   final _authRepo = AuthRepository();
   final _requestRepo = BloodRequestRepository();
+  final _donorRepo = DonorRepository();
 
   UserModel? _currentUser;
   BloodRequestModel? _urgentRequest;
+  DonorStatsModel? _donorStats;
+  BloodStockResponseModel? _bloodStock;
   bool _isLoading = true;
 
   // Bank Darah tab state
@@ -40,27 +47,66 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
     setState(() => _isLoading = true);
     try {
       final user = await _authRepo.getCurrentUser();
-      final requests = await _requestRepo.getRequests();
+
+      // Ambil posisi GPS donor (atau fallback Lamongan)
+      double donorLat = -7.126500;
+      double donorLng = 112.418200;
+      try {
+        final pos = await Geolocator.getLastKnownPosition();
+        if (pos != null) {
+          donorLat = pos.latitude;
+          donorLng = pos.longitude;
+        }
+      } catch (_) {}
+
+      // Saring permohonan darah yang berada dalam radius 5 - 10 km dari donor
+      List<BloodRequestModel> nearby = [];
+      try {
+        nearby = await _requestRepo.getNearbyRequests(
+          lat: donorLat,
+          lng: donorLng,
+          maxRadius: 10.0,
+        );
+      } catch (_) {}
 
       // Cari permintaan paling urgent
       BloodRequestModel? urgentReq;
-      if (requests.isNotEmpty) {
-        urgentReq = requests.firstWhere(
-          (r) =>
-              r.status == 'diproses' ||
-              r.status == 'menunggu' ||
-              r.urgencyLevel == 'kritis' ||
-              r.urgencyLevel == 'tinggi' ||
-              r.urgencyLevel == 'urgent' ||
-              r.urgencyLevel == 'critical',
-          orElse: () => requests.first,
-        );
+      if (nearby.isNotEmpty) {
+        urgentReq = nearby.first;
+      } else {
+        final requests = await _requestRepo.getRequests();
+        if (requests.isNotEmpty) {
+          urgentReq = requests.firstWhere(
+            (r) =>
+                r.status == 'diproses' ||
+                r.status == 'menunggu' ||
+                r.urgencyLevel == 'kritis' ||
+                r.urgencyLevel == 'tinggi' ||
+                r.urgencyLevel == 'urgent' ||
+                r.urgencyLevel == 'critical',
+            orElse: () => requests.first,
+          );
+        }
       }
+
+      // Ambil statistik donor dari backend
+      DonorStatsModel? stats;
+      try {
+        stats = await _donorRepo.getDonorStats();
+      } catch (_) {}
+
+      // Ambil stok kantong darah dari backend
+      BloodStockResponseModel? stock;
+      try {
+        stock = await _donorRepo.getBloodStock();
+      } catch (_) {}
 
       if (mounted) {
         setState(() {
           _currentUser = user;
           _urgentRequest = urgentReq;
+          _donorStats = stats;
+          _bloodStock = stock;
           _isLoading = false;
         });
       }
@@ -345,10 +391,12 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
     final req = _urgentRequest;
     final bloodLabel = req != null ? req.bloodLabel : 'O+';
     final hospitalName = req?.hospitalName ?? 'RSUD Dr. Soegiri\nLamongan';
-    final distance = req != null ? req.radiusKm.toStringAsFixed(1) : '2.5';
+    final distance = req != null
+        ? (req.distanceDisplay?.replaceAll(' km', '') ?? req.radiusKm.toStringAsFixed(1))
+        : '1.7';
     final eta = req != null
-        ? '${(req.radiusKm * 4).round().clamp(5, 45)}'
-        : '15';
+        ? '${((req.distanceKm ?? req.radiusKm) * 2.5).round().clamp(3, 30)}'
+        : '8';
     final urgencyText = req != null
         ? (req.urgencyLevel == 'kritis' || req.urgencyLevel == 'critical'
             ? 'SEGERA'
@@ -632,18 +680,28 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
   // 2x2 STATISTIK GRID
   // ─────────────────────────────────────────────────────────────
   Widget _buildStatsGrid(String bloodType, String rhesusLabel) {
+    // Gunakan data live dari backend jika tersedia
+    final totalLitersDisplay = _donorStats?.totalLitersDisplay ?? '0.0 L';
+    final totalDonationsDisplay = _donorStats?.totalDonationsDisplay ?? '0 kali donasi';
+    final lastDonationDisplay = _donorStats?.lastDonationDisplay ?? '-';
+    final lastDonationYear = _donorStats?.lastDonationYear ?? '-';
+    final pmiStatus = _donorStats?.pmiStatus ?? 'Relawan Aktif';
+    final isEligible = _donorStats?.eligibleToDonate ?? true;
+    final statusSubtitle = isEligible ? 'Siap Donor' : 'Belum Layak';
+    final statusColor = isEligible ? const Color(0xFF16A34A) : const Color(0xFFDC2626);
+
     return Column(
       children: [
         Row(
           children: [
-            // Card 1: Total Donor
+            // Card 1: Total Donor (dari backend)
             Expanded(
               child: _buildSingleStatCard(
                 icon: Icons.water_drop_rounded,
                 iconColor: const Color(0xFFD32F2F),
-                value: '3.2 L',
+                value: totalLitersDisplay,
                 title: 'Total Donor',
-                subtitle: '8 kali donasi',
+                subtitle: totalDonationsDisplay,
               ),
             ),
             const SizedBox(width: 12),
@@ -662,26 +720,26 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
         const SizedBox(height: 12),
         Row(
           children: [
-            // Card 3: Donor Terakhir
+            // Card 3: Donor Terakhir (dari backend)
             Expanded(
               child: _buildSingleStatCard(
                 icon: Icons.calendar_month_rounded,
                 iconColor: const Color(0xFF3B82F6),
-                value: '12 Mar',
+                value: lastDonationDisplay,
                 title: 'Donor Terakhir',
-                subtitle: '2025',
+                subtitle: lastDonationYear,
               ),
             ),
             const SizedBox(width: 12),
-            // Card 4: Status PMI
+            // Card 4: Status PMI (dari backend)
             Expanded(
               child: _buildSingleStatCard(
                 icon: Icons.workspace_premium_rounded,
                 iconColor: const Color(0xFFF59E0B),
-                value: 'Relawan A',
+                value: pmiStatus,
                 title: 'Status PMI',
-                subtitle: 'Verified Aktif',
-                subtitleColor: const Color(0xFF16A34A),
+                subtitle: statusSubtitle,
+                subtitleColor: statusColor,
                 isSubtitleBold: true,
               ),
             ),
@@ -761,6 +819,14 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
   // KARTU RIWAYAT DONASI
   // ─────────────────────────────────────────────────────────────
   Widget _buildDonationHistoryCard() {
+    // Gunakan data riwayat terakhir dari backend
+    final latestDonation = _donorStats?.latestDonation;
+    final location = latestDonation?.location ?? 'Belum ada riwayat';
+    final dateInfo = latestDonation != null
+        ? '${latestDonation.date} • ${latestDonation.volumeMl} ml'
+        : 'Belum pernah donor';
+    final status = latestDonation?.status ?? '-';
+
     return InkWell(
       onTap: () {
         Navigator.push(
@@ -804,13 +870,13 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
               ),
             ),
             const SizedBox(width: 14),
-            // Informasi Riwayat
+            // Informasi Riwayat (dari backend)
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'PMI Cabang Surabaya',
+                    location,
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
@@ -819,7 +885,7 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                   ),
                   const SizedBox(height: 3),
                   Text(
-                    '12 Maret 2025 • 350 ml',
+                    dateInfo,
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 12,
                       color: const Color(0xFF64748B),
@@ -828,7 +894,7 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                 ],
               ),
             ),
-            // Badge Berhasil
+            // Badge Status
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
               decoration: BoxDecoration(
@@ -836,7 +902,7 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
-                'Berhasil',
+                status,
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
@@ -856,17 +922,37 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
   Widget _buildPmiBankView() {
     final List<String> filters = ['Semua', 'A+', 'B+', 'O+', 'AB+', 'A-', 'B-', 'O-', 'AB-'];
 
-    // Data stok golongan darah
-    final List<_BloodStockData> stockData = [
-      _BloodStockData('A+', 42, '#1', const Color(0xFF16A34A), false),
-      _BloodStockData('B+', 38, '#2', const Color(0xFF16A34A), false),
-      _BloodStockData('O+', 24, '#3', const Color(0xFFEF4444), false),
-      _BloodStockData('AB+', 17, '#4', const Color(0xFFF59E0B), false),
-    ];
+    // Data stok golongan darah (sinkronisasi live backend jika tersedia, fallback dummy)
+    final List<_BloodStockData> stockData = _bloodStock != null && _bloodStock!.stocks.isNotEmpty
+        ? _bloodStock!.stocks.take(4).map((s) {
+            Color color = const Color(0xFF16A34A);
+            if (s.bags < 20) {
+              color = const Color(0xFFEF4444);
+            } else if (s.bags < 35) {
+              color = const Color(0xFFF59E0B);
+            }
+            return _BloodStockData(
+              '${s.bloodType}${s.rhesus}',
+              s.bags,
+              '#${s.id}',
+              color,
+              s.status.toLowerCase() == 'kritis',
+            );
+          }).toList()
+        : [
+            _BloodStockData('A+', 42, '#1', const Color(0xFF16A34A), false),
+            _BloodStockData('B+', 38, '#2', const Color(0xFF16A34A), false),
+            _BloodStockData('O+', 24, '#3', const Color(0xFFEF4444), false),
+            _BloodStockData('AB+', 17, '#4', const Color(0xFFF59E0B), false),
+          ];
+
+    final uddName = _bloodStock?.uddInfo.name ?? 'UTD PMI Cabang Lamongan';
+    final uddAddress = _bloodStock?.uddInfo.address ?? 'Jl. Kusuma Bangsa No. 25, Lamongan';
+    final totalBags = _bloodStock?.totalBags ?? 88;
 
     // Data fasilitas
     final List<_FasilitasData> fasilitas = [
-      _FasilitasData('UTD PMI Cabang Lamongan', 'Jl. Kusuma Bangsa No. 25, Lamongan', 88, true),
+      _FasilitasData(uddName, uddAddress, totalBags, true),
       _FasilitasData('BDRS RSUD Dr. Soegiri Lamongan', 'Jl. Kusuma Bangsa No. 7, Lamongan', 14, false),
       _FasilitasData('BDRS RS Muhammadiyah Lamongan', 'Jl. Jaksa Agung Suprapto No. 76', 29, false),
     ];
@@ -1636,6 +1722,7 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
             const SizedBox(width: 6),
             const Icon(Icons.chevron_right_rounded, color: Color(0xFFCBD5E1), size: 18),
           ],
+
         ),
       ),
     );

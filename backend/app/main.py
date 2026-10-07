@@ -4,7 +4,7 @@ from typing import Dict, List
 
 from app.config import settings
 from app.database import engine, Base
-from app.routers import auth_router, admin_router
+from app.routers import auth_router, admin_router, donor_router
 
 # Inisialisasi model tabel (apabila belum dibuat oleh script SQL)
 # Catatan: Gunakan setup_database.sql via phpMyAdmin untuk setup awal schema.
@@ -35,6 +35,9 @@ app.add_middleware(
 app.include_router(auth_router.router)
 app.include_router(admin_router.router)
 app.include_router(admin_router.requests_router)
+app.include_router(donor_router.router)
+app.include_router(donor_router.stock_public_router)
+
 
 # WebSocket Connection Manager for Realtime Live Tracking
 class ConnectionManager:
