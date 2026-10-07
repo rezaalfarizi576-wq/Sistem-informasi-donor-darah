@@ -939,11 +939,11 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
               s.status.toLowerCase() == 'kritis',
             );
           }).toList()
-        : [
-            _BloodStockData('A+', 42, '#1', const Color(0xFF16A34A), false),
-            _BloodStockData('B+', 38, '#2', const Color(0xFF16A34A), false),
-            _BloodStockData('O+', 24, '#3', const Color(0xFFEF4444), false),
-            _BloodStockData('AB+', 17, '#4', const Color(0xFFF59E0B), false),
+        : const [
+            _BloodStockData('A+', 42, '#1', Color(0xFF16A34A), false),
+            _BloodStockData('B+', 38, '#2', Color(0xFF16A34A), false),
+            _BloodStockData('O+', 24, '#3', Color(0xFFEF4444), false),
+            _BloodStockData('AB+', 17, '#4', Color(0xFFF59E0B), false),
           ];
 
     final uddName = _bloodStock?.uddInfo.name ?? 'UTD PMI Cabang Lamongan';
@@ -953,8 +953,8 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
     // Data fasilitas
     final List<_FasilitasData> fasilitas = [
       _FasilitasData(uddName, uddAddress, totalBags, true),
-      _FasilitasData('BDRS RSUD Dr. Soegiri Lamongan', 'Jl. Kusuma Bangsa No. 7, Lamongan', 14, false),
-      _FasilitasData('BDRS RS Muhammadiyah Lamongan', 'Jl. Jaksa Agung Suprapto No. 76', 29, false),
+      const _FasilitasData('BDRS RSUD Dr. Soegiri Lamongan', 'Jl. Kusuma Bangsa No. 7, Lamongan', 14, false),
+      const _FasilitasData('BDRS RS Muhammadiyah Lamongan', 'Jl. Jaksa Agung Suprapto No. 76', 29, false),
     ];
 
     return Scaffold(
@@ -1305,7 +1305,7 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
               _buildBankSectionHeader('Direktori Fasilitas & BDRS', '${fasilitas.length} Fasilitas Terhubung'),
               const SizedBox(height: 10),
 
-              ...fasilitas.map((f) => _buildFasilitasCard(f)).toList(),
+              ...fasilitas.map((f) => _buildFasilitasCard(f)),
 
               const SizedBox(height: 16),
 
@@ -1743,8 +1743,8 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
           Container(
             width: 38,
             height: 38,
-            decoration: BoxDecoration(
-              color: const Color(0xFFFFF1F2),
+            decoration: const BoxDecoration(
+              color: Color(0xFFFFF1F2),
               shape: BoxShape.circle,
             ),
             child: const Icon(Icons.volunteer_activism_rounded, color: Color(0xFFD32F2F), size: 19),
