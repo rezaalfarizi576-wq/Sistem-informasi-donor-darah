@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:latlong2/latlong.dart';
+import '../../../core/services/routing_service.dart';
 import '../../../data/models/blood_request_model.dart';
 import '../../../data/repositories/blood_request_repository.dart';
 import '../../../data/repositories/tracking_repository.dart';
@@ -19,6 +21,7 @@ class RespondRequestScreen extends StatefulWidget {
 class _RespondRequestScreenState extends State<RespondRequestScreen> {
   final _requestRepo = BloodRequestRepository();
   final _trackingRepo = TrackingRepository();
+  final _routingService = RoutingService();
   bool _isResponding = false;
   bool _hasAccepted = false;
 
@@ -31,6 +34,7 @@ class _RespondRequestScreenState extends State<RespondRequestScreen> {
   Timer? _tripTimer;
   bool _isAutoMoving = false;
   double _tripProgress = 0.0;
+  List<LatLng> _simRoutePoints = [];
 
   // Titik awal fallback Lamongan jika GPS perangkat belum aktif
   static const double _fallbackStartLat = -7.126500;
@@ -174,18 +178,13 @@ class _RespondRequestScreenState extends State<RespondRequestScreen> {
     );
   }
 
-  /// Simulasi perjalanan demo (jika sedang tidak di jalan raya)
-  void _toggleAutoTrip() {
+  /// Simulasi perjalanan demo yang mengikuti jalur jalan raya (bukan memotong garis lurus)
+  Future<void> _toggleAutoTrip() async {
     if (_isAutoMoving) {
       _tripTimer?.cancel();
       setState(() => _isAutoMoving = false);
       return;
     }
-
-    setState(() {
-      _isAutoMoving = true;
-      _tripProgress = 0.0;
-    });
 
     final targetLat = widget.request.latitudeFaskes != 0.0
         ? widget.request.latitudeFaskes
@@ -197,24 +196,43 @@ class _RespondRequestScreenState extends State<RespondRequestScreen> {
     final startLat = _currentGpsPosition?.latitude ?? _fallbackStartLat;
     final startLng = _currentGpsPosition?.longitude ?? _fallbackStartLng;
 
-    _tripTimer = Timer.periodic(const Duration(seconds: 2), (timer) {
+    // Ambil rute jalan riil jika belum ada
+    if (_simRoutePoints.isEmpty) {
+      try {
+        final res = await _routingService.getRoadRoute(
+          LatLng(startLat, startLng),
+          LatLng(targetLat, targetLng),
+        );
+        _simRoutePoints = res.points;
+      } catch (_) {
+        _simRoutePoints = List<LatLng>.from(RoutingService.defaultLamonganRoad);
+      }
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _isAutoMoving = true;
+      _tripProgress = 0.0;
+    });
+
+    _tripTimer = Timer.periodic(const Duration(milliseconds: 600), (timer) {
       if (!mounted) {
         timer.cancel();
         return;
       }
 
       setState(() {
-        _tripProgress += 0.1;
+        _tripProgress += 0.02;
         if (_tripProgress >= 1.0) {
           _tripProgress = 1.0;
           timer.cancel();
           _isAutoMoving = false;
         }
 
-        final currentLat = startLat + (targetLat - startLat) * _tripProgress;
-        final currentLng = startLng + (targetLng - startLng) * _tripProgress;
-
-        _trackingRepo.updateLocation(currentLat, currentLng);
+        // Koordinat tepat di sepanjang jalan raya
+        final curPos = _routingService.getPointAlongRoute(_simRoutePoints, _tripProgress);
+        _trackingRepo.updateLocation(curPos.latitude, curPos.longitude);
       });
     });
   }

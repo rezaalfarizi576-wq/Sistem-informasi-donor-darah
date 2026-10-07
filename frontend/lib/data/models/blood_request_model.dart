@@ -20,6 +20,8 @@ class BloodRequestModel {
   final String? requesterPhone;
   final String? _rawPatientName;
   final String? suratDokter;
+  final double? distanceKm;
+  final String? distanceDisplay;
 
   BloodRequestModel({
     required this.id,
@@ -41,6 +43,8 @@ class BloodRequestModel {
     this.requesterPhone,
     String? patientName,
     this.suratDokter,
+    this.distanceKm,
+    this.distanceDisplay,
   }) : _rawPatientName = patientName;
 
   factory BloodRequestModel.fromJson(Map<String, dynamic> json) {
@@ -64,6 +68,8 @@ class BloodRequestModel {
       requesterPhone: json['requester_phone'] as String?,
       patientName: json['patient_name'] as String?,
       suratDokter: json['surat_dokter'] as String?,
+      distanceKm: (json['distance_km'] as num?)?.toDouble(),
+      distanceDisplay: json['distance_display'] as String?,
     );
   }
 
