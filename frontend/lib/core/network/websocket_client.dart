@@ -44,6 +44,12 @@ class WebSocketClient {
     }
   }
 
+  void sendEvent(Map<String, dynamic> data) {
+    if (_channel != null) {
+      _channel?.sink.add(jsonEncode(data));
+    }
+  }
+
   void disconnect() {
     _channel?.sink.close();
     _channel = null;

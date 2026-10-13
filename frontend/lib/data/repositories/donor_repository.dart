@@ -42,4 +42,20 @@ class DonorRepository {
     });
     return response as Map<String, dynamic>;
   }
+
+  /// Mengambil data live tracking terintegrasi
+  Future<Map<String, dynamic>> getTrackingStatus(int requestId, {double? lat, double? lng}) async {
+    final queryParams = <String, String>{};
+    if (lat != null) queryParams['lat'] = lat.toString();
+    if (lng != null) queryParams['lng'] = lng.toString();
+    final queryString = queryParams.isNotEmpty ? '?${Uri(queryParameters: queryParams).query}' : '';
+    final response = await _apiClient.get('/donor/requests/$requestId/tracking$queryString');
+    return response as Map<String, dynamic>;
+  }
+
+  /// Konfirmasi kedatangan donor di faskes ("Saya Sudah Sampai")
+  Future<Map<String, dynamic>> confirmArrival(int requestId) async {
+    final response = await _apiClient.post('/donor/requests/$requestId/arrive');
+    return response as Map<String, dynamic>;
+  }
 }

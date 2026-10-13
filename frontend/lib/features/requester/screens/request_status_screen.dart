@@ -47,6 +47,11 @@ class _RequestStatusScreenState extends State<RequestStatusScreen> {
         title: const Text('Status Permohonan Darah'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.person_rounded),
+            tooltip: 'Profil Pemohon',
+            onPressed: () => Navigator.pushNamed(context, AppRouter.requesterProfileRoute),
+          ),
+          IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _loadRequests,
           ),
@@ -111,7 +116,7 @@ class _RequestStatusScreenState extends State<RequestStatusScreen> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
-                              color: statusColor.withOpacity(0.15),
+                              color: statusColor.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(color: statusColor),
                             ),

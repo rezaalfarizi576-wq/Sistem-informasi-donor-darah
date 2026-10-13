@@ -349,7 +349,7 @@ class _RespondRequestScreenState extends State<RespondRequestScreen> {
                 onPressed: () {
                   Navigator.pushNamed(
                     context,
-                    AppRouter.liveTrackingRoute,
+                    AppRouter.donorLiveTrackingRoute,
                     arguments: widget.request.id.toString(),
                   );
                 },

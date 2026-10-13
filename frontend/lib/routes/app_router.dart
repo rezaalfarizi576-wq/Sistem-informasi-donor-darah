@@ -5,11 +5,15 @@ import '../features/auth/screens/register_screen.dart';
 import '../features/auth/screens/activate_account_screen.dart';
 import '../features/requester/screens/request_form_screen.dart';
 import '../features/requester/screens/request_status_screen.dart';
-import '../features/requester/screens/live_tracking_screen.dart';
+import '../features/requester/screens/requester_profile_screen.dart';
+import '../features/requester/screens/requester_request_screen.dart';
+import '../features/requester/screens/requester_tracking_screen.dart';
 import '../features/donor/screens/donor_dashboard_screen.dart';
 import '../features/donor/screens/notification_screen.dart';
 import '../features/donor/screens/respond_request_screen.dart';
 import '../features/donor/screens/donation_history_screen.dart';
+import '../features/donor/screens/donation_success_screen.dart';
+import '../features/donor/screens/donor_live_tracking_screen.dart';
 import '../features/admin/screens/admin_shell_screen.dart';
 
 class AppRouter {
@@ -19,15 +23,20 @@ class AppRouter {
   static const String activateAccountRoute = '/activate';
 
   // Requester
+  static const String requesterRequestRoute = '/requester/permohonan';
   static const String requestFormRoute = '/requester/form';
   static const String requestStatusRoute = '/requester/status';
   static const String liveTrackingRoute = '/requester/tracking';
+  static const String requesterPantauRoute = '/requester/pantau';
+  static const String requesterProfileRoute = '/requester/profile';
 
   // Donor
   static const String donorDashboardRoute = '/donor/dashboard';
   static const String donorNotificationRoute = '/donor/notifications';
   static const String respondRequestRoute = '/donor/respond';
   static const String donationHistoryRoute = '/donor/history';
+  static const String donationSuccessRoute = '/donor/success';
+  static const String donorLiveTrackingRoute = '/donor/tracking';
 
   // Admin
   static const String adminDashboardRoute = '/admin/dashboard';
@@ -44,6 +53,9 @@ class AppRouter {
       case activateAccountRoute:
         return MaterialPageRoute(builder: (_) => const ActivateAccountScreen());
 
+      case requesterRequestRoute:
+        return MaterialPageRoute(builder: (_) => const RequesterRequestScreen());
+
       case requestFormRoute:
         return MaterialPageRoute(builder: (_) => const RequestFormScreen());
 
@@ -51,10 +63,14 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const RequestStatusScreen());
 
       case liveTrackingRoute:
+      case requesterPantauRoute:
         final requestId = settings.arguments as String? ?? '1';
         return MaterialPageRoute(
-          builder: (_) => LiveTrackingScreen(requestId: requestId),
+          builder: (_) => RequesterTrackingScreen(requestId: requestId),
         );
+
+      case requesterProfileRoute:
+        return MaterialPageRoute(builder: (_) => const RequesterProfileScreen());
 
       case donorDashboardRoute:
         return MaterialPageRoute(builder: (_) => const DonorDashboardScreen());
@@ -73,6 +89,15 @@ class AppRouter {
 
       case donationHistoryRoute:
         return MaterialPageRoute(builder: (_) => const DonationHistoryScreen());
+
+      case donationSuccessRoute:
+        return MaterialPageRoute(builder: (_) => const DonationSuccessScreen());
+
+      case donorLiveTrackingRoute:
+        final requestId = settings.arguments as String? ?? '1';
+        return MaterialPageRoute(
+          builder: (_) => DonorLiveTrackingScreen(requestId: requestId),
+        );
 
       case adminDashboardRoute:
         return MaterialPageRoute(builder: (_) => const AdminShellScreen());

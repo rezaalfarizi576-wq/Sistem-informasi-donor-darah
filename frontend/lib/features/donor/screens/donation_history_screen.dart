@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../data/models/donor_stats_model.dart';
 import '../../../data/repositories/donor_repository.dart';
+import 'donation_success_screen.dart';
 
 class DonationHistoryScreen extends StatefulWidget {
   const DonationHistoryScreen({super.key});
@@ -173,6 +174,18 @@ class _DonationHistoryScreenState extends State<DonationHistoryScreen> {
                                 ],
                               ),
                               child: ListTile(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => DonationSuccessScreen(
+                                        hospitalName: item.location,
+                                        donationDate: item.date,
+                                        volume: item.bags,
+                                      ),
+                                    ),
+                                  );
+                                },
                                 contentPadding: const EdgeInsets.symmetric(
                                   horizontal: 16,
                                   vertical: 10,

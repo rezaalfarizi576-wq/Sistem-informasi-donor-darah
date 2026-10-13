@@ -15,6 +15,10 @@ class TrackingRepository {
     _wsClient.sendLocation(latitude, longitude);
   }
 
+  void sendEvent(Map<String, dynamic> data) {
+    _wsClient.sendEvent(data);
+  }
+
   void stopTracking() {
     _wsClient.disconnect();
   }
