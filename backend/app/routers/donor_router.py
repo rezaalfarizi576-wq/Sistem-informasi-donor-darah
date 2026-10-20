@@ -494,3 +494,60 @@ def confirm_donor_arrival(
     }
 
 
+@router.get("/active-dispatch")
+def get_active_dispatch(
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user_optional),
+):
+    """
+    Mengambil data dispatch & tiket triase aktif untuk donor.
+    """
+    if not current_user:
+        return {"has_active_dispatch": False, "dispatch": None}
+
+    donor_id = current_user.id
+
+    resp = (
+        db.query(DonationResponse)
+        .join(BloodRequest, DonationResponse.request_id == BloodRequest.id)
+        .filter(
+            DonationResponse.donor_id == donor_id,
+            DonationResponse.status.in_(["diterima", "menuju_lokasi"]),
+            BloodRequest.status.in_(["menunggu", "diproses", "pending", "in_progress"]),
+        )
+        .order_by(DonationResponse.waktu_respon.desc())
+        .first()
+    )
+
+    if not resp or not resp.request:
+        return {"has_active_dispatch": False, "dispatch": None}
+
+    req = resp.request
+    today_str = resp.created_at.strftime("%Y%m%d") if resp.created_at else datetime.utcnow().strftime("%Y%m%d")
+    ticket_code = getattr(resp, "kode_tiket", None) or f"TGP-{today_str}-{req.id:04d}-{donor_id:04d}"
+
+    r_lat = float(req.latitude_faskes) if req.latitude_faskes else -7.119812
+    r_lng = float(req.longitude_faskes) if req.longitude_faskes else 112.415155
+
+    return {
+        "has_active_dispatch": True,
+        "dispatch": {
+            "ticket_code": ticket_code,
+            "dispatch_id": f"DSP-{today_str}-{req.id:04d}",
+            "request_id": req.id,
+            "donor_id": donor_id,
+            "patient_name": req.patient_name or "Pasien IGD Darurat",
+            "hospital_name": req.hospital_name,
+            "blood_type": req.blood_type,
+            "rhesus": req.rhesus or "+",
+            "bags_needed": req.bags_needed,
+            "urgency_level": req.urgency_level,
+            "notes": req.notes or "Donor Darurat Fast-Track",
+            "hospital_lat": r_lat,
+            "hospital_lng": r_lng,
+            "status": resp.status,
+            "waktu_respon": resp.waktu_respon.isoformat() if resp.waktu_respon else None,
+        }
+    }
+
+

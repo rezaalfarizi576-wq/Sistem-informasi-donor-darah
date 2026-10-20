@@ -39,6 +39,14 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
   String _selectedDonorBloodType = 'O';
   String _selectedSesiWaktu = '08.00 - 11.00 (Pagi)';
   DateTime _reservasiDate = DateTime.now().add(const Duration(days: 1));
+  final TextEditingController _searchBankController = TextEditingController();
+  String _searchBankQuery = '';
+
+  @override
+  void dispose() {
+    _searchBankController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -937,44 +945,65 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
       'TC (TROMBOSIT)',
     ];
 
+    // Ambil stok dinamis dari backend jika tersedia
+    int getStockCount(String type, int defaultVal) {
+      if (_bloodStock != null && _bloodStock!.stocks.isNotEmpty) {
+        final cleanType = type.replaceAll('+', '').replaceAll('-', '');
+        final cleanRhesus = type.contains('-') ? '-' : '+';
+        final match = _bloodStock!.stocks.where(
+          (s) => s.bloodType.toUpperCase() == cleanType && s.rhesus == cleanRhesus,
+        );
+        if (match.isNotEmpty) return match.first.bags;
+      }
+      return defaultVal;
+    }
+
+    final countA = getStockCount('A+', 42);
+    final countB = getStockCount('B+', 18);
+    final countO = getStockCount('O+', 4);
+    final countAB = getStockCount('AB+', 24);
+
     // Data 4 Golongan Darah Terpadu
     final List<_BloodStockData> stockList = [
-      const _BloodStockData(
+      _BloodStockData(
         type: 'A+',
-        count: 42,
-        status: 'AMAN',
-        statusBg: Color(0xFFDCFCE7),
-        statusTextColor: Color(0xFF16A34A),
-        progress: 0.75,
-        barColor: Color(0xFF16A34A),
+        count: countA,
+        status: countA > 20 ? 'AMAN' : (countA > 10 ? 'WASPADA' : 'DEFISIT'),
+        statusBg: countA > 20 ? const Color(0xFFDCFCE7) : (countA > 10 ? const Color(0xFFF1F5F9) : const Color(0xFFDC2626)),
+        statusTextColor: countA > 20 ? const Color(0xFF16A34A) : (countA > 10 ? const Color(0xFF475569) : Colors.white),
+        progress: (countA / 50).clamp(0.05, 1.0),
+        barColor: countA > 20 ? const Color(0xFF16A34A) : (countA > 10 ? const Color(0xFFD97706) : const Color(0xFFDC2626)),
+        isDeficit: countA <= 10,
       ),
-      const _BloodStockData(
+      _BloodStockData(
         type: 'B+',
-        count: 18,
-        status: 'WASPADA',
-        statusBg: Color(0xFFF1F5F9),
-        statusTextColor: Color(0xFF475569),
-        progress: 0.45,
-        barColor: Color(0xFFD97706),
+        count: countB,
+        status: countB > 20 ? 'AMAN' : (countB > 10 ? 'WASPADA' : 'DEFISIT'),
+        statusBg: countB > 20 ? const Color(0xFFDCFCE7) : (countB > 10 ? const Color(0xFFF1F5F9) : const Color(0xFFDC2626)),
+        statusTextColor: countB > 20 ? const Color(0xFF16A34A) : (countB > 10 ? const Color(0xFF475569) : Colors.white),
+        progress: (countB / 50).clamp(0.05, 1.0),
+        barColor: countB > 20 ? const Color(0xFF16A34A) : (countB > 10 ? const Color(0xFFD97706) : const Color(0xFFDC2626)),
+        isDeficit: countB <= 10,
       ),
-      const _BloodStockData(
+      _BloodStockData(
         type: 'O+',
-        count: 4,
-        status: 'DEFISIT',
-        statusBg: Color(0xFFDC2626),
-        statusTextColor: Colors.white,
-        progress: 0.15,
-        barColor: Color(0xFFDC2626),
-        isDeficit: true,
+        count: countO,
+        status: countO > 20 ? 'AMAN' : (countO > 10 ? 'WASPADA' : 'DEFISIT'),
+        statusBg: countO > 20 ? const Color(0xFFDCFCE7) : (countO > 10 ? const Color(0xFFF1F5F9) : const Color(0xFFDC2626)),
+        statusTextColor: countO > 20 ? const Color(0xFF16A34A) : (countO > 10 ? const Color(0xFF475569) : Colors.white),
+        progress: (countO / 50).clamp(0.05, 1.0),
+        barColor: countO > 20 ? const Color(0xFF16A34A) : (countO > 10 ? const Color(0xFFD97706) : const Color(0xFFDC2626)),
+        isDeficit: countO <= 10,
       ),
-      const _BloodStockData(
+      _BloodStockData(
         type: 'AB+',
-        count: 24,
-        status: 'AMAN',
-        statusBg: Color(0xFFDCFCE7),
-        statusTextColor: Color(0xFF16A34A),
-        progress: 0.55,
-        barColor: Color(0xFF16A34A),
+        count: countAB,
+        status: countAB > 20 ? 'AMAN' : (countAB > 10 ? 'WASPADA' : 'DEFISIT'),
+        statusBg: countAB > 20 ? const Color(0xFFDCFCE7) : (countAB > 10 ? const Color(0xFFF1F5F9) : const Color(0xFFDC2626)),
+        statusTextColor: countAB > 20 ? const Color(0xFF16A34A) : (countAB > 10 ? const Color(0xFF475569) : Colors.white),
+        progress: (countAB / 50).clamp(0.05, 1.0),
+        barColor: countAB > 20 ? const Color(0xFF16A34A) : (countAB > 10 ? const Color(0xFFD97706) : const Color(0xFFDC2626)),
+        isDeficit: countAB <= 10,
       ),
     ];
 
@@ -1012,6 +1041,37 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
         components: ['WB: 10', 'PRC: 15', 'TC: 4'],
       ),
     ];
+
+    // Filter daftar faskes sesuai pilihan chip & search query
+    final filteredFaskes = faskesList.where((f) {
+      // 1. Filter Rh- (khusus Pusat UTD)
+      if (_bankSelectedFilter == 'Rh-') {
+        if (!f.badgeText.contains('PUSAT UTD')) return false;
+      }
+
+      // 2. Filter Komponen Darah
+      if (_bankSelectedComponent != 'SEMUA KOMPONEN') {
+        final compKey = _bankSelectedComponent.startsWith('WB')
+            ? 'WB'
+            : _bankSelectedComponent.startsWith('PRC')
+                ? 'PRC'
+                : 'TC';
+        if (!f.components.any((c) => c.toUpperCase().contains(compKey))) {
+          return false;
+        }
+      }
+
+      // 3. Filter Text Pencarian
+      if (_searchBankQuery.isNotEmpty) {
+        final q = _searchBankQuery.toLowerCase();
+        final matchName = f.name.toLowerCase().contains(q);
+        final matchAddr = f.address.toLowerCase().contains(q);
+        final matchComp = f.components.any((c) => c.toLowerCase().contains(q));
+        if (!matchName && !matchAddr && !matchComp) return false;
+      }
+
+      return true;
+    }).toList();
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -1151,7 +1211,11 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                  border: Border.all(
+                    color: _searchBankQuery.isNotEmpty
+                        ? const Color(0xFFDC2626)
+                        : const Color(0xFFE2E8F0),
+                  ),
                 ),
                 child: Row(
                   children: [
@@ -1159,6 +1223,8 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                     const SizedBox(width: 10),
                     Expanded(
                       child: TextField(
+                        controller: _searchBankController,
+                        onChanged: (val) => setState(() => _searchBankQuery = val.trim()),
                         style: GoogleFonts.plusJakartaSans(fontSize: 13),
                         decoration: InputDecoration(
                           hintText: 'Cari faskes, BDRS, atau komponen darah...',
@@ -1171,6 +1237,14 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                         ),
                       ),
                     ),
+                    if (_searchBankQuery.isNotEmpty)
+                      GestureDetector(
+                        onTap: () {
+                          _searchBankController.clear();
+                          setState(() => _searchBankQuery = '');
+                        },
+                        child: const Icon(Icons.close_rounded, size: 18, color: Color(0xFF94A3B8)),
+                      ),
                   ],
                 ),
               ),
@@ -1185,7 +1259,14 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                     return Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: GestureDetector(
-                        onTap: () => setState(() => _bankSelectedFilter = f),
+                        onTap: () {
+                          setState(() {
+                            _bankSelectedFilter = f;
+                            if (f != 'Semua' && f != 'Rh-') {
+                              _selectedDonorBloodType = f.replaceAll('+', '').replaceAll('-', '');
+                            }
+                          });
+                        },
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 180),
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
@@ -1334,6 +1415,7 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                         ElevatedButton(
                           onPressed: () {
                             setState(() {
+                              _bankSelectedFilter = 'O+';
                               _selectedDonorBloodType = 'O';
                             });
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -1391,14 +1473,41 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                       ),
                     ),
                     const Spacer(),
-                    Text(
-                      'Total: ${_bloodStock?.totalBags ?? 110} Kantong',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 11.5,
-                        color: const Color(0xFF94A3B8),
-                        fontWeight: FontWeight.w500,
+                    if (_bankSelectedFilter != 'Semua')
+                      GestureDetector(
+                        onTap: () => setState(() => _bankSelectedFilter = 'Semua'),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFEE2E2),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'Reset ($_bankSelectedFilter)',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 10.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: const Color(0xFFDC2626),
+                                ),
+                              ),
+                              const SizedBox(width: 3),
+                              const Icon(Icons.close_rounded, size: 12, color: Color(0xFFDC2626)),
+                            ],
+                          ),
+                        ),
+                      )
+                    else
+                      Text(
+                        'Total: ${_bloodStock?.totalBags ?? 110} Kantong',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 11.5,
+                          color: const Color(0xFF94A3B8),
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    ),
                   ],
                 ),
               ),
@@ -1413,7 +1522,23 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                   crossAxisSpacing: 10,
                   mainAxisSpacing: 10,
                   childAspectRatio: 1.45,
-                  children: stockList.map((s) => _buildExactBloodStockCard(s)).toList(),
+                  children: stockList.map((s) {
+                    final isSelected = _bankSelectedFilter == s.type;
+                    final isDimmed = _bankSelectedFilter != 'Semua' && !isSelected;
+                    return _buildExactBloodStockCard(
+                      s,
+                      isSelected: isSelected,
+                      isDimmed: isDimmed,
+                      onTap: () {
+                        setState(() {
+                          _bankSelectedFilter = isSelected ? 'Semua' : s.type;
+                          if (_bankSelectedFilter != 'Semua' && _bankSelectedFilter != 'Rh-') {
+                            _selectedDonorBloodType = s.type.replaceAll('+', '').replaceAll('-', '');
+                          }
+                        });
+                      },
+                    );
+                  }).toList(),
                 ),
               ),
 
@@ -1422,101 +1547,157 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
               // Card Rhesus Negatif (All)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 42,
-                        height: 42,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF0F172A),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          'Rh-',
-                          style: GoogleFonts.plusJakartaSans(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _bankSelectedFilter = _bankSelectedFilter == 'Rh-' ? 'Semua' : 'Rh-';
+                    });
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: _bankSelectedFilter == 'Rh-' ? const Color(0xFFFAF5FF) : Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: _bankSelectedFilter == 'Rh-'
+                            ? const Color(0xFF7C3AED)
+                            : const Color(0xFFE2E8F0),
+                        width: _bankSelectedFilter == 'Rh-' ? 2 : 1,
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
+                      boxShadow: _bankSelectedFilter == 'Rh-'
+                          ? [
+                              BoxShadow(
+                                color: const Color(0xFF7C3AED).withValues(alpha: 0.15),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              )
+                            ]
+                          : null,
+                    ),
+                    child: Opacity(
+                      opacity: (_bankSelectedFilter != 'Semua' && _bankSelectedFilter != 'Rh-') ? 0.45 : 1.0,
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 42,
+                            height: 42,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF0F172A),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              'Rh-',
+                              style: GoogleFonts.plusJakartaSans(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  'Rhesus Negatif (All)',
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 13,
-                                    color: const Color(0xFF0F172A),
-                                  ),
-                                ),
-                                const SizedBox(width: 6),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFEDE9FE),
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  child: Text(
-                                    'LANGKA',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 9,
-                                      fontWeight: FontWeight.w800,
-                                      color: const Color(0xFF7C3AED),
+                                Row(
+                                  children: [
+                                    Text(
+                                      'Rhesus Negatif (All)',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 13,
+                                        color: const Color(0xFF0F172A),
+                                      ),
                                     ),
+                                    const SizedBox(width: 6),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFEDE9FE),
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Text(
+                                        _bankSelectedFilter == 'Rh-' ? 'DIPILIH' : 'LANGKA',
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontSize: 9,
+                                          fontWeight: FontWeight.w800,
+                                          color: const Color(0xFF7C3AED),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  _bankSelectedFilter == 'Rh-'
+                                      ? 'Menampilkan pusat rujukan donor Rhesus Negatif'
+                                      : 'Prioritas rujukan & pengawetan khusus',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 11,
+                                    color: const Color(0xFF64748B),
                                   ),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 2),
-                            Text(
-                              'Prioritas rujukan & pengawetan khusus',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 11,
-                                color: const Color(0xFF64748B),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            '02',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w800,
-                              color: const Color(0xFF0F172A),
-                              height: 1,
-                            ),
                           ),
-                          Text(
-                            'Kantong',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 10,
-                              color: const Color(0xFF94A3B8),
-                            ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                '02',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w800,
+                                  color: const Color(0xFF0F172A),
+                                  height: 1,
+                                ),
+                              ),
+                              Text(
+                                'Kantong',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 10,
+                                  color: const Color(0xFF94A3B8),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),
+
+              if (_bankSelectedFilter != 'Semua')
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF1F5F9),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.filter_alt_rounded, size: 16, color: Color(0xFFDC2626)),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Menampilkan ketersediaan & faskes untuk Golongan $_bankSelectedFilter',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFF334155),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
 
               const SizedBox(height: 18),
 
@@ -1535,7 +1716,7 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                     ),
                     const Spacer(),
                     Text(
-                      '3 Faskes Terkoneksi',
+                      '${filteredFaskes.length} Faskes Terkoneksi',
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 11.5,
                         color: const Color(0xFFDC2626),
@@ -1548,9 +1729,60 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
 
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  children: faskesList.map((f) => _buildExactFaskesCard(f)).toList(),
-                ),
+                child: filteredFaskes.isEmpty
+                    ? Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                        ),
+                        child: Column(
+                          children: [
+                            const Icon(Icons.search_off_rounded, size: 40, color: Color(0xFF94A3B8)),
+                            const SizedBox(height: 10),
+                            Text(
+                              'Tidak Ada Faskes yang Cocok',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 13.5,
+                                fontWeight: FontWeight.w800,
+                                color: const Color(0xFF0F172A),
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Coba ganti kata kunci pencarian atau filter komponen di atas.',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 11.5,
+                                color: const Color(0xFF64748B),
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 12),
+                            TextButton.icon(
+                              onPressed: () {
+                                _searchBankController.clear();
+                                setState(() {
+                                  _bankSelectedFilter = 'Semua';
+                                  _bankSelectedComponent = 'SEMUA KOMPONEN';
+                                  _searchBankQuery = '';
+                                });
+                              },
+                              icon: const Icon(Icons.refresh_rounded, size: 16),
+                              label: const Text('Reset Semua Filter'),
+                              style: TextButton.styleFrom(
+                                foregroundColor: const Color(0xFFDC2626),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : Column(
+                        children: filteredFaskes
+                            .map((f) => _buildExactFaskesCard(f, activeComponent: _bankSelectedComponent))
+                            .toList(),
+                      ),
               ),
 
               const SizedBox(height: 14),
@@ -1866,89 +2098,122 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
   }
 
   // ─── Helper: exact blood stock card ───
-  Widget _buildExactBloodStockCard(_BloodStockData s) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: s.isDeficit ? const Color(0xFFFEE2E2) : Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: s.isDeficit ? const Color(0xFFFECACA) : const Color(0xFFE2E8F0),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+  Widget _buildExactBloodStockCard(
+    _BloodStockData s, {
+    bool isSelected = false,
+    bool isDimmed = false,
+    VoidCallback? onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 180),
+        opacity: isDimmed ? 0.45 : 1.0,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? (s.isDeficit ? const Color(0xFFFEE2E2) : const Color(0xFFFEF2F2))
+                : (s.isDeficit ? const Color(0xFFFEE2E2) : Colors.white),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: isSelected
+                  ? const Color(0xFFDC2626)
+                  : s.isDeficit
+                      ? const Color(0xFFFECACA)
+                      : const Color(0xFFE2E8F0),
+              width: isSelected ? 2.2 : 1.0,
+            ),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: const Color(0xFFDC2626).withValues(alpha: 0.18),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                s.type,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                  color: s.isDeficit ? const Color(0xFFDC2626) : const Color(0xFF0F172A),
-                ),
+              Row(
+                children: [
+                  Text(
+                    s.type,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                      color: s.isDeficit ? const Color(0xFFDC2626) : const Color(0xFF0F172A),
+                    ),
+                  ),
+                  if (isSelected) ...[
+                    const SizedBox(width: 5),
+                    const Icon(Icons.check_circle_rounded, size: 14, color: Color(0xFFDC2626)),
+                  ],
+                  const Spacer(),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: s.statusBg,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      s.status,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.w800,
+                        color: s.statusTextColor,
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                decoration: BoxDecoration(
-                  color: s.statusBg,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  s.status,
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 9.5,
-                    fontWeight: FontWeight.w800,
-                    color: s.statusTextColor,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  Text(
+                    s.count.toString().padLeft(2, '0'),
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w800,
+                      color: s.isDeficit ? const Color(0xFFDC2626) : const Color(0xFF0F172A),
+                      height: 1,
+                    ),
                   ),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Kantong',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 10.5,
+                      color: const Color(0xFF94A3B8),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(3),
+                child: LinearProgressIndicator(
+                  value: s.progress,
+                  backgroundColor: const Color(0xFFE2E8F0),
+                  valueColor: AlwaysStoppedAnimation<Color>(s.barColor),
+                  minHeight: 4,
                 ),
               ),
             ],
           ),
-          const Spacer(),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(
-                s.count.toString().padLeft(2, '0'),
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w800,
-                  color: s.isDeficit ? const Color(0xFFDC2626) : const Color(0xFF0F172A),
-                  height: 1,
-                ),
-              ),
-              const SizedBox(width: 4),
-              Text(
-                'Kantong',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 10.5,
-                  color: const Color(0xFF94A3B8),
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(3),
-            child: LinearProgressIndicator(
-              value: s.progress,
-              backgroundColor: const Color(0xFFE2E8F0),
-              valueColor: AlwaysStoppedAnimation<Color>(s.barColor),
-              minHeight: 4,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 
   // ─── Helper: exact faskes card ───
-  Widget _buildExactFaskesCard(_FasilitasData f) {
+  Widget _buildExactFaskesCard(_FasilitasData f, {String activeComponent = 'SEMUA KOMPONEN'}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
@@ -2070,7 +2335,15 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                   spacing: 6,
                   runSpacing: 4,
                   children: f.components.map((c) {
-                    final isHighlighted = c.contains('(O+)');
+                    final compKey = activeComponent.startsWith('WB')
+                        ? 'WB'
+                        : activeComponent.startsWith('PRC')
+                            ? 'PRC'
+                            : activeComponent.startsWith('TC')
+                                ? 'TC'
+                                : '';
+                    final isFilterMatch = compKey.isNotEmpty && c.toUpperCase().contains(compKey);
+                    final isHighlighted = c.contains('(O+)') || isFilterMatch;
                     return Container(
                       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                       decoration: BoxDecoration(

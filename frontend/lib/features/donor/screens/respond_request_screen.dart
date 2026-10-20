@@ -339,6 +339,24 @@ class _RespondRequestScreenState extends State<RespondRequestScreen> {
               ),
               const SizedBox(height: 20),
 
+              // Tombol Buka Tiket Fast-Track & QR Triase
+              FilledButton.icon(
+                style: FilledButton.styleFrom(
+                  backgroundColor: const Color(0xFF0F172A),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                onPressed: () {
+                  Navigator.pushNamed(
+                    context,
+                    AppRouter.donorDispatchRoute,
+                  );
+                },
+                icon: const Icon(Icons.qr_code_2_rounded),
+                label: const Text('Buka Tiket Triase & QR Fast-Track'),
+              ),
+              const SizedBox(height: 10),
+
               // Tombol Buka Peta Live Tracking
               FilledButton.icon(
                 style: FilledButton.styleFrom(

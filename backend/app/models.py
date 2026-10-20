@@ -131,6 +131,7 @@ class DonationResponse(Base):
     jarak_saat_notifikasi_km = Column(Numeric(5, 2), nullable=True)
     # Di database berupa ENUM: 'menunggu', 'diterima', 'ditolak', 'dibatalkan', ...
     status = Column(String(20), nullable=False, default='menunggu')
+    kode_tiket = Column(String(50), unique=True, nullable=True, index=True)
     waktu_respon = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 

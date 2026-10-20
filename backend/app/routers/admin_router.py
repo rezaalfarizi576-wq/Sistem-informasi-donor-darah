@@ -241,14 +241,22 @@ def respond_to_blood_request(
         .first()
     )
 
+    today_str = datetime.utcnow().strftime("%Y%m%d")
+    ticket_code = f"TGP-{today_str}-{req.id:04d}-{donor_id:04d}"
+
     if existing:
         existing.status = "diterima"
         existing.waktu_respon = datetime.utcnow()
+        if not getattr(existing, "kode_tiket", None):
+            existing.kode_tiket = ticket_code
+        else:
+            ticket_code = existing.kode_tiket
     else:
         new_resp = DonationResponse(
             request_id=request_id,
             donor_id=donor_id,
             status="diterima",
+            kode_tiket=ticket_code,
             waktu_respon=datetime.utcnow(),
         )
         db.add(new_resp)
@@ -257,10 +265,68 @@ def respond_to_blood_request(
         req.status = "diproses"
 
     db.commit()
+
+    dispatch_info = {
+        "ticket_code": ticket_code,
+        "dispatch_id": f"DSP-{today_str}-{req.id:04d}",
+        "request_id": req.id,
+        "donor_id": donor_id,
+        "patient_name": req.patient_name or "Pasien Darurat IGD",
+        "hospital_name": req.hospital_name,
+        "blood_type": req.blood_type,
+        "rhesus": req.rhesus or "+",
+        "bags_needed": req.bags_needed,
+        "urgency_level": req.urgency_level,
+        "notes": req.notes or "Donor Darurat Fast-Track",
+        "hospital_lat": float(req.latitude_faskes) if req.latitude_faskes else -7.119812,
+        "hospital_lng": float(req.longitude_faskes) if req.longitude_faskes else 112.415155,
+        "created_at": datetime.utcnow().isoformat(),
+    }
+
     return {
         "status": "success",
         "message": "Terima kasih! Anda bersedia menjadi pendonor untuk permohonan ini.",
         "request_id": request_id,
+        "ticket_code": ticket_code,
+        "dispatch": dispatch_info,
+    }
+
+
+@requests_router.get("/ticket/{ticket_code}")
+def get_ticket_details(ticket_code: str, db: Session = Depends(get_db)):
+    """Verifikasi dan ambil data triase fast-track berdasarkan kode tiket QR."""
+    response = (
+        db.query(DonationResponse)
+        .filter(DonationResponse.kode_tiket == ticket_code)
+        .first()
+    )
+    if not response:
+        raise HTTPException(status_code=404, detail="Tiket triase tidak ditemukan atau tidak valid")
+
+    req = response.request
+    donor = response.donor
+
+    return {
+        "status": "valid",
+        "ticket_code": response.kode_tiket,
+        "response_status": response.status,
+        "waktu_respon": response.waktu_respon.isoformat() if response.waktu_respon else None,
+        "request": {
+            "id": req.id,
+            "patient_name": req.patient_name,
+            "hospital_name": req.hospital_name,
+            "blood_type": req.blood_type,
+            "rhesus": req.rhesus,
+            "urgency_level": req.urgency_level,
+            "status": req.status,
+        },
+        "donor": {
+            "id": donor.id,
+            "nama": donor.nama,
+            "no_hp": donor.no_hp,
+            "blood_type": donor.blood_type,
+            "rhesus": donor.rhesus,
+        }
     }
 
 

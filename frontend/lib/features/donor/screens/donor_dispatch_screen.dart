@@ -1,19 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import '../../../core/services/routing_service.dart';
+import '../../../data/models/dispatch_ticket_model.dart';
+import '../../../data/repositories/donor_repository.dart';
 import '../../../routes/app_router.dart';
 
 class DonorDispatchScreen extends StatefulWidget {
   final VoidCallback? onNavigateToRadar;
   final VoidCallback? onNavigateToBank;
   final VoidCallback? onNavigateToProfile;
+  final DispatchTicketModel? initialDispatch;
 
   const DonorDispatchScreen({
     super.key,
     this.onNavigateToRadar,
     this.onNavigateToBank,
     this.onNavigateToProfile,
+    this.initialDispatch,
   });
 
   @override
@@ -21,25 +28,100 @@ class DonorDispatchScreen extends StatefulWidget {
 }
 
 class _DonorDispatchScreenState extends State<DonorDispatchScreen> {
+  final _donorRepo = DonorRepository();
+  final _routingService = RoutingService();
+  DispatchTicketModel? _dispatch;
+  bool _isLoading = true;
+
   // Koordinat Lamongan untuk mini live tracking
-  final LatLng _donorPos = const LatLng(-7.1245, 112.4150);
-  final LatLng _faskesPos = const LatLng(-7.1190, 112.4195);
-  final List<LatLng> _routePoints = const [
-    LatLng(-7.1245, 112.4150),
-    LatLng(-7.1235, 112.4162),
-    LatLng(-7.1215, 112.4180),
-    LatLng(-7.1190, 112.4195),
-  ];
+  LatLng _donorPos = const LatLng(-7.1265, 112.4182);
+  LatLng _faskesPos = const LatLng(-7.119812, 112.415155);
+  List<LatLng> _routePoints = [];
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialDispatch != null) {
+      _dispatch = widget.initialDispatch;
+      _applyDispatchCoordinates(_dispatch!);
+      _isLoading = false;
+    } else {
+      _loadActiveDispatch();
+    }
+    _detectDonorGps();
+    _fetchRoadRoute();
+  }
+
+  void _applyDispatchCoordinates(DispatchTicketModel d) {
+    _faskesPos = LatLng(d.hospitalLat, d.hospitalLng);
+    _fetchRoadRoute();
+  }
+
+  Future<void> _fetchRoadRoute() async {
+    try {
+      final route = await _routingService.getRoadRoute(_donorPos, _faskesPos);
+      if (mounted && route.points.isNotEmpty) {
+        setState(() {
+          _routePoints = route.points;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _routePoints = RoutingService.defaultLamonganRoad;
+        });
+      }
+    }
+  }
+
+  Future<void> _detectDonorGps() async {
+    try {
+      final pos = await Geolocator.getLastKnownPosition();
+      if (pos != null && mounted) {
+        setState(() {
+          _donorPos = LatLng(pos.latitude, pos.longitude);
+        });
+        _fetchRoadRoute();
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _loadActiveDispatch() async {
+    setState(() => _isLoading = true);
+    try {
+      final active = await _donorRepo.getActiveDispatch();
+      if (mounted) {
+        setState(() {
+          _dispatch = active;
+          if (_dispatch != null) {
+            _applyDispatchCoordinates(_dispatch!);
+          }
+          _isLoading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _dispatch = null;
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 580),
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
               // ── 1. TOP HEADER (PMI LAMONGAN Dispatch) ──
               Container(
                 color: Colors.white,
@@ -133,13 +215,25 @@ class _DonorDispatchScreenState extends State<DonorDispatchScreen> {
 
               const SizedBox(height: 12),
 
-              // ── 2. CARD MISI DISPATCH AKTIF ──
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
+              if (_isLoading)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 60),
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      color: Color(0xFFDC2626),
+                    ),
+                  ),
+                )
+              else if (_dispatch == null)
+                _buildEmptyDispatchState()
+              else ...[
+                // ── 2. CARD MISI DISPATCH AKTIF ──
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
                     border: Border.all(color: const Color(0xFFE2E8F0)),
                     boxShadow: [
                       BoxShadow(
@@ -182,7 +276,7 @@ class _DonorDispatchScreenState extends State<DonorDispatchScreen> {
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
-                                '#DSP-2025-0908',
+                                _dispatch?.dispatchId ?? '#DSP-2026-0908',
                                 style: GoogleFonts.plusJakartaSans(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w800,
@@ -217,7 +311,7 @@ class _DonorDispatchScreenState extends State<DonorDispatchScreen> {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    'RSUD Dr. Soegiri Lamongan',
+                                    _dispatch?.hospitalName ?? 'RSUD Dr. Soegiri Lamongan',
                                     style: GoogleFonts.plusJakartaSans(
                                       fontSize: 15,
                                       fontWeight: FontWeight.w800,
@@ -231,7 +325,7 @@ class _DonorDispatchScreenState extends State<DonorDispatchScreen> {
                                       const SizedBox(width: 5),
                                       Expanded(
                                         child: Text(
-                                          'ICU Bed 03 • Pasien: Ny. Dewi Rahayu',
+                                          'ICU Bed 03 • Pasien: ${_dispatch?.patientName ?? "Pasien IGD Darurat"}',
                                           style: GoogleFonts.plusJakartaSans(
                                             fontSize: 11.5,
                                             color: const Color(0xFF64748B),
@@ -256,7 +350,7 @@ class _DonorDispatchScreenState extends State<DonorDispatchScreen> {
                               child: Column(
                                 children: [
                                   Text(
-                                    'O+',
+                                    '${_dispatch?.bloodType ?? "O"}${_dispatch?.rhesus ?? "+"}',
                                     style: GoogleFonts.plusJakartaSans(
                                       color: Colors.white,
                                       fontSize: 18,
@@ -308,7 +402,7 @@ class _DonorDispatchScreenState extends State<DonorDispatchScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    '~8 Menit (3.8 km tersisa)',
+                                    '~8 Menit Menuju Faskes',
                                     style: GoogleFonts.plusJakartaSans(
                                       fontSize: 12.5,
                                       fontWeight: FontWeight.w800,
@@ -327,7 +421,7 @@ class _DonorDispatchScreenState extends State<DonorDispatchScreen> {
                                       ),
                                       const SizedBox(width: 4),
                                       Text(
-                                        'Menuju Faskes Rujukan',
+                                        'Rute Langsung Prioritas',
                                         style: GoogleFonts.plusJakartaSans(
                                           fontSize: 10.5,
                                           fontWeight: FontWeight.w700,
@@ -350,7 +444,7 @@ class _DonorDispatchScreenState extends State<DonorDispatchScreen> {
                                     ),
                                   ),
                                   Text(
-                                    'Kritis P1',
+                                    (_dispatch?.urgencyLevel ?? 'Kritis').toUpperCase(),
                                     style: GoogleFonts.plusJakartaSans(
                                       fontSize: 12.5,
                                       fontWeight: FontWeight.w800,
@@ -375,7 +469,7 @@ class _DonorDispatchScreenState extends State<DonorDispatchScreen> {
                                   Navigator.pushNamed(
                                     context,
                                     AppRouter.donorLiveTrackingRoute,
-                                    arguments: '1',
+                                    arguments: (_dispatch?.requestId ?? 1).toString(),
                                   );
                                 },
                                 style: ElevatedButton.styleFrom(
@@ -501,12 +595,15 @@ class _DonorDispatchScreenState extends State<DonorDispatchScreen> {
                         child: Stack(
                           children: [
                             FlutterMap(
-                              options: const MapOptions(
-                                initialCenter: LatLng(-7.1215, 112.4175),
-                                initialZoom: 14.5,
+                              options: MapOptions(
+                                initialCenter: LatLng(
+                                  (_donorPos.latitude + _faskesPos.latitude) / 2,
+                                  (_donorPos.longitude + _faskesPos.longitude) / 2,
+                                ),
+                                initialZoom: 14.2,
                                 minZoom: 12.0,
                                 maxZoom: 17.0,
-                                interactionOptions: InteractionOptions(
+                                interactionOptions: const InteractionOptions(
                                   flags: InteractiveFlag.pinchZoom | InteractiveFlag.drag,
                                 ),
                               ),
@@ -515,6 +612,7 @@ class _DonorDispatchScreenState extends State<DonorDispatchScreen> {
                                   urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                                   userAgentPackageName: 'id.pmi.donordarah.lamongan',
                                 ),
+                                if (_routePoints.length >= 2)
                                 PolylineLayer(
                                   polylines: [
                                     Polyline(
@@ -705,7 +803,7 @@ class _DonorDispatchScreenState extends State<DonorDispatchScreen> {
                                 ),
                                 const Spacer(),
                                 Text(
-                                  'TGP-2025-0908-0847',
+                                  _dispatch?.ticketCode ?? 'TGP-20261013-0847',
                                   style: GoogleFonts.plusJakartaSans(
                                     fontSize: 11.5,
                                     fontWeight: FontWeight.w900,
@@ -716,12 +814,15 @@ class _DonorDispatchScreenState extends State<DonorDispatchScreen> {
                             ),
                             const SizedBox(height: 14),
 
-                            // Komponen QR Code Custom
-                            const _FastTrackQrWidget(),
+                            // Komponen QR Code Custom Dinamis
+                            _FastTrackQrWidget(
+                              qrData: _dispatch?.qrData ??
+                                  'PMI_LAMONGAN:TGP-20261013-0847:O+:RSUD Dr. Soegiri',
+                            ),
 
                             const SizedBox(height: 12),
                             Text(
-                              'Tunjukkan QR Code ini langsung kepada barcode scanner meja triase UTD / IGD RSUD Dr. Soegiri.',
+                              'Tunjukkan QR Code ini langsung kepada barcode scanner meja triase UTD / IGD ${_dispatch?.hospitalName ?? "RSUD Dr. Soegiri"}.',
                               textAlign: TextAlign.center,
                               style: GoogleFonts.plusJakartaSans(
                                 fontSize: 10.5,
@@ -750,7 +851,7 @@ class _DonorDispatchScreenState extends State<DonorDispatchScreen> {
                       _buildLangkahItem(
                         number: '1',
                         title: 'Masuk Gate Khusus UTD PMI / IGD',
-                        subtitle: 'Parkir kendaraan di zona kuning donor darurat depan lobi barat.',
+                        subtitle: 'Parkir kendaraan di zona kuning donor darurat depan lobi faskes.',
                       ),
                       const SizedBox(height: 8),
                       _buildLangkahItem(
@@ -764,10 +865,45 @@ class _DonorDispatchScreenState extends State<DonorDispatchScreen> {
                         title: 'Pemeriksaan HB & Pengambilan Darah',
                         subtitle: 'Langsung diarahkan ke Bed Apheresis / Donor Eksternal 01.',
                       ),
+
+                      const SizedBox(height: 16),
+
+                      // Tombol Konfirmasi Tiba di Faskes
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: () async {
+                            final reqId = _dispatch?.requestId ?? 1;
+                            try {
+                              await _donorRepo.confirmArrival(reqId);
+                            } catch (_) {}
+                            if (!context.mounted) return;
+                            Navigator.pushNamed(context, AppRouter.donationSuccessRoute);
+                          },
+                          icon: const Icon(Icons.check_circle_rounded, size: 18),
+                          label: Text(
+                            'Saya Sudah Tiba di Meja Triase',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 13,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF16A34A),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 13),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            elevation: 0,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
               ),
+            ],
 
               const SizedBox(height: 18),
 
@@ -985,6 +1121,8 @@ class _DonorDispatchScreenState extends State<DonorDispatchScreen> {
           ),
         ),
       ),
+    ),
+    ),
     );
   }
 
@@ -1200,21 +1338,245 @@ class _DonorDispatchScreenState extends State<DonorDispatchScreen> {
       ),
     );
   }
+
+  // ─── Widget: Empty State Saat Belum Ada Misi Dispatch Aktif ───
+  Widget _buildEmptyDispatchState() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Column(
+        children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(22),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.03),
+                  blurRadius: 14,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                // Badge Standby
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: const Color(0xFFCBD5E1)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF64748B),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'STATUS: SIAGA (STANDBY)',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          color: const Color(0xFF475569),
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 22),
+
+                // Icon Ilustrasi
+                Container(
+                  width: 90,
+                  height: 90,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFEF2F2),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: const Color(0xFFFECACA), width: 2),
+                  ),
+                  child: const Center(
+                    child: Icon(
+                      Icons.assignment_outlined,
+                      size: 44,
+                      color: Color(0xFFDC2626),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 18),
+
+                // Judul
+                Text(
+                  'Belum Ada Misi Dispatch Aktif',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF0F172A),
+                    letterSpacing: -0.3,
+                  ),
+                ),
+                const SizedBox(height: 8),
+
+                // Penjelasan
+                Text(
+                  'Tiket triase fast-track IGD, kode QR prioritas, dan rute navigasi darurat akan otomatis diterbitkan di sini setelah Anda menyetujui panggilan permohonan donor darah.',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 12.5,
+                    color: const Color(0xFF64748B),
+                    height: 1.45,
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Kotak Panduan Alur Singkat
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'CARA MENGAKTIFKAN TIKET DISPATCH:',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                          color: const Color(0xFF475569),
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      _buildGuideRow('1', 'Buka Radar Kedaruratan di menu bawah atau lonceng notifikasi'),
+                      const SizedBox(height: 8),
+                      _buildGuideRow('2', 'Lihat permohonan darah pasien kritis terdekat di Lamongan'),
+                      const SizedBox(height: 8),
+                      _buildGuideRow('3', 'Tekan tombol "Setuju / Bantu Sekarang"'),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 22),
+
+                // Tombol Aksi Buka Radar
+                SizedBox(
+                  width: double.infinity,
+                  height: 46,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      if (widget.onNavigateToRadar != null) {
+                        widget.onNavigateToRadar!();
+                      } else {
+                        Navigator.pushNamed(context, AppRouter.donorDashboardRoute);
+                      }
+                    },
+                    icon: const Icon(Icons.radar_rounded, size: 19),
+                    label: Text(
+                      'Buka Radar Kedaruratan',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFDC2626),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+
+                // Tombol Refresh Status
+                TextButton.icon(
+                  onPressed: _loadActiveDispatch,
+                  icon: const Icon(Icons.refresh_rounded, size: 16, color: Color(0xFF64748B)),
+                  label: Text(
+                    'Periksa Penugasan Baru',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF64748B),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGuideRow(String num, String text) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 18,
+          height: 18,
+          alignment: Alignment.center,
+          decoration: const BoxDecoration(
+            color: Color(0xFFDC2626),
+            shape: BoxShape.circle,
+          ),
+          child: Text(
+            num,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              color: Colors.white,
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            text,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 11.5,
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFF334155),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }
 
-// ─── Custom Widget: QR Code Fast-Track dengan emblem kunci di tengah ───
+// ─── Custom Widget: QR Code Fast-Track Dinamis (Scannable) ───
 class _FastTrackQrWidget extends StatelessWidget {
-  const _FastTrackQrWidget();
+  final String qrData;
+
+  const _FastTrackQrWidget({required this.qrData});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 170,
-      height: 170,
+      width: 175,
+      height: 175,
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(color: const Color(0xFFE2E8F0)),
         boxShadow: [
           BoxShadow(
@@ -1227,90 +1589,43 @@ class _FastTrackQrWidget extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          CustomPaint(
-            size: const Size(150, 150),
-            painter: _QrPatternPainter(),
+          QrImageView(
+            data: qrData,
+            version: QrVersions.auto,
+            size: 155,
+            eyeStyle: const QrEyeStyle(
+              eyeShape: QrEyeShape.square,
+              color: Color(0xFF0F172A),
+            ),
+            dataModuleStyle: const QrDataModuleStyle(
+              dataModuleShape: QrDataModuleShape.square,
+              color: Color(0xFF1E293B),
+            ),
           ),
-          // Emblem merah tengah (gembok/kunci)
+          // Emblem merah tengah (PMI / donor emblem)
           Container(
-            width: 34,
-            height: 34,
+            width: 32,
+            height: 32,
             decoration: BoxDecoration(
               color: const Color(0xFFDC2626),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: Colors.white, width: 2),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.15),
+                  blurRadius: 4,
+                  offset: const Offset(0, 1),
+                ),
+              ],
             ),
             child: const Icon(
-              Icons.lock_rounded,
+              Icons.water_drop_rounded,
               color: Colors.white,
-              size: 17,
+              size: 18,
             ),
           ),
         ],
       ),
     );
   }
-}
-
-class _QrPatternPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = const Color(0xFF0F172A)
-      ..style = PaintingStyle.fill;
-
-    const int gridSize = 21;
-    final double cellSize = size.width / gridSize;
-
-    // Pola dummy QR Code terstruktur dengan 3 finder pattern di sudut
-    void drawFinderPattern(double x, double y) {
-      // Outer 7x7
-      canvas.drawRect(Rect.fromLTWH(x, y, 7 * cellSize, 7 * cellSize), paint);
-      // Inner space 5x5
-      canvas.drawRect(
-        Rect.fromLTWH(x + cellSize, y + cellSize, 5 * cellSize, 5 * cellSize),
-        Paint()..color = Colors.white,
-      );
-      // Center solid 3x3
-      canvas.drawRect(
-        Rect.fromLTWH(x + 2 * cellSize, y + 2 * cellSize, 3 * cellSize, 3 * cellSize),
-        paint,
-      );
-    }
-
-    // 3 Sudut Finder
-    drawFinderPattern(0, 0);
-    drawFinderPattern((gridSize - 7) * cellSize, 0);
-    drawFinderPattern(0, (gridSize - 7) * cellSize);
-
-    // Timing strips
-    for (int i = 8; i < gridSize - 8; i++) {
-      if (i % 2 == 0) {
-        canvas.drawRect(Rect.fromLTWH(i * cellSize, 6 * cellSize, cellSize, cellSize), paint);
-        canvas.drawRect(Rect.fromLTWH(6 * cellSize, i * cellSize, cellSize, cellSize), paint);
-      }
-    }
-
-    // Data points acak beraturan untuk menyerupai QR sesungguhnya
-    final patternPoints = [
-      [8, 2], [9, 3], [11, 2], [12, 4], [8, 7], [10, 8], [12, 8],
-      [2, 8], [3, 10], [5, 8], [4, 11], [1, 12], [3, 13],
-      [14, 8], [16, 9], [18, 8], [20, 10], [15, 12], [17, 11],
-      [8, 14], [10, 15], [9, 18], [11, 20], [8, 19],
-      [14, 14], [15, 16], [18, 15], [19, 18], [16, 19], [14, 20],
-      [18, 2], [20, 4], [14, 4], [16, 1], [18, 5],
-      [2, 14], [4, 16], [5, 19], [1, 18], [4, 20],
-      [11, 11], [12, 10], [10, 12], [13, 13]
-    ];
-
-    for (final pt in patternPoints) {
-      canvas.drawRect(
-        Rect.fromLTWH(pt[0] * cellSize, pt[1] * cellSize, cellSize, cellSize),
-        paint,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

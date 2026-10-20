@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../data/models/blood_request_model.dart';
+import '../data/models/dispatch_ticket_model.dart';
 import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/register_screen.dart';
 import '../features/auth/screens/activate_account_screen.dart';
@@ -9,6 +10,7 @@ import '../features/requester/screens/requester_profile_screen.dart';
 import '../features/requester/screens/requester_request_screen.dart';
 import '../features/requester/screens/requester_tracking_screen.dart';
 import '../features/donor/screens/donor_dashboard_screen.dart';
+import '../features/donor/screens/donor_dispatch_screen.dart';
 import '../features/donor/screens/notification_screen.dart';
 import '../features/donor/screens/respond_request_screen.dart';
 import '../features/donor/screens/donation_history_screen.dart';
@@ -32,6 +34,7 @@ class AppRouter {
 
   // Donor
   static const String donorDashboardRoute = '/donor/dashboard';
+  static const String donorDispatchRoute = '/donor/dispatch';
   static const String donorNotificationRoute = '/donor/notifications';
   static const String respondRequestRoute = '/donor/respond';
   static const String donationHistoryRoute = '/donor/history';
@@ -74,6 +77,12 @@ class AppRouter {
 
       case donorDashboardRoute:
         return MaterialPageRoute(builder: (_) => const DonorDashboardScreen());
+
+      case donorDispatchRoute:
+        final dispatch = settings.arguments as DispatchTicketModel?;
+        return MaterialPageRoute(
+          builder: (_) => DonorDispatchScreen(initialDispatch: dispatch),
+        );
 
       case donorNotificationRoute:
         final request = settings.arguments as BloodRequestModel?;

@@ -10,9 +10,14 @@ from app.routers import auth_router, admin_router, donor_router
 # Catatan: Gunakan setup_database.sql via phpMyAdmin untuk setup awal schema.
 try:
     Base.metadata.create_all(bind=engine)
+    # Tambahkan kolom kode_tiket bila belum ada di tabel request_responses
+    from sqlalchemy import text
+    with engine.connect() as conn:
+        conn.execute(text("ALTER TABLE request_responses ADD COLUMN kode_tiket VARCHAR(50) NULL UNIQUE"))
+        conn.commit()
 except Exception as e:
     import logging
-    logging.warning(f"Tabel sudah ada atau error saat create_all (abaikan jika schema sudah dibuat via SQL): {e}")
+    logging.warning(f"Inisialisasi tabel/kolom (abaikan jika sudah ada): {e}")
 
 # Inisialisasi FastAPI App
 app = FastAPI(

@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../data/models/blood_request_model.dart';
+import '../../../data/models/dispatch_ticket_model.dart';
 import '../../../data/repositories/blood_request_repository.dart';
+import '../../../data/repositories/tracking_repository.dart';
 import '../../../routes/app_router.dart';
 
 class NotificationScreen extends StatefulWidget {
@@ -166,7 +168,7 @@ class _NotificationScreenState extends State<NotificationScreen>
 
   double get _countdownProgress => _remainingSeconds / 600.0;
 
-  void _handleAccept() {
+  Future<void> _handleAccept() async {
     final req = _currentRequest ??
         BloodRequestModel(
           id: 1,
@@ -175,19 +177,100 @@ class _NotificationScreenState extends State<NotificationScreen>
           rhesus: '+',
           bagsNeeded: 2,
           urgencyLevel: 'kritis',
-          latitudeFaskes: -7.126500,
-          longitudeFaskes: 112.418200,
+          latitudeFaskes: -7.119812,
+          longitudeFaskes: 112.415155,
           radiusKm: 3.2,
           hospitalName: 'RSUD Dr. Soegiri Lamongan',
           status: 'diproses',
           patientName: 'Pasien IGD Darurat',
         );
 
-    Navigator.pushReplacementNamed(
-      context,
-      AppRouter.respondRequestRoute,
-      arguments: req,
+    // Tampilkan feedback memproses respon
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const SizedBox(
+              width: 18,
+              height: 18,
+              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              'Menghubungkan ke UTD PMI & Menerbitkan Tiket Triase...',
+              style: GoogleFonts.plusJakartaSans(fontSize: 12.5),
+            ),
+          ],
+        ),
+        backgroundColor: const Color(0xFF0F172A),
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+      ),
     );
+
+    try {
+      final response = await _requestRepo.respondToRequest(req.id);
+      TrackingRepository().startTracking(req.id.toString());
+
+      DispatchTicketModel dispatch;
+      if (response['dispatch'] != null) {
+        dispatch = DispatchTicketModel.fromJson(response['dispatch']);
+      } else {
+        final todayStr = DateTime.now().year.toString() +
+            DateTime.now().month.toString().padLeft(2, '0') +
+            DateTime.now().day.toString().padLeft(2, '0');
+        dispatch = DispatchTicketModel(
+          ticketCode: response['ticket_code'] ?? 'TGP-$todayStr-${req.id.toString().padLeft(4, '0')}',
+          dispatchId: '#DSP-$todayStr-${req.id.toString().padLeft(4, '0')}',
+          requestId: req.id,
+          donorId: 1,
+          patientName: req.patientName,
+          hospitalName: req.hospitalName ?? 'RSUD Dr. Soegiri Lamongan',
+          bloodType: req.bloodType,
+          rhesus: req.rhesus,
+          bagsNeeded: req.bagsNeeded,
+          urgencyLevel: req.urgencyLevel,
+          notes: req.notes ?? 'Donor Darurat Fast-Track',
+          hospitalLat: req.latitudeFaskes,
+          hospitalLng: req.longitudeFaskes,
+        );
+      }
+
+      if (mounted) {
+        Navigator.pushReplacementNamed(
+          context,
+          AppRouter.donorDispatchRoute,
+          arguments: dispatch,
+        );
+      }
+    } catch (_) {
+      final todayStr = DateTime.now().year.toString() +
+          DateTime.now().month.toString().padLeft(2, '0') +
+          DateTime.now().day.toString().padLeft(2, '0');
+      final fallbackDispatch = DispatchTicketModel(
+        ticketCode: 'TGP-$todayStr-${req.id.toString().padLeft(4, '0')}',
+        dispatchId: '#DSP-$todayStr-${req.id.toString().padLeft(4, '0')}',
+        requestId: req.id,
+        donorId: 1,
+        patientName: req.patientName,
+        hospitalName: req.hospitalName ?? 'RSUD Dr. Soegiri Lamongan',
+        bloodType: req.bloodType,
+        rhesus: req.rhesus,
+        bagsNeeded: req.bagsNeeded,
+        urgencyLevel: req.urgencyLevel,
+        notes: req.notes ?? 'Donor Darurat Fast-Track',
+        hospitalLat: req.latitudeFaskes,
+        hospitalLng: req.longitudeFaskes,
+      );
+
+      if (mounted) {
+        Navigator.pushReplacementNamed(
+          context,
+          AppRouter.donorDispatchRoute,
+          arguments: fallbackDispatch,
+        );
+      }
+    }
   }
 
   void _handleReject() {

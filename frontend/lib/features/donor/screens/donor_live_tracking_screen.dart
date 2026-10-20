@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart';
 import '../../../core/services/routing_service.dart';
@@ -46,12 +47,14 @@ class _DonorLiveTrackingScreenState extends State<DonorLiveTrackingScreen>
   String _distanceDisplay = '1.8 km';
   String _etaDisplay = '8 mnt';
   String _speedDisplay = '32 km/h';
-  double _progressValue = 0.55; // 55% sesuai visual referensi desain
+  double _progressValue = 0.55;
 
   StreamSubscription? _locationSubscription;
+  StreamSubscription<Position>? _gpsStreamSubscription;
   Timer? _simulationTimer;
   double _simProgress = 0.0;
   bool _isAutoCenter = true;
+  bool _isRealGps = true;
 
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
@@ -59,6 +62,10 @@ class _DonorLiveTrackingScreenState extends State<DonorLiveTrackingScreen>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+    });
+
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1800),
@@ -75,6 +82,7 @@ class _DonorLiveTrackingScreenState extends State<DonorLiveTrackingScreen>
   void dispose() {
     _pulseController.dispose();
     _simulationTimer?.cancel();
+    _gpsStreamSubscription?.cancel();
     _locationSubscription?.cancel();
     _trackingRepo.stopTracking();
     super.dispose();
@@ -125,7 +133,6 @@ class _DonorLiveTrackingScreenState extends State<DonorLiveTrackingScreen>
         });
       }
     } catch (_) {
-      // Fallback request repo jika tracking endpoint error
       try {
         final req = await _requestRepo.getRequestById(reqIdInt);
         if (mounted) {
@@ -142,8 +149,102 @@ class _DonorLiveTrackingScreenState extends State<DonorLiveTrackingScreen>
     // 3. Ambil rute jalan riil Lamongan
     await _fetchRoadRoute();
 
-    // 4. Mulai simulasi pergerakan halus ke RSUD Soegiri
-    _startSimulatedRide();
+    // 4. Inisialisasi pelacakan GPS nyata (dengan fallback simulasi jika di desktop)
+    await _initGpsTracking();
+  }
+
+  Future<void> _initGpsTracking() async {
+    try {
+      LocationPermission perm = await Geolocator.checkPermission();
+      if (perm == LocationPermission.denied) {
+        perm = await Geolocator.requestPermission();
+      }
+
+      Position? pos;
+      try {
+        pos = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high,
+          timeLimit: const Duration(seconds: 4),
+        );
+      } catch (_) {
+        pos = null;
+      }
+
+      if (pos != null && mounted) {
+        setState(() {
+          _donorLocation = LatLng(pos!.latitude, pos.longitude);
+          _updateMetricsFromLocation(_donorLocation, pos.speed);
+        });
+        _fetchRoadRoute();
+        _trackingRepo.updateLocation(pos.latitude, pos.longitude);
+      }
+
+      _gpsStreamSubscription?.cancel();
+      _gpsStreamSubscription = Geolocator.getPositionStream(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          distanceFilter: 3,
+        ),
+      ).listen((Position p) {
+        if (!_isRealGps || !mounted) return;
+        setState(() {
+          _donorLocation = LatLng(p.latitude, p.longitude);
+          _updateMetricsFromLocation(_donorLocation, p.speed);
+          if (_isAutoCenter) {
+            _mapController.move(_donorLocation, _mapController.camera.zoom);
+          }
+        });
+        _trackingRepo.updateLocation(p.latitude, p.longitude);
+      });
+    } catch (_) {
+      if (mounted) {
+        setState(() => _isRealGps = false);
+        _startSimulatedRide();
+      }
+    }
+  }
+
+  void _updateMetricsFromLocation(LatLng loc, double speedMps) {
+    final distMeters = const Distance().as(LengthUnit.Meter, loc, _hospitalLocation);
+    final distKm = distMeters / 1000.0;
+    _distanceDisplay = '${distKm.toStringAsFixed(1)} km';
+
+    final speedKmh = speedMps > 0.5 ? (speedMps * 3.6).round() : 32;
+    _speedDisplay = '$speedKmh km/h';
+
+    final remEta = (distKm / (speedKmh > 0 ? speedKmh : 30) * 60).ceil().clamp(1, 45);
+    _etaDisplay = '$remEta mnt';
+
+    _progressValue = (1.0 - (distKm / 2.5)).clamp(0.15, 0.98);
+  }
+
+  void _toggleGpsMode() {
+    setState(() {
+      _isRealGps = !_isRealGps;
+    });
+    if (_isRealGps) {
+      _simulationTimer?.cancel();
+      _initGpsTracking();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Mode GPS Riil Aktif: Melacak posisi fisik HP/perangkat Anda'),
+          backgroundColor: Color(0xFF16A34A),
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } else {
+      _gpsStreamSubscription?.cancel();
+      _startSimulatedRide();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Mode Simulasi Demo Aktif: Pergerakan otomatis ke faskes'),
+          backgroundColor: Color(0xFF2563EB),
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   Future<void> _fetchRoadRoute() async {
@@ -155,15 +256,9 @@ class _DonorLiveTrackingScreenState extends State<DonorLiveTrackingScreen>
         });
       }
     } catch (_) {
-      // Jika routing service offline, buat titik belokan realistis Lamongan
       if (mounted) {
         setState(() {
-          _routePoints = [
-            _donorLocation,
-            const LatLng(-7.128000, 112.418200),
-            const LatLng(-7.124500, 112.415155),
-            _hospitalLocation,
-          ];
+          _routePoints = RoutingService.defaultLamonganRoad;
         });
       }
     }
@@ -171,27 +266,45 @@ class _DonorLiveTrackingScreenState extends State<DonorLiveTrackingScreen>
 
   void _startSimulatedRide() {
     _simulationTimer?.cancel();
-    _simulationTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
+    _simProgress = 0.0;
+
+    // Hitung total jarak rute agar kecepatan simulasi realistis
+    final totalRouteDistM = _routingService.calculateTotalRoadDistance(_routePoints);
+    final totalRouteDistKm = totalRouteDistM / 1000.0;
+    const simSpeedKmh = 30.0; // Kecepatan simulasi: 30 km/h
+    final totalTimeSec = totalRouteDistKm / simSpeedKmh * 3600; // Detik tempuh total
+    const tickIntervalSec = 2; // Update tiap 2 detik
+    final progressPerTick = totalTimeSec > 0 ? (tickIntervalSec / totalTimeSec) : 0.02;
+
+    _simulationTimer = Timer.periodic(const Duration(seconds: tickIntervalSec), (timer) {
       if (!mounted || _routePoints.length < 2) return;
 
-      _simProgress += 0.03;
-      if (_simProgress >= 1.0) {
-        _simProgress = 0.95;
+      _simProgress += progressPerTick;
+      if (_simProgress >= 0.98) {
+        _simProgress = 0.98;
+        timer.cancel();
       }
 
-      final index = (_simProgress * (_routePoints.length - 1)).clamp(0, _routePoints.length - 1).toInt();
-      final currentPos = _routePoints[index];
+      // Gunakan getPointAlongRoute agar mengikuti jalanan, bukan lurus
+      final currentPos = _routingService.getPointAlongRoute(_routePoints, _simProgress);
+
+      // Hitung metrik dinamis
+      final remainingDistM = const Distance().as(LengthUnit.Meter, currentPos, _hospitalLocation);
+      final remainingDistKm = remainingDistM / 1000.0;
+      final remEta = (remainingDistKm / simSpeedKmh * 60).ceil().clamp(1, 60);
 
       setState(() {
         _donorLocation = currentPos;
-        _progressValue = (0.55 + (_simProgress * 0.4)).clamp(0.1, 0.98);
-        final remDist = (1.8 * (1.0 - _simProgress)).clamp(0.2, 1.8);
-        _distanceDisplay = '${remDist.toStringAsFixed(1)} km';
-        final remEta = (8 * (1.0 - _simProgress)).ceil().clamp(1, 8);
+        _progressValue = _simProgress.clamp(0.05, 0.98);
+        _distanceDisplay = '${remainingDistKm.toStringAsFixed(1)} km';
         _etaDisplay = '$remEta mnt';
+        _speedDisplay = '${simSpeedKmh.round()} km/h';
+
+        if (_isAutoCenter) {
+          _mapController.move(_donorLocation, _mapController.camera.zoom);
+        }
       });
 
-      // Broadcast update ke websocket backend
       _trackingRepo.updateLocation(currentPos.latitude, currentPos.longitude);
     });
   }
@@ -245,6 +358,7 @@ class _DonorLiveTrackingScreenState extends State<DonorLiveTrackingScreen>
     return Scaffold(
       backgroundColor: const Color(0xFF0F172A),
       body: SafeArea(
+        bottom: false,
         child: Column(
           children: [
             // ─── 1. HEADER MERAH (STATUS PERJALANAN & STATS METRICS) ───
@@ -303,27 +417,35 @@ class _DonorLiveTrackingScreenState extends State<DonorLiveTrackingScreen>
                   ),
                   const SizedBox(height: 14),
                   // Baris 3 Metrik: Sisa Jarak | ETA Tiba | Kecepatan
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Sisa Jarak
-                      _buildHeaderMetric(
-                        value: _distanceDisplay,
-                        label: 'Sisa Jarak',
-                      ),
-                      _buildVerticalDivider(),
-                      // ETA Tiba
-                      _buildHeaderMetric(
-                        value: _etaDisplay,
-                        label: 'ETA Tiba',
-                      ),
-                      _buildVerticalDivider(),
-                      // Kecepatan
-                      _buildHeaderMetric(
-                        value: _speedDisplay,
-                        label: 'Kecepatan',
-                      ),
-                    ],
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // Sisa Jarak
+                        _buildHeaderMetric(
+                          value: _distanceDisplay,
+                          label: 'Sisa Jarak',
+                        ),
+                        const SizedBox(width: 18),
+                        _buildVerticalDivider(),
+                        const SizedBox(width: 18),
+                        // ETA Tiba
+                        _buildHeaderMetric(
+                          value: _etaDisplay,
+                          label: 'ETA Tiba',
+                        ),
+                        const SizedBox(width: 18),
+                        _buildVerticalDivider(),
+                        const SizedBox(width: 18),
+                        // Kecepatan
+                        _buildHeaderMetric(
+                          value: _speedDisplay,
+                          label: 'Kecepatan',
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -609,100 +731,152 @@ class _DonorLiveTrackingScreenState extends State<DonorLiveTrackingScreen>
                       ),
                     ),
                   ),
+
+                  // ── Overlay: Badge Mode GPS / Simulasi (Bottom Left) ──
+                  Positioned(
+                    bottom: 14,
+                    left: 14,
+                    child: GestureDetector(
+                      onTap: _toggleGpsMode,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: _isRealGps
+                              ? const Color(0xFF16A34A).withValues(alpha: 0.9)
+                              : const Color(0xFF2563EB).withValues(alpha: 0.9),
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.2),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              _isRealGps ? Icons.gps_fixed_rounded : Icons.route_rounded,
+                              color: Colors.white,
+                              size: 13,
+                            ),
+                            const SizedBox(width: 5),
+                            Text(
+                              _isRealGps ? 'GPS Riil' : 'Simulasi',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 10.5,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
 
             // ─── 3. BOTTOM CARD (PROGRESS BAR & TOMBOL SAYA SUDAH SAMPAI) ───
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(22),
-                  topRight: Radius.circular(22),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 10,
-                    offset: Offset(0, -2),
-                  ),
-                ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Progress Bar & Angka Persen (55%)
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(6),
-                          child: LinearProgressIndicator(
-                            value: _progressValue,
-                            minHeight: 6,
-                            backgroundColor: const Color(0xFFE2E8F0),
-                            valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF15803D)),
+            SafeArea(
+              top: false,
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 580),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(22),
+                        topRight: Radius.circular(22),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 10,
+                          offset: Offset(0, -2),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Progress Bar & Angka Persen
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(6),
+                                child: LinearProgressIndicator(
+                                  value: _progressValue,
+                                  minHeight: 6,
+                                  backgroundColor: const Color(0xFFE2E8F0),
+                                  valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF15803D)),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              '${(_progressValue * 100).round()}%',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w800,
+                                color: const Color(0xFF475569),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 14),
+
+                        // Tombol Besar: "✓ Saya Sudah Sampai"
+                        SizedBox(
+                          width: double.infinity,
+                          height: 48,
+                          child: ElevatedButton(
+                            onPressed: _isArriving ? null : _handleArrive,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF15803D),
+                              foregroundColor: Colors.white,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: _isArriving
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2.5,
+                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                    ),
+                                  )
+                                : Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(Icons.check, size: 20, color: Colors.white),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        'Saya Sudah Sampai',
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontSize: 14.5,
+                                          fontWeight: FontWeight.w800,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        '${(_progressValue * 100).round()}%',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w800,
-                          color: const Color(0xFF475569),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 14),
-
-                  // Tombol Besar: "✓ Saya Sudah Sampai"
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: ElevatedButton(
-                      onPressed: _isArriving ? null : _handleArrive,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF15803D),
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: _isArriving
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2.5,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                              ),
-                            )
-                          : Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(Icons.check, size: 20, color: Colors.white),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Saya Sudah Sampai',
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 14.5,
-                                    fontWeight: FontWeight.w800,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
+                      ],
                     ),
                   ),
-                ],
+                ),
               ),
             ),
           ],

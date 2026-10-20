@@ -1,6 +1,7 @@
 import '../../core/network/api_client.dart';
 import '../models/donor_stats_model.dart';
 import '../models/blood_stock_model.dart';
+import '../models/dispatch_ticket_model.dart';
 
 class DonorRepository {
   final ApiClient _apiClient;
@@ -57,5 +58,18 @@ class DonorRepository {
   Future<Map<String, dynamic>> confirmArrival(int requestId) async {
     final response = await _apiClient.post('/donor/requests/$requestId/arrive');
     return response as Map<String, dynamic>;
+  }
+
+  /// Mengambil informasi dispatch & tiket triase aktif untuk pendonor
+  Future<DispatchTicketModel?> getActiveDispatch() async {
+    try {
+      final response = await _apiClient.get('/donor/active-dispatch');
+      if (response is Map<String, dynamic> &&
+          response['has_active_dispatch'] == true &&
+          response['dispatch'] != null) {
+        return DispatchTicketModel.fromJson(response['dispatch']);
+      }
+    } catch (_) {}
+    return null;
   }
 }
