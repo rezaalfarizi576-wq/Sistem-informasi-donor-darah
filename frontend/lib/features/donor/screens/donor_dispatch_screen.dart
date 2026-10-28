@@ -8,6 +8,7 @@ import '../../../core/services/routing_service.dart';
 import '../../../data/models/dispatch_ticket_model.dart';
 import '../../../data/repositories/donor_repository.dart';
 import '../../../routes/app_router.dart';
+import 'notification_screen.dart';
 
 class DonorDispatchScreen extends StatefulWidget {
   final VoidCallback? onNavigateToRadar;
@@ -168,10 +169,10 @@ class _DonorDispatchScreenState extends State<DonorDispatchScreen> {
                       children: [
                         IconButton(
                           onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Membuka pusat notifikasi...', style: GoogleFonts.plusJakartaSans()),
-                                behavior: SnackBarBehavior.floating,
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const NotificationScreen(),
                               ),
                             );
                           },

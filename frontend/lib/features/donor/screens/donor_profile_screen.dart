@@ -5,6 +5,7 @@ import 'package:latlong2/latlong.dart';
 import '../../../data/models/user_model.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../../routes/app_router.dart';
+import 'notification_screen.dart';
 
 class DonorProfileScreen extends StatefulWidget {
   final UserModel? currentUser;
@@ -88,10 +89,10 @@ class _DonorProfileScreenState extends State<DonorProfileScreen> {
                       children: [
                         IconButton(
                           onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Membuka pusat notifikasi...', style: GoogleFonts.plusJakartaSans()),
-                                behavior: SnackBarBehavior.floating,
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const NotificationScreen(),
                               ),
                             );
                           },

@@ -5,6 +5,7 @@ import '../../../data/models/user_model.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../../data/repositories/blood_request_repository.dart';
 import '../../../routes/app_router.dart';
+import '../../donor/screens/notification_screen.dart';
 
 class RequesterProfileScreen extends StatefulWidget {
   final VoidCallback? onNavigateToForm;
@@ -295,10 +296,10 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
             children: [
               IconButton(
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Membuka notifikasi permohonan darah...', style: GoogleFonts.plusJakartaSans()),
-                      behavior: SnackBarBehavior.floating,
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const NotificationScreen(),
                     ),
                   );
                 },

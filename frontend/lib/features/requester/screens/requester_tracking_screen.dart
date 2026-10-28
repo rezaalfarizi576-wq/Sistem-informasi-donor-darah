@@ -82,11 +82,13 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
 
   bool get _hasAcceptedDonor {
     if (_activeRequest == null) return false;
-    if (_activeRequest!.donorName != null && _activeRequest!.donorName!.isNotEmpty) {
+    // Relawan terkonfirmasi hanya jika ada nama pendonor atau flag hasAcceptedDonor bernilai true
+    if (_activeRequest!.hasAcceptedDonor) return true;
+    if (_activeRequest!.donorName != null && _activeRequest!.donorName!.trim().isNotEmpty) {
       return true;
     }
-    final s = _activeRequest!.status.toLowerCase();
-    return s == 'diproses' || s == 'diterima' || s == 'menuju_lokasi' || s == 'sampai';
+    if (_activeRequest!.acceptedDonorsCount > 0) return true;
+    return false;
   }
 
   Future<void> _initScreenData() async {

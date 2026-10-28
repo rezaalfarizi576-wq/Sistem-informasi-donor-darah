@@ -1149,7 +1149,12 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                       children: [
                         IconButton(
                           onPressed: () {
-                            setState(() => _currentTabIndex = 1);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const NotificationScreen(),
+                              ),
+                            );
                           },
                           icon: const Icon(Icons.notifications_none_rounded, color: Color(0xFF475569), size: 24),
                           padding: EdgeInsets.zero,
