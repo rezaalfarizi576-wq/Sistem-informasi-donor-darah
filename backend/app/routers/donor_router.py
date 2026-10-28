@@ -150,10 +150,11 @@ def get_donor_stats(
     - Donor terakhir (tanggal & tahun)
     - Status kelayakan donor (jarak >= 60 hari)
     """
-    donor_id = current_user.id if current_user else 3  # Fallback donor default jika sesi guest
-
-    # Pastikan data sampel tersedia jika database masih kosong
-    _ensure_sample_history_if_empty(db, donor_id)
+    if current_user:
+        donor_id = current_user.id
+    else:
+        donor_id = 3  # Fallback donor default jika sesi guest
+        _ensure_sample_history_if_empty(db, donor_id)
 
     histories = (
         db.query(DonationHistory)
@@ -168,10 +169,6 @@ def get_donor_stats(
     total_liters = round(total_bags * 0.35, 1)
 
     months_id = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"]
-    last_donation_display = "-"
-    last_donation_year = "-"
-    eligible_to_donate = True
-    days_since_last = 999
     latest_item = None
 
     if histories:
@@ -192,9 +189,27 @@ def get_donor_stats(
             "bags": last.jumlah_kantong,
             "status": "Berhasil",
         }
+    else:
+        last_donation_display = "Belum Ada"
+        last_donation_year = "-"
+        eligible_to_donate = True
+        days_since_last = 999
+        latest_item = None
+
+    if total_donations >= 10:
+        level_status = "GOLD DONOR"
+    elif total_donations >= 5:
+        level_status = "SILVER DONOR"
+    elif total_donations >= 1:
+        level_status = "BRONZE DONOR"
+    else:
+        level_status = "RELAWAN BARU"
+
+    pmi_id = current_user.id_pmi if (current_user and current_user.id_pmi) else f"PMI-LMG-{donor_id:04d}"
 
     return {
         "donor_id": donor_id,
+        "id_pmi": pmi_id,
         "total_donations": total_donations,
         "total_donations_display": f"{total_donations} kali donasi",
         "total_bags": total_bags,
@@ -204,8 +219,11 @@ def get_donor_stats(
         "last_donation_year": last_donation_year,
         "eligible_to_donate": eligible_to_donate,
         "days_since_last": days_since_last,
-        "pmi_status": "Relawan Aktif",
+        "pmi_status": level_status,
         "latest_donation": latest_item,
+        "blood_pressure": "120/80",
+        "hemoglobin": 14.5,
+        "weight": 68,
     }
 
 
@@ -308,9 +326,10 @@ def get_nearby_requests(
     donor_lat = lat if lat is not None else -7.126500
     donor_lng = lng if lng is not None else 112.418200
 
+    # Hanya siarkan permohonan yang telah diverifikasi dan disetujui oleh admin (status: diproses)
     active_requests = (
         db.query(BloodRequest)
-        .filter(BloodRequest.status.in_(["menunggu", "diproses", "pending", "in_progress"]))
+        .filter(BloodRequest.status.in_(["diproses", "in_progress"]))
         .all()
     )
 

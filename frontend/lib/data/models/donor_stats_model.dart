@@ -12,8 +12,14 @@ class DonorStatsModel {
   final String pmiStatus;
   final DonationHistoryItemModel? latestDonation;
 
+  final String idPmi;
+  final String bloodPressure;
+  final double hemoglobin;
+  final int weight;
+
   DonorStatsModel({
     required this.donorId,
+    this.idPmi = 'PMI-LMG-0001',
     required this.totalDonations,
     required this.totalDonationsDisplay,
     required this.totalBags,
@@ -25,11 +31,15 @@ class DonorStatsModel {
     required this.daysSinceLast,
     required this.pmiStatus,
     this.latestDonation,
+    this.bloodPressure = '120/80',
+    this.hemoglobin = 14.5,
+    this.weight = 68,
   });
 
   factory DonorStatsModel.fromJson(Map<String, dynamic> json) {
     return DonorStatsModel(
       donorId: json['donor_id'] ?? 0,
+      idPmi: json['id_pmi'] ?? 'PMI-LMG-${(json['donor_id'] ?? 1).toString().padLeft(4, '0')}',
       totalDonations: json['total_donations'] ?? 0,
       totalDonationsDisplay: json['total_donations_display'] ?? '0 kali donasi',
       totalBags: json['total_bags'] ?? 0,
@@ -43,6 +53,9 @@ class DonorStatsModel {
       latestDonation: json['latest_donation'] != null
           ? DonationHistoryItemModel.fromJson(json['latest_donation'])
           : null,
+      bloodPressure: json['blood_pressure'] ?? '120/80',
+      hemoglobin: (json['hemoglobin'] as num?)?.toDouble() ?? 14.5,
+      weight: json['weight'] ?? 68,
     );
   }
 }

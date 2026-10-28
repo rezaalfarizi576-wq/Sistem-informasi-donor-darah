@@ -111,9 +111,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
       if (requests.isEmpty) {
         try {
+          // Hanya ambil permohonan yang telah diverifikasi dan disetujui admin
           final diproses = await _requestRepo.getRequests(status: 'diproses');
-          final menunggu = await _requestRepo.getRequests(status: 'menunggu');
-          requests = [...diproses, ...menunggu];
+          requests = diproses;
         } catch (_) {}
       }
 

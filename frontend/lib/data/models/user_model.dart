@@ -8,6 +8,7 @@ class UserModel {
   final String? bloodType;
   final String? rhesus;
   final String? address;
+  final String? idPmi;
   final bool isActive;
   final DateTime? createdAt;
 
@@ -21,6 +22,7 @@ class UserModel {
     this.bloodType,
     this.rhesus,
     this.address,
+    this.idPmi,
     required this.isActive,
     this.createdAt,
   });
@@ -36,6 +38,7 @@ class UserModel {
       bloodType: json['blood_type'] as String?,
       rhesus: json['rhesus'] as String?,
       address: json['address'] as String?,
+      idPmi: json['id_pmi'] as String?,
       isActive: json['status_aktif'] as bool? ?? json['is_activated'] as bool? ?? json['is_active'] as bool? ?? true,
       createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'].toString()) : null,
     );

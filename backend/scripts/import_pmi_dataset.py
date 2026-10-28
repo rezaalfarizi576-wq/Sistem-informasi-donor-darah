@@ -1,12 +1,13 @@
 import json
 import sys
 from pathlib import Path
+from datetime import datetime, timedelta
 
 # Add parent directory to sys.path
 sys.path.append(str(Path(__file__).parent.parent))
 
 from app.database import SessionLocal
-from app.models import User, RoleEnum
+from app.models import User, RoleEnum, DonationHistory
 from app.auth import hash_password
 
 def import_data():
@@ -34,7 +35,31 @@ def import_data():
             # Check if NIK already exists
             existing = db.query(User).filter(User.nik == nik).first()
             if existing:
-                skipped += 1
+                # Update id_pmi if empty
+                if not existing.id_pmi and item.get("id_pmi"):
+                    existing.id_pmi = item.get("id_pmi")
+
+                # Check if user has donation histories
+                has_history = db.query(DonationHistory).filter(DonationHistory.donor_id == existing.id).first()
+                if not has_history:
+                    total_d = item.get("total_donasi", 1)
+                    tgl_str = item.get("tanggal_donor_terakhir")
+                    try:
+                        base_date = datetime.strptime(tgl_str, "%Y-%m-%d") if tgl_str else datetime.utcnow() - timedelta(days=90)
+                    except Exception:
+                        base_date = datetime.utcnow() - timedelta(days=90)
+                    lokasi = item.get("lokasi_donor_terakhir") or "UDD PMI Kabupaten Lamongan"
+                    for d_idx in range(total_d):
+                        d_date = base_date - timedelta(days=d_idx * 75)
+                        db.add(DonationHistory(
+                            donor_id=existing.id,
+                            tanggal_donor=d_date,
+                            lokasi_donor=lokasi,
+                            jumlah_kantong=1,
+                        ))
+                    imported += 1
+                else:
+                    skipped += 1
                 continue
 
             # Use dummy email with NIK (will be replaced during activation)
@@ -58,13 +83,35 @@ def import_data():
                 id_pmi=item.get("id_pmi"),
             )
             db.add(user)
+            db.flush()
+
+            # Tambahkan riwayat donasi sesuai total_donasi di json
+            total_d = item.get("total_donasi", 1)
+            tgl_str = item.get("tanggal_donor_terakhir")
+            try:
+                base_date = datetime.strptime(tgl_str, "%Y-%m-%d") if tgl_str else datetime.utcnow() - timedelta(days=90)
+            except Exception:
+                base_date = datetime.utcnow() - timedelta(days=90)
+            
+            lokasi = item.get("lokasi_donor_terakhir") or "UDD PMI Kabupaten Lamongan"
+
+            for d_idx in range(total_d):
+                d_date = base_date - timedelta(days=d_idx * 75)
+                h = DonationHistory(
+                    donor_id=user.id,
+                    tanggal_donor=d_date,
+                    lokasi_donor=lokasi,
+                    jumlah_kantong=1,
+                )
+                db.add(h)
+
             imported += 1
 
         db.commit()
-        print(f"✓ Proses impor selesai: {imported} pendonor diimpor, {skipped} dilewati (sudah terdaftar).")
+        print(f"[OK] Proses impor selesai: {imported} pendonor diimpor, {skipped} dilewati (sudah terdaftar).")
     except Exception as e:
         db.rollback()
-        print(f"✗ Error saat impor data: {e}")
+        print(f"[ERROR] Error saat impor data: {e}")
     finally:
         db.close()
 

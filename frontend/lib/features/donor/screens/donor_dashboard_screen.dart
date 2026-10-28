@@ -93,12 +93,10 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
       if (nearby.isNotEmpty) {
         urgentReq = nearby.first;
       } else {
-        final requests = await _requestRepo.getRequests();
+        final requests = await _requestRepo.getRequests(status: 'diproses');
         if (requests.isNotEmpty) {
           urgentReq = requests.firstWhere(
             (r) =>
-                r.status == 'diproses' ||
-                r.status == 'menunggu' ||
                 r.urgencyLevel == 'kritis' ||
                 r.urgencyLevel == 'tinggi' ||
                 r.urgencyLevel == 'urgent' ||

@@ -12,7 +12,14 @@
     "longitude": 112.4054588,
     "tanggal_donor_terakhir": "2026-06-19",
     "status_kelayakan": "belum_layak",
-    "nik": "3524000000000001"
+    "nik": "3524000000000001",
+    "total_donasi": 10,
+    "total_volume_ml": 3500,
+    "total_volume_liter": 3.5,
+    "tekanan_darah": "120/80",
+    "hemoglobin": 13.8,
+    "berat_badan": 70,
+    "lokasi_donor_terakhir": "Puskesmas Lamongan Kota"
   },
   {
     "id_pmi": "PMI-LMG-00002",
@@ -27,7 +34,14 @@
     "longitude": 112.2051408,
     "tanggal_donor_terakhir": "2025-07-14",
     "status_kelayakan": "layak",
-    "nik": "3524000000000002"
+    "nik": "3524000000000002",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "115/75",
+    "hemoglobin": 14.5,
+    "berat_badan": 65,
+    "lokasi_donor_terakhir": "Puskesmas Lamongan Kota"
   },
   {
     "id_pmi": "PMI-LMG-00003",
@@ -42,7 +56,14 @@
     "longitude": 112.4055126,
     "tanggal_donor_terakhir": "2025-10-07",
     "status_kelayakan": "layak",
-    "nik": "3524000000000003"
+    "nik": "3524000000000003",
+    "total_donasi": 2,
+    "total_volume_ml": 700,
+    "total_volume_liter": 0.7,
+    "tekanan_darah": "122/82",
+    "hemoglobin": 14.2,
+    "berat_badan": 78,
+    "lokasi_donor_terakhir": "RSI Nashrul Ummah Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00004",
@@ -57,7 +78,14 @@
     "longitude": 112.374377,
     "tanggal_donor_terakhir": "2026-05-12",
     "status_kelayakan": "layak",
-    "nik": "3524000000000004"
+    "nik": "3524000000000004",
+    "total_donasi": 7,
+    "total_volume_ml": 2450,
+    "total_volume_liter": 2.45,
+    "tekanan_darah": "124/80",
+    "hemoglobin": 15.5,
+    "berat_badan": 74,
+    "lokasi_donor_terakhir": "RSUD Dr. Soegiri Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00005",
@@ -72,7 +100,14 @@
     "longitude": 112.3604505,
     "tanggal_donor_terakhir": "2025-11-24",
     "status_kelayakan": "layak",
-    "nik": "3524000000000005"
+    "nik": "3524000000000005",
+    "total_donasi": 4,
+    "total_volume_ml": 1400,
+    "total_volume_liter": 1.4,
+    "tekanan_darah": "124/80",
+    "hemoglobin": 13.8,
+    "berat_badan": 68,
+    "lokasi_donor_terakhir": "Puskesmas Lamongan Kota"
   },
   {
     "id_pmi": "PMI-LMG-00006",
@@ -87,7 +122,14 @@
     "longitude": 112.453807,
     "tanggal_donor_terakhir": "2026-07-05",
     "status_kelayakan": "belum_layak",
-    "nik": "3524000000000006"
+    "nik": "3524000000000006",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "118/78",
+    "hemoglobin": 14.2,
+    "berat_badan": 78,
+    "lokasi_donor_terakhir": "Puskesmas Lamongan Kota"
   },
   {
     "id_pmi": "PMI-LMG-00007",
@@ -102,7 +144,14 @@
     "longitude": 112.3867846,
     "tanggal_donor_terakhir": "2025-10-19",
     "status_kelayakan": "layak",
-    "nik": "3524000000000007"
+    "nik": "3524000000000007",
+    "total_donasi": 7,
+    "total_volume_ml": 2450,
+    "total_volume_liter": 2.45,
+    "tekanan_darah": "126/82",
+    "hemoglobin": 15.2,
+    "berat_badan": 58,
+    "lokasi_donor_terakhir": "UDD PMI Kabupaten Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00008",
@@ -117,7 +166,14 @@
     "longitude": 112.3696872,
     "tanggal_donor_terakhir": "2025-10-29",
     "status_kelayakan": "layak",
-    "nik": "3524000000000008"
+    "nik": "3524000000000008",
+    "total_donasi": 15,
+    "total_volume_ml": 5250,
+    "total_volume_liter": 5.25,
+    "tekanan_darah": "124/80",
+    "hemoglobin": 15.2,
+    "berat_badan": 58,
+    "lokasi_donor_terakhir": "RSI Nashrul Ummah Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00009",
@@ -132,7 +188,14 @@
     "longitude": 112.4124547,
     "tanggal_donor_terakhir": "2025-12-21",
     "status_kelayakan": "layak",
-    "nik": "3524000000000009"
+    "nik": "3524000000000009",
+    "total_donasi": 3,
+    "total_volume_ml": 1050,
+    "total_volume_liter": 1.05,
+    "tekanan_darah": "120/80",
+    "hemoglobin": 14.8,
+    "berat_badan": 65,
+    "lokasi_donor_terakhir": "RSI Nashrul Ummah Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00010",
@@ -147,7 +210,14 @@
     "longitude": 112.3142313,
     "tanggal_donor_terakhir": "2026-05-27",
     "status_kelayakan": "layak",
-    "nik": "3524000000000010"
+    "nik": "3524000000000010",
+    "total_donasi": 9,
+    "total_volume_ml": 3150,
+    "total_volume_liter": 3.15,
+    "tekanan_darah": "115/75",
+    "hemoglobin": 14.2,
+    "berat_badan": 70,
+    "lokasi_donor_terakhir": "Mobile Unit Alun-Alun Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00011",
@@ -162,7 +232,14 @@
     "longitude": 112.2281646,
     "tanggal_donor_terakhir": "2026-09-05",
     "status_kelayakan": "belum_layak",
-    "nik": "3524000000000011"
+    "nik": "3524000000000011",
+    "total_donasi": 2,
+    "total_volume_ml": 700,
+    "total_volume_liter": 0.7,
+    "tekanan_darah": "115/75",
+    "hemoglobin": 14.2,
+    "berat_badan": 58,
+    "lokasi_donor_terakhir": "RSI Nashrul Ummah Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00012",
@@ -177,7 +254,14 @@
     "longitude": 112.2591489,
     "tanggal_donor_terakhir": "2025-12-21",
     "status_kelayakan": "layak",
-    "nik": "3524000000000012"
+    "nik": "3524000000000012",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "120/80",
+    "hemoglobin": 14.2,
+    "berat_badan": 70,
+    "lokasi_donor_terakhir": "Mobile Unit Alun-Alun Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00013",
@@ -192,7 +276,14 @@
     "longitude": 112.3775004,
     "tanggal_donor_terakhir": "2026-09-16",
     "status_kelayakan": "belum_layak",
-    "nik": "3524000000000013"
+    "nik": "3524000000000013",
+    "total_donasi": 6,
+    "total_volume_ml": 2100,
+    "total_volume_liter": 2.1,
+    "tekanan_darah": "126/82",
+    "hemoglobin": 15.5,
+    "berat_badan": 70,
+    "lokasi_donor_terakhir": "RSI Nashrul Ummah Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00014",
@@ -207,7 +298,14 @@
     "longitude": 111.8793943,
     "tanggal_donor_terakhir": "2026-06-28",
     "status_kelayakan": "belum_layak",
-    "nik": "3524000000000014"
+    "nik": "3524000000000014",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "122/82",
+    "hemoglobin": 13.8,
+    "berat_badan": 70,
+    "lokasi_donor_terakhir": "UDD PMI Kabupaten Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00015",
@@ -222,7 +320,14 @@
     "longitude": 112.126107,
     "tanggal_donor_terakhir": "2025-07-10",
     "status_kelayakan": "layak",
-    "nik": "3524000000000015"
+    "nik": "3524000000000015",
+    "total_donasi": 15,
+    "total_volume_ml": 5250,
+    "total_volume_liter": 5.25,
+    "tekanan_darah": "115/75",
+    "hemoglobin": 15.2,
+    "berat_badan": 58,
+    "lokasi_donor_terakhir": "RSUD Dr. Soegiri Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00016",
@@ -237,7 +342,14 @@
     "longitude": 112.1670594,
     "tanggal_donor_terakhir": "2026-01-06",
     "status_kelayakan": "layak",
-    "nik": "3524000000000016"
+    "nik": "3524000000000016",
+    "total_donasi": 7,
+    "total_volume_ml": 2450,
+    "total_volume_liter": 2.45,
+    "tekanan_darah": "126/82",
+    "hemoglobin": 13.8,
+    "berat_badan": 78,
+    "lokasi_donor_terakhir": "UDD PMI Kabupaten Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00017",
@@ -252,7 +364,14 @@
     "longitude": 112.2017441,
     "tanggal_donor_terakhir": "2026-01-25",
     "status_kelayakan": "layak",
-    "nik": "3524000000000017"
+    "nik": "3524000000000017",
+    "total_donasi": 4,
+    "total_volume_ml": 1400,
+    "total_volume_liter": 1.4,
+    "tekanan_darah": "118/78",
+    "hemoglobin": 15.2,
+    "berat_badan": 65,
+    "lokasi_donor_terakhir": "RSUD Dr. Soegiri Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00018",
@@ -267,7 +386,14 @@
     "longitude": 112.3759341,
     "tanggal_donor_terakhir": "2025-05-20",
     "status_kelayakan": "layak",
-    "nik": "3524000000000018"
+    "nik": "3524000000000018",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "120/80",
+    "hemoglobin": 14.5,
+    "berat_badan": 62,
+    "lokasi_donor_terakhir": "Puskesmas Lamongan Kota"
   },
   {
     "id_pmi": "PMI-LMG-00019",
@@ -282,7 +408,14 @@
     "longitude": 112.3265535,
     "tanggal_donor_terakhir": "2026-07-23",
     "status_kelayakan": "belum_layak",
-    "nik": "3524000000000019"
+    "nik": "3524000000000019",
+    "total_donasi": 7,
+    "total_volume_ml": 2450,
+    "total_volume_liter": 2.45,
+    "tekanan_darah": "124/80",
+    "hemoglobin": 14.8,
+    "berat_badan": 62,
+    "lokasi_donor_terakhir": "Puskesmas Lamongan Kota"
   },
   {
     "id_pmi": "PMI-LMG-00020",
@@ -297,7 +430,14 @@
     "longitude": 112.3526073,
     "tanggal_donor_terakhir": "2026-03-13",
     "status_kelayakan": "layak",
-    "nik": "3524000000000020"
+    "nik": "3524000000000020",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "124/80",
+    "hemoglobin": 14.2,
+    "berat_badan": 58,
+    "lokasi_donor_terakhir": "Mobile Unit Alun-Alun Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00021",
@@ -312,7 +452,14 @@
     "longitude": 111.8783235,
     "tanggal_donor_terakhir": "2026-09-01",
     "status_kelayakan": "belum_layak",
-    "nik": "3524000000000021"
+    "nik": "3524000000000021",
+    "total_donasi": 2,
+    "total_volume_ml": 700,
+    "total_volume_liter": 0.7,
+    "tekanan_darah": "122/82",
+    "hemoglobin": 14.2,
+    "berat_badan": 62,
+    "lokasi_donor_terakhir": "RSI Nashrul Ummah Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00022",
@@ -327,7 +474,14 @@
     "longitude": 112.4814124,
     "tanggal_donor_terakhir": "2025-12-19",
     "status_kelayakan": "layak",
-    "nik": "3524000000000022"
+    "nik": "3524000000000022",
+    "total_donasi": 14,
+    "total_volume_ml": 4900,
+    "total_volume_liter": 4.9,
+    "tekanan_darah": "124/80",
+    "hemoglobin": 15.5,
+    "berat_badan": 78,
+    "lokasi_donor_terakhir": "RSUD Dr. Soegiri Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00023",
@@ -342,7 +496,14 @@
     "longitude": 112.2433393,
     "tanggal_donor_terakhir": "2026-07-16",
     "status_kelayakan": "belum_layak",
-    "nik": "3524000000000023"
+    "nik": "3524000000000023",
+    "total_donasi": 2,
+    "total_volume_ml": 700,
+    "total_volume_liter": 0.7,
+    "tekanan_darah": "118/78",
+    "hemoglobin": 14.5,
+    "berat_badan": 74,
+    "lokasi_donor_terakhir": "RSI Nashrul Ummah Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00024",
@@ -357,7 +518,14 @@
     "longitude": 112.2691409,
     "tanggal_donor_terakhir": "2026-07-09",
     "status_kelayakan": "belum_layak",
-    "nik": "3524000000000024"
+    "nik": "3524000000000024",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "120/80",
+    "hemoglobin": 15.5,
+    "berat_badan": 62,
+    "lokasi_donor_terakhir": "RSUD Dr. Soegiri Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00025",
@@ -372,7 +540,14 @@
     "longitude": 111.873469,
     "tanggal_donor_terakhir": "2025-03-30",
     "status_kelayakan": "layak",
-    "nik": "3524000000000025"
+    "nik": "3524000000000025",
+    "total_donasi": 5,
+    "total_volume_ml": 1750,
+    "total_volume_liter": 1.75,
+    "tekanan_darah": "115/75",
+    "hemoglobin": 14.5,
+    "berat_badan": 65,
+    "lokasi_donor_terakhir": "Puskesmas Lamongan Kota"
   },
   {
     "id_pmi": "PMI-LMG-00026",
@@ -387,7 +562,14 @@
     "longitude": 112.4019999,
     "tanggal_donor_terakhir": "2025-10-28",
     "status_kelayakan": "layak",
-    "nik": "3524000000000026"
+    "nik": "3524000000000026",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "122/82",
+    "hemoglobin": 13.8,
+    "berat_badan": 58,
+    "lokasi_donor_terakhir": "Mobile Unit Alun-Alun Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00027",
@@ -402,7 +584,14 @@
     "longitude": 112.3522983,
     "tanggal_donor_terakhir": "2025-09-24",
     "status_kelayakan": "layak",
-    "nik": "3524000000000027"
+    "nik": "3524000000000027",
+    "total_donasi": 3,
+    "total_volume_ml": 1050,
+    "total_volume_liter": 1.05,
+    "tekanan_darah": "115/75",
+    "hemoglobin": 15.2,
+    "berat_badan": 74,
+    "lokasi_donor_terakhir": "Mobile Unit Alun-Alun Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00028",
@@ -417,7 +606,14 @@
     "longitude": 112.1986841,
     "tanggal_donor_terakhir": "2026-06-02",
     "status_kelayakan": "layak",
-    "nik": "3524000000000028"
+    "nik": "3524000000000028",
+    "total_donasi": 8,
+    "total_volume_ml": 2800,
+    "total_volume_liter": 2.8,
+    "tekanan_darah": "120/80",
+    "hemoglobin": 15.2,
+    "berat_badan": 74,
+    "lokasi_donor_terakhir": "RSUD Dr. Soegiri Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00029",
@@ -432,7 +628,14 @@
     "longitude": 112.2207152,
     "tanggal_donor_terakhir": "2025-12-20",
     "status_kelayakan": "layak",
-    "nik": "3524000000000029"
+    "nik": "3524000000000029",
+    "total_donasi": 13,
+    "total_volume_ml": 4550,
+    "total_volume_liter": 4.55,
+    "tekanan_darah": "122/82",
+    "hemoglobin": 13.8,
+    "berat_badan": 58,
+    "lokasi_donor_terakhir": "Mobile Unit Alun-Alun Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00030",
@@ -447,7 +650,14 @@
     "longitude": 112.3341418,
     "tanggal_donor_terakhir": "2026-05-06",
     "status_kelayakan": "layak",
-    "nik": "3524000000000030"
+    "nik": "3524000000000030",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "118/78",
+    "hemoglobin": 15.2,
+    "berat_badan": 78,
+    "lokasi_donor_terakhir": "UDD PMI Kabupaten Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00031",
@@ -462,7 +672,14 @@
     "longitude": 112.3108243,
     "tanggal_donor_terakhir": "2026-04-17",
     "status_kelayakan": "layak",
-    "nik": "3524000000000031"
+    "nik": "3524000000000031",
+    "total_donasi": 5,
+    "total_volume_ml": 1750,
+    "total_volume_liter": 1.75,
+    "tekanan_darah": "115/75",
+    "hemoglobin": 14.8,
+    "berat_badan": 65,
+    "lokasi_donor_terakhir": "Mobile Unit Alun-Alun Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00032",
@@ -477,7 +694,14 @@
     "longitude": 111.8926593,
     "tanggal_donor_terakhir": "2026-08-07",
     "status_kelayakan": "belum_layak",
-    "nik": "3524000000000032"
+    "nik": "3524000000000032",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "126/82",
+    "hemoglobin": 14.2,
+    "berat_badan": 58,
+    "lokasi_donor_terakhir": "RSUD Dr. Soegiri Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00033",
@@ -492,7 +716,14 @@
     "longitude": 112.2440306,
     "tanggal_donor_terakhir": "2026-01-17",
     "status_kelayakan": "layak",
-    "nik": "3524000000000033"
+    "nik": "3524000000000033",
+    "total_donasi": 3,
+    "total_volume_ml": 1050,
+    "total_volume_liter": 1.05,
+    "tekanan_darah": "120/80",
+    "hemoglobin": 15.2,
+    "berat_badan": 68,
+    "lokasi_donor_terakhir": "Puskesmas Lamongan Kota"
   },
   {
     "id_pmi": "PMI-LMG-00034",
@@ -507,7 +738,14 @@
     "longitude": 112.1560511,
     "tanggal_donor_terakhir": "2025-08-21",
     "status_kelayakan": "layak",
-    "nik": "3524000000000034"
+    "nik": "3524000000000034",
+    "total_donasi": 5,
+    "total_volume_ml": 1750,
+    "total_volume_liter": 1.75,
+    "tekanan_darah": "124/80",
+    "hemoglobin": 13.8,
+    "berat_badan": 68,
+    "lokasi_donor_terakhir": "RSUD Dr. Soegiri Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00035",
@@ -522,7 +760,14 @@
     "longitude": 112.3431038,
     "tanggal_donor_terakhir": "2026-08-23",
     "status_kelayakan": "belum_layak",
-    "nik": "3524000000000035"
+    "nik": "3524000000000035",
+    "total_donasi": 4,
+    "total_volume_ml": 1400,
+    "total_volume_liter": 1.4,
+    "tekanan_darah": "122/82",
+    "hemoglobin": 14.2,
+    "berat_badan": 78,
+    "lokasi_donor_terakhir": "UDD PMI Kabupaten Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00036",
@@ -537,7 +782,14 @@
     "longitude": 112.4051807,
     "tanggal_donor_terakhir": "2025-10-12",
     "status_kelayakan": "layak",
-    "nik": "3524000000000036"
+    "nik": "3524000000000036",
+    "total_donasi": 15,
+    "total_volume_ml": 5250,
+    "total_volume_liter": 5.25,
+    "tekanan_darah": "115/75",
+    "hemoglobin": 15.5,
+    "berat_badan": 70,
+    "lokasi_donor_terakhir": "RSUD Dr. Soegiri Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00037",
@@ -552,7 +804,14 @@
     "longitude": 112.2361418,
     "tanggal_donor_terakhir": "2025-10-30",
     "status_kelayakan": "layak",
-    "nik": "3524000000000037"
+    "nik": "3524000000000037",
+    "total_donasi": 9,
+    "total_volume_ml": 3150,
+    "total_volume_liter": 3.15,
+    "tekanan_darah": "124/80",
+    "hemoglobin": 14.8,
+    "berat_badan": 70,
+    "lokasi_donor_terakhir": "UDD PMI Kabupaten Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00038",
@@ -567,7 +826,14 @@
     "longitude": 112.3547968,
     "tanggal_donor_terakhir": "2026-02-27",
     "status_kelayakan": "layak",
-    "nik": "3524000000000038"
+    "nik": "3524000000000038",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "115/75",
+    "hemoglobin": 15.5,
+    "berat_badan": 62,
+    "lokasi_donor_terakhir": "RSUD Dr. Soegiri Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00039",
@@ -582,7 +848,14 @@
     "longitude": 112.2097902,
     "tanggal_donor_terakhir": "2025-11-13",
     "status_kelayakan": "layak",
-    "nik": "3524000000000039"
+    "nik": "3524000000000039",
+    "total_donasi": 3,
+    "total_volume_ml": 1050,
+    "total_volume_liter": 1.05,
+    "tekanan_darah": "120/80",
+    "hemoglobin": 14.2,
+    "berat_badan": 68,
+    "lokasi_donor_terakhir": "UDD PMI Kabupaten Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00040",
@@ -597,7 +870,14 @@
     "longitude": 112.3846145,
     "tanggal_donor_terakhir": "2026-03-22",
     "status_kelayakan": "layak",
-    "nik": "3524000000000040"
+    "nik": "3524000000000040",
+    "total_donasi": 5,
+    "total_volume_ml": 1750,
+    "total_volume_liter": 1.75,
+    "tekanan_darah": "120/80",
+    "hemoglobin": 14.2,
+    "berat_badan": 62,
+    "lokasi_donor_terakhir": "RSI Nashrul Ummah Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00041",
@@ -612,7 +892,14 @@
     "longitude": 112.3701994,
     "tanggal_donor_terakhir": "2025-10-22",
     "status_kelayakan": "layak",
-    "nik": "3524000000000041"
+    "nik": "3524000000000041",
+    "total_donasi": 2,
+    "total_volume_ml": 700,
+    "total_volume_liter": 0.7,
+    "tekanan_darah": "124/80",
+    "hemoglobin": 14.2,
+    "berat_badan": 58,
+    "lokasi_donor_terakhir": "UDD PMI Kabupaten Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00042",
@@ -627,7 +914,14 @@
     "longitude": 112.2663176,
     "tanggal_donor_terakhir": "2025-10-08",
     "status_kelayakan": "layak",
-    "nik": "3524000000000042"
+    "nik": "3524000000000042",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "115/75",
+    "hemoglobin": 14.8,
+    "berat_badan": 65,
+    "lokasi_donor_terakhir": "Puskesmas Lamongan Kota"
   },
   {
     "id_pmi": "PMI-LMG-00043",
@@ -642,7 +936,14 @@
     "longitude": 111.8757055,
     "tanggal_donor_terakhir": "2026-07-04",
     "status_kelayakan": "belum_layak",
-    "nik": "3524000000000043"
+    "nik": "3524000000000043",
+    "total_donasi": 13,
+    "total_volume_ml": 4550,
+    "total_volume_liter": 4.55,
+    "tekanan_darah": "118/78",
+    "hemoglobin": 15.5,
+    "berat_badan": 62,
+    "lokasi_donor_terakhir": "RSI Nashrul Ummah Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00044",
@@ -657,7 +958,14 @@
     "longitude": 112.4035049,
     "tanggal_donor_terakhir": "2026-05-30",
     "status_kelayakan": "layak",
-    "nik": "3524000000000044"
+    "nik": "3524000000000044",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "126/82",
+    "hemoglobin": 15.2,
+    "berat_badan": 62,
+    "lokasi_donor_terakhir": "Mobile Unit Alun-Alun Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00045",
@@ -672,7 +980,14 @@
     "longitude": 112.3808543,
     "tanggal_donor_terakhir": "2026-05-03",
     "status_kelayakan": "layak",
-    "nik": "3524000000000045"
+    "nik": "3524000000000045",
+    "total_donasi": 3,
+    "total_volume_ml": 1050,
+    "total_volume_liter": 1.05,
+    "tekanan_darah": "122/82",
+    "hemoglobin": 15.5,
+    "berat_badan": 58,
+    "lokasi_donor_terakhir": "UDD PMI Kabupaten Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00046",
@@ -687,7 +1002,14 @@
     "longitude": 112.3139149,
     "tanggal_donor_terakhir": "2026-04-07",
     "status_kelayakan": "layak",
-    "nik": "3524000000000046"
+    "nik": "3524000000000046",
+    "total_donasi": 6,
+    "total_volume_ml": 2100,
+    "total_volume_liter": 2.1,
+    "tekanan_darah": "124/80",
+    "hemoglobin": 15.2,
+    "berat_badan": 62,
+    "lokasi_donor_terakhir": "Puskesmas Lamongan Kota"
   },
   {
     "id_pmi": "PMI-LMG-00047",
@@ -702,7 +1024,14 @@
     "longitude": 112.3955949,
     "tanggal_donor_terakhir": "2025-11-28",
     "status_kelayakan": "layak",
-    "nik": "3524000000000047"
+    "nik": "3524000000000047",
+    "total_donasi": 4,
+    "total_volume_ml": 1400,
+    "total_volume_liter": 1.4,
+    "tekanan_darah": "120/80",
+    "hemoglobin": 14.2,
+    "berat_badan": 62,
+    "lokasi_donor_terakhir": "Mobile Unit Alun-Alun Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00048",
@@ -717,7 +1046,14 @@
     "longitude": 112.3821122,
     "tanggal_donor_terakhir": "2026-02-09",
     "status_kelayakan": "layak",
-    "nik": "3524000000000048"
+    "nik": "3524000000000048",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "115/75",
+    "hemoglobin": 15.5,
+    "berat_badan": 68,
+    "lokasi_donor_terakhir": "RSUD Dr. Soegiri Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00049",
@@ -732,7 +1068,14 @@
     "longitude": 112.3701935,
     "tanggal_donor_terakhir": "2026-08-27",
     "status_kelayakan": "belum_layak",
-    "nik": "3524000000000049"
+    "nik": "3524000000000049",
+    "total_donasi": 9,
+    "total_volume_ml": 3150,
+    "total_volume_liter": 3.15,
+    "tekanan_darah": "124/80",
+    "hemoglobin": 15.2,
+    "berat_badan": 78,
+    "lokasi_donor_terakhir": "RSUD Dr. Soegiri Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00050",
@@ -747,7 +1090,14 @@
     "longitude": 112.1268453,
     "tanggal_donor_terakhir": "2026-02-03",
     "status_kelayakan": "layak",
-    "nik": "3524000000000050"
+    "nik": "3524000000000050",
+    "total_donasi": 12,
+    "total_volume_ml": 4200,
+    "total_volume_liter": 4.2,
+    "tekanan_darah": "122/82",
+    "hemoglobin": 14.8,
+    "berat_badan": 78,
+    "lokasi_donor_terakhir": "Puskesmas Lamongan Kota"
   },
   {
     "id_pmi": "PMI-LMG-00051",
@@ -762,7 +1112,14 @@
     "longitude": 112.2076956,
     "tanggal_donor_terakhir": "2026-05-09",
     "status_kelayakan": "layak",
-    "nik": "3524000000000051"
+    "nik": "3524000000000051",
+    "total_donasi": 2,
+    "total_volume_ml": 700,
+    "total_volume_liter": 0.7,
+    "tekanan_darah": "126/82",
+    "hemoglobin": 14.5,
+    "berat_badan": 70,
+    "lokasi_donor_terakhir": "UDD PMI Kabupaten Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00052",
@@ -777,7 +1134,14 @@
     "longitude": 112.3972692,
     "tanggal_donor_terakhir": "2025-12-24",
     "status_kelayakan": "layak",
-    "nik": "3524000000000052"
+    "nik": "3524000000000052",
+    "total_donasi": 6,
+    "total_volume_ml": 2100,
+    "total_volume_liter": 2.1,
+    "tekanan_darah": "120/80",
+    "hemoglobin": 14.5,
+    "berat_badan": 68,
+    "lokasi_donor_terakhir": "RSUD Dr. Soegiri Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00053",
@@ -792,7 +1156,14 @@
     "longitude": 112.1468123,
     "tanggal_donor_terakhir": "2026-07-25",
     "status_kelayakan": "belum_layak",
-    "nik": "3524000000000053"
+    "nik": "3524000000000053",
+    "total_donasi": 4,
+    "total_volume_ml": 1400,
+    "total_volume_liter": 1.4,
+    "tekanan_darah": "124/80",
+    "hemoglobin": 15.5,
+    "berat_badan": 62,
+    "lokasi_donor_terakhir": "UDD PMI Kabupaten Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00054",
@@ -807,7 +1178,14 @@
     "longitude": 112.3718534,
     "tanggal_donor_terakhir": "2026-01-15",
     "status_kelayakan": "layak",
-    "nik": "3524000000000054"
+    "nik": "3524000000000054",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "126/82",
+    "hemoglobin": 13.8,
+    "berat_badan": 62,
+    "lokasi_donor_terakhir": "Mobile Unit Alun-Alun Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00055",
@@ -822,7 +1200,14 @@
     "longitude": 112.3302357,
     "tanggal_donor_terakhir": "2026-05-22",
     "status_kelayakan": "layak",
-    "nik": "3524000000000055"
+    "nik": "3524000000000055",
+    "total_donasi": 8,
+    "total_volume_ml": 2800,
+    "total_volume_liter": 2.8,
+    "tekanan_darah": "124/80",
+    "hemoglobin": 14.8,
+    "berat_badan": 74,
+    "lokasi_donor_terakhir": "Puskesmas Lamongan Kota"
   },
   {
     "id_pmi": "PMI-LMG-00056",
@@ -837,7 +1222,14 @@
     "longitude": 112.3989332,
     "tanggal_donor_terakhir": "2026-01-11",
     "status_kelayakan": "layak",
-    "nik": "3524000000000056"
+    "nik": "3524000000000056",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "126/82",
+    "hemoglobin": 15.2,
+    "berat_badan": 78,
+    "lokasi_donor_terakhir": "Mobile Unit Alun-Alun Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00057",
@@ -852,7 +1244,14 @@
     "longitude": 112.4534609,
     "tanggal_donor_terakhir": "2026-07-08",
     "status_kelayakan": "belum_layak",
-    "nik": "3524000000000057"
+    "nik": "3524000000000057",
+    "total_donasi": 12,
+    "total_volume_ml": 4200,
+    "total_volume_liter": 4.2,
+    "tekanan_darah": "126/82",
+    "hemoglobin": 13.8,
+    "berat_badan": 70,
+    "lokasi_donor_terakhir": "RSI Nashrul Ummah Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00058",
@@ -867,7 +1266,14 @@
     "longitude": 112.4601483,
     "tanggal_donor_terakhir": "2026-04-13",
     "status_kelayakan": "layak",
-    "nik": "3524000000000058"
+    "nik": "3524000000000058",
+    "total_donasi": 7,
+    "total_volume_ml": 2450,
+    "total_volume_liter": 2.45,
+    "tekanan_darah": "124/80",
+    "hemoglobin": 13.8,
+    "berat_badan": 70,
+    "lokasi_donor_terakhir": "RSUD Dr. Soegiri Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00059",
@@ -882,7 +1288,14 @@
     "longitude": 112.323423,
     "tanggal_donor_terakhir": "2025-12-16",
     "status_kelayakan": "layak",
-    "nik": "3524000000000059"
+    "nik": "3524000000000059",
+    "total_donasi": 4,
+    "total_volume_ml": 1400,
+    "total_volume_liter": 1.4,
+    "tekanan_darah": "120/80",
+    "hemoglobin": 15.5,
+    "berat_badan": 62,
+    "lokasi_donor_terakhir": "Mobile Unit Alun-Alun Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00060",
@@ -897,7 +1310,14 @@
     "longitude": 112.3581596,
     "tanggal_donor_terakhir": "2026-08-18",
     "status_kelayakan": "belum_layak",
-    "nik": "3524000000000060"
+    "nik": "3524000000000060",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "120/80",
+    "hemoglobin": 14.8,
+    "berat_badan": 65,
+    "lokasi_donor_terakhir": "Mobile Unit Alun-Alun Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00061",
@@ -912,7 +1332,14 @@
     "longitude": 112.2180507,
     "tanggal_donor_terakhir": "2026-09-06",
     "status_kelayakan": "belum_layak",
-    "nik": "3524000000000061"
+    "nik": "3524000000000061",
+    "total_donasi": 9,
+    "total_volume_ml": 3150,
+    "total_volume_liter": 3.15,
+    "tekanan_darah": "120/80",
+    "hemoglobin": 14.8,
+    "berat_badan": 70,
+    "lokasi_donor_terakhir": "Puskesmas Lamongan Kota"
   },
   {
     "id_pmi": "PMI-LMG-00062",
@@ -927,7 +1354,14 @@
     "longitude": 112.3624737,
     "tanggal_donor_terakhir": "2025-06-15",
     "status_kelayakan": "layak",
-    "nik": "3524000000000062"
+    "nik": "3524000000000062",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "122/82",
+    "hemoglobin": 13.8,
+    "berat_badan": 62,
+    "lokasi_donor_terakhir": "Mobile Unit Alun-Alun Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00063",
@@ -942,7 +1376,14 @@
     "longitude": 112.4482369,
     "tanggal_donor_terakhir": "2025-07-08",
     "status_kelayakan": "layak",
-    "nik": "3524000000000063"
+    "nik": "3524000000000063",
+    "total_donasi": 3,
+    "total_volume_ml": 1050,
+    "total_volume_liter": 1.05,
+    "tekanan_darah": "120/80",
+    "hemoglobin": 14.2,
+    "berat_badan": 58,
+    "lokasi_donor_terakhir": "UDD PMI Kabupaten Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00064",
@@ -957,7 +1398,14 @@
     "longitude": 112.3837034,
     "tanggal_donor_terakhir": "2026-05-17",
     "status_kelayakan": "layak",
-    "nik": "3524000000000064"
+    "nik": "3524000000000064",
+    "total_donasi": 11,
+    "total_volume_ml": 3850,
+    "total_volume_liter": 3.85,
+    "tekanan_darah": "122/82",
+    "hemoglobin": 14.8,
+    "berat_badan": 58,
+    "lokasi_donor_terakhir": "RSUD Dr. Soegiri Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00065",
@@ -972,7 +1420,14 @@
     "longitude": 112.1670643,
     "tanggal_donor_terakhir": "2025-03-28",
     "status_kelayakan": "layak",
-    "nik": "3524000000000065"
+    "nik": "3524000000000065",
+    "total_donasi": 4,
+    "total_volume_ml": 1400,
+    "total_volume_liter": 1.4,
+    "tekanan_darah": "124/80",
+    "hemoglobin": 13.8,
+    "berat_badan": 65,
+    "lokasi_donor_terakhir": "RSI Nashrul Ummah Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00066",
@@ -987,7 +1442,14 @@
     "longitude": 112.4703207,
     "tanggal_donor_terakhir": "2026-05-10",
     "status_kelayakan": "layak",
-    "nik": "3524000000000066"
+    "nik": "3524000000000066",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "118/78",
+    "hemoglobin": 13.8,
+    "berat_badan": 62,
+    "lokasi_donor_terakhir": "Puskesmas Lamongan Kota"
   },
   {
     "id_pmi": "PMI-LMG-00067",
@@ -1002,7 +1464,14 @@
     "longitude": 112.1952759,
     "tanggal_donor_terakhir": "2025-06-22",
     "status_kelayakan": "layak",
-    "nik": "3524000000000067"
+    "nik": "3524000000000067",
+    "total_donasi": 9,
+    "total_volume_ml": 3150,
+    "total_volume_liter": 3.15,
+    "tekanan_darah": "115/75",
+    "hemoglobin": 14.8,
+    "berat_badan": 65,
+    "lokasi_donor_terakhir": "Mobile Unit Alun-Alun Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00068",
@@ -1017,7 +1486,14 @@
     "longitude": 112.4140808,
     "tanggal_donor_terakhir": "2026-07-24",
     "status_kelayakan": "belum_layak",
-    "nik": "3524000000000068"
+    "nik": "3524000000000068",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "120/80",
+    "hemoglobin": 14.5,
+    "berat_badan": 62,
+    "lokasi_donor_terakhir": "RSI Nashrul Ummah Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00069",
@@ -1032,7 +1508,14 @@
     "longitude": 112.1292527,
     "tanggal_donor_terakhir": "2026-01-28",
     "status_kelayakan": "layak",
-    "nik": "3524000000000069"
+    "nik": "3524000000000069",
+    "total_donasi": 2,
+    "total_volume_ml": 700,
+    "total_volume_liter": 0.7,
+    "tekanan_darah": "118/78",
+    "hemoglobin": 14.8,
+    "berat_badan": 68,
+    "lokasi_donor_terakhir": "Puskesmas Lamongan Kota"
   },
   {
     "id_pmi": "PMI-LMG-00070",
@@ -1047,7 +1530,14 @@
     "longitude": 112.2454044,
     "tanggal_donor_terakhir": "2026-06-07",
     "status_kelayakan": "layak",
-    "nik": "3524000000000070"
+    "nik": "3524000000000070",
+    "total_donasi": 9,
+    "total_volume_ml": 3150,
+    "total_volume_liter": 3.15,
+    "tekanan_darah": "120/80",
+    "hemoglobin": 14.5,
+    "berat_badan": 62,
+    "lokasi_donor_terakhir": "Puskesmas Lamongan Kota"
   },
   {
     "id_pmi": "PMI-LMG-00071",
@@ -1062,7 +1552,14 @@
     "longitude": 112.2827407,
     "tanggal_donor_terakhir": "2025-05-23",
     "status_kelayakan": "layak",
-    "nik": "3524000000000071"
+    "nik": "3524000000000071",
+    "total_donasi": 11,
+    "total_volume_ml": 3850,
+    "total_volume_liter": 3.85,
+    "tekanan_darah": "124/80",
+    "hemoglobin": 14.2,
+    "berat_badan": 58,
+    "lokasi_donor_terakhir": "Puskesmas Lamongan Kota"
   },
   {
     "id_pmi": "PMI-LMG-00072",
@@ -1077,7 +1574,14 @@
     "longitude": 112.1530023,
     "tanggal_donor_terakhir": "2026-02-26",
     "status_kelayakan": "layak",
-    "nik": "3524000000000072"
+    "nik": "3524000000000072",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "126/82",
+    "hemoglobin": 14.2,
+    "berat_badan": 68,
+    "lokasi_donor_terakhir": "Puskesmas Lamongan Kota"
   },
   {
     "id_pmi": "PMI-LMG-00073",
@@ -1092,7 +1596,14 @@
     "longitude": 111.8690045,
     "tanggal_donor_terakhir": "2025-11-25",
     "status_kelayakan": "layak",
-    "nik": "3524000000000073"
+    "nik": "3524000000000073",
+    "total_donasi": 9,
+    "total_volume_ml": 3150,
+    "total_volume_liter": 3.15,
+    "tekanan_darah": "120/80",
+    "hemoglobin": 14.2,
+    "berat_badan": 70,
+    "lokasi_donor_terakhir": "Puskesmas Lamongan Kota"
   },
   {
     "id_pmi": "PMI-LMG-00074",
@@ -1107,7 +1618,14 @@
     "longitude": 112.1082177,
     "tanggal_donor_terakhir": "2026-08-07",
     "status_kelayakan": "belum_layak",
-    "nik": "3524000000000074"
+    "nik": "3524000000000074",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "115/75",
+    "hemoglobin": 15.5,
+    "berat_badan": 70,
+    "lokasi_donor_terakhir": "Puskesmas Lamongan Kota"
   },
   {
     "id_pmi": "PMI-LMG-00075",
@@ -1122,7 +1640,14 @@
     "longitude": 112.2033913,
     "tanggal_donor_terakhir": "2025-12-15",
     "status_kelayakan": "layak",
-    "nik": "3524000000000075"
+    "nik": "3524000000000075",
+    "total_donasi": 3,
+    "total_volume_ml": 1050,
+    "total_volume_liter": 1.05,
+    "tekanan_darah": "115/75",
+    "hemoglobin": 15.5,
+    "berat_badan": 74,
+    "lokasi_donor_terakhir": "UDD PMI Kabupaten Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00076",
@@ -1137,7 +1662,14 @@
     "longitude": 112.3755698,
     "tanggal_donor_terakhir": "2026-06-15",
     "status_kelayakan": "layak",
-    "nik": "3524000000000076"
+    "nik": "3524000000000076",
+    "total_donasi": 8,
+    "total_volume_ml": 2800,
+    "total_volume_liter": 2.8,
+    "tekanan_darah": "115/75",
+    "hemoglobin": 14.8,
+    "berat_badan": 68,
+    "lokasi_donor_terakhir": "Mobile Unit Alun-Alun Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00077",
@@ -1152,7 +1684,14 @@
     "longitude": 112.3035287,
     "tanggal_donor_terakhir": "2025-08-02",
     "status_kelayakan": "layak",
-    "nik": "3524000000000077"
+    "nik": "3524000000000077",
+    "total_donasi": 4,
+    "total_volume_ml": 1400,
+    "total_volume_liter": 1.4,
+    "tekanan_darah": "115/75",
+    "hemoglobin": 14.2,
+    "berat_badan": 68,
+    "lokasi_donor_terakhir": "UDD PMI Kabupaten Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00078",
@@ -1167,7 +1706,14 @@
     "longitude": 112.284046,
     "tanggal_donor_terakhir": "2025-05-31",
     "status_kelayakan": "layak",
-    "nik": "3524000000000078"
+    "nik": "3524000000000078",
+    "total_donasi": 11,
+    "total_volume_ml": 3850,
+    "total_volume_liter": 3.85,
+    "tekanan_darah": "122/82",
+    "hemoglobin": 14.2,
+    "berat_badan": 58,
+    "lokasi_donor_terakhir": "UDD PMI Kabupaten Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00079",
@@ -1182,7 +1728,14 @@
     "longitude": 112.3522405,
     "tanggal_donor_terakhir": "2025-11-26",
     "status_kelayakan": "layak",
-    "nik": "3524000000000079"
+    "nik": "3524000000000079",
+    "total_donasi": 7,
+    "total_volume_ml": 2450,
+    "total_volume_liter": 2.45,
+    "tekanan_darah": "120/80",
+    "hemoglobin": 14.2,
+    "berat_badan": 70,
+    "lokasi_donor_terakhir": "Mobile Unit Alun-Alun Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00080",
@@ -1197,7 +1750,14 @@
     "longitude": 112.1213196,
     "tanggal_donor_terakhir": "2026-01-29",
     "status_kelayakan": "layak",
-    "nik": "3524000000000080"
+    "nik": "3524000000000080",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "120/80",
+    "hemoglobin": 15.2,
+    "berat_badan": 68,
+    "lokasi_donor_terakhir": "Mobile Unit Alun-Alun Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00081",
@@ -1212,7 +1772,14 @@
     "longitude": 112.3006196,
     "tanggal_donor_terakhir": "2025-05-10",
     "status_kelayakan": "layak",
-    "nik": "3524000000000081"
+    "nik": "3524000000000081",
+    "total_donasi": 4,
+    "total_volume_ml": 1400,
+    "total_volume_liter": 1.4,
+    "tekanan_darah": "122/82",
+    "hemoglobin": 13.8,
+    "berat_badan": 65,
+    "lokasi_donor_terakhir": "Puskesmas Lamongan Kota"
   },
   {
     "id_pmi": "PMI-LMG-00082",
@@ -1227,7 +1794,14 @@
     "longitude": 112.2235611,
     "tanggal_donor_terakhir": "2025-12-08",
     "status_kelayakan": "layak",
-    "nik": "3524000000000082"
+    "nik": "3524000000000082",
+    "total_donasi": 5,
+    "total_volume_ml": 1750,
+    "total_volume_liter": 1.75,
+    "tekanan_darah": "124/80",
+    "hemoglobin": 13.8,
+    "berat_badan": 74,
+    "lokasi_donor_terakhir": "Mobile Unit Alun-Alun Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00083",
@@ -1242,7 +1816,14 @@
     "longitude": 112.3739561,
     "tanggal_donor_terakhir": "2025-05-03",
     "status_kelayakan": "layak",
-    "nik": "3524000000000083"
+    "nik": "3524000000000083",
+    "total_donasi": 4,
+    "total_volume_ml": 1400,
+    "total_volume_liter": 1.4,
+    "tekanan_darah": "115/75",
+    "hemoglobin": 15.5,
+    "berat_badan": 65,
+    "lokasi_donor_terakhir": "UDD PMI Kabupaten Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00084",
@@ -1257,7 +1838,14 @@
     "longitude": 112.3565522,
     "tanggal_donor_terakhir": "2025-08-20",
     "status_kelayakan": "layak",
-    "nik": "3524000000000084"
+    "nik": "3524000000000084",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "126/82",
+    "hemoglobin": 15.2,
+    "berat_badan": 65,
+    "lokasi_donor_terakhir": "RSI Nashrul Ummah Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00085",
@@ -1272,7 +1860,14 @@
     "longitude": 112.2350499,
     "tanggal_donor_terakhir": "2025-10-12",
     "status_kelayakan": "layak",
-    "nik": "3524000000000085"
+    "nik": "3524000000000085",
+    "total_donasi": 14,
+    "total_volume_ml": 4900,
+    "total_volume_liter": 4.9,
+    "tekanan_darah": "120/80",
+    "hemoglobin": 15.5,
+    "berat_badan": 62,
+    "lokasi_donor_terakhir": "UDD PMI Kabupaten Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00086",
@@ -1287,7 +1882,14 @@
     "longitude": 112.3809931,
     "tanggal_donor_terakhir": "2025-12-19",
     "status_kelayakan": "layak",
-    "nik": "3524000000000086"
+    "nik": "3524000000000086",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "122/82",
+    "hemoglobin": 14.5,
+    "berat_badan": 70,
+    "lokasi_donor_terakhir": "RSUD Dr. Soegiri Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00087",
@@ -1302,7 +1904,14 @@
     "longitude": 112.1077368,
     "tanggal_donor_terakhir": "2025-11-26",
     "status_kelayakan": "layak",
-    "nik": "3524000000000087"
+    "nik": "3524000000000087",
+    "total_donasi": 3,
+    "total_volume_ml": 1050,
+    "total_volume_liter": 1.05,
+    "tekanan_darah": "124/80",
+    "hemoglobin": 13.8,
+    "berat_badan": 78,
+    "lokasi_donor_terakhir": "Puskesmas Lamongan Kota"
   },
   {
     "id_pmi": "PMI-LMG-00088",
@@ -1317,7 +1926,14 @@
     "longitude": 112.3351579,
     "tanggal_donor_terakhir": "2025-10-19",
     "status_kelayakan": "layak",
-    "nik": "3524000000000088"
+    "nik": "3524000000000088",
+    "total_donasi": 9,
+    "total_volume_ml": 3150,
+    "total_volume_liter": 3.15,
+    "tekanan_darah": "120/80",
+    "hemoglobin": 15.5,
+    "berat_badan": 65,
+    "lokasi_donor_terakhir": "RSUD Dr. Soegiri Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00089",
@@ -1332,7 +1948,14 @@
     "longitude": 112.3502023,
     "tanggal_donor_terakhir": "2026-03-21",
     "status_kelayakan": "layak",
-    "nik": "3524000000000089"
+    "nik": "3524000000000089",
+    "total_donasi": 4,
+    "total_volume_ml": 1400,
+    "total_volume_liter": 1.4,
+    "tekanan_darah": "122/82",
+    "hemoglobin": 14.8,
+    "berat_badan": 65,
+    "lokasi_donor_terakhir": "RSI Nashrul Ummah Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00090",
@@ -1347,7 +1970,14 @@
     "longitude": 112.4155162,
     "tanggal_donor_terakhir": "2025-06-03",
     "status_kelayakan": "layak",
-    "nik": "3524000000000090"
+    "nik": "3524000000000090",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "120/80",
+    "hemoglobin": 14.8,
+    "berat_badan": 62,
+    "lokasi_donor_terakhir": "Mobile Unit Alun-Alun Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00091",
@@ -1362,7 +1992,14 @@
     "longitude": 112.2802226,
     "tanggal_donor_terakhir": "2025-11-14",
     "status_kelayakan": "layak",
-    "nik": "3524000000000091"
+    "nik": "3524000000000091",
+    "total_donasi": 8,
+    "total_volume_ml": 2800,
+    "total_volume_liter": 2.8,
+    "tekanan_darah": "122/82",
+    "hemoglobin": 14.8,
+    "berat_badan": 65,
+    "lokasi_donor_terakhir": "RSI Nashrul Ummah Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00092",
@@ -1377,7 +2014,14 @@
     "longitude": 112.2452546,
     "tanggal_donor_terakhir": "2025-09-14",
     "status_kelayakan": "layak",
-    "nik": "3524000000000092"
+    "nik": "3524000000000092",
+    "total_donasi": 15,
+    "total_volume_ml": 5250,
+    "total_volume_liter": 5.25,
+    "tekanan_darah": "118/78",
+    "hemoglobin": 14.5,
+    "berat_badan": 68,
+    "lokasi_donor_terakhir": "RSI Nashrul Ummah Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00093",
@@ -1392,7 +2036,14 @@
     "longitude": 112.3741325,
     "tanggal_donor_terakhir": "2026-07-28",
     "status_kelayakan": "belum_layak",
-    "nik": "3524000000000093"
+    "nik": "3524000000000093",
+    "total_donasi": 2,
+    "total_volume_ml": 700,
+    "total_volume_liter": 0.7,
+    "tekanan_darah": "124/80",
+    "hemoglobin": 14.5,
+    "berat_badan": 68,
+    "lokasi_donor_terakhir": "Mobile Unit Alun-Alun Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00094",
@@ -1407,7 +2058,14 @@
     "longitude": 112.4008356,
     "tanggal_donor_terakhir": "2026-04-29",
     "status_kelayakan": "layak",
-    "nik": "3524000000000094"
+    "nik": "3524000000000094",
+    "total_donasi": 6,
+    "total_volume_ml": 2100,
+    "total_volume_liter": 2.1,
+    "tekanan_darah": "124/80",
+    "hemoglobin": 14.5,
+    "berat_badan": 68,
+    "lokasi_donor_terakhir": "RSI Nashrul Ummah Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00095",
@@ -1422,7 +2080,14 @@
     "longitude": 112.3482565,
     "tanggal_donor_terakhir": "2025-11-18",
     "status_kelayakan": "layak",
-    "nik": "3524000000000095"
+    "nik": "3524000000000095",
+    "total_donasi": 4,
+    "total_volume_ml": 1400,
+    "total_volume_liter": 1.4,
+    "tekanan_darah": "124/80",
+    "hemoglobin": 14.2,
+    "berat_badan": 78,
+    "lokasi_donor_terakhir": "Mobile Unit Alun-Alun Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00096",
@@ -1437,7 +2102,14 @@
     "longitude": 112.1382788,
     "tanggal_donor_terakhir": "2025-05-11",
     "status_kelayakan": "layak",
-    "nik": "3524000000000096"
+    "nik": "3524000000000096",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "122/82",
+    "hemoglobin": 14.2,
+    "berat_badan": 78,
+    "lokasi_donor_terakhir": "Puskesmas Lamongan Kota"
   },
   {
     "id_pmi": "PMI-LMG-00097",
@@ -1452,7 +2124,14 @@
     "longitude": 112.2201977,
     "tanggal_donor_terakhir": "2025-09-07",
     "status_kelayakan": "layak",
-    "nik": "3524000000000097"
+    "nik": "3524000000000097",
+    "total_donasi": 8,
+    "total_volume_ml": 2800,
+    "total_volume_liter": 2.8,
+    "tekanan_darah": "122/82",
+    "hemoglobin": 14.8,
+    "berat_badan": 65,
+    "lokasi_donor_terakhir": "Mobile Unit Alun-Alun Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00098",
@@ -1467,7 +2146,14 @@
     "longitude": 112.368542,
     "tanggal_donor_terakhir": "2025-09-01",
     "status_kelayakan": "layak",
-    "nik": "3524000000000098"
+    "nik": "3524000000000098",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "122/82",
+    "hemoglobin": 15.2,
+    "berat_badan": 70,
+    "lokasi_donor_terakhir": "Puskesmas Lamongan Kota"
   },
   {
     "id_pmi": "PMI-LMG-00099",
@@ -1482,7 +2168,14 @@
     "longitude": 112.4109542,
     "tanggal_donor_terakhir": "2025-11-11",
     "status_kelayakan": "layak",
-    "nik": "3524000000000099"
+    "nik": "3524000000000099",
+    "total_donasi": 12,
+    "total_volume_ml": 4200,
+    "total_volume_liter": 4.2,
+    "tekanan_darah": "126/82",
+    "hemoglobin": 14.2,
+    "berat_badan": 62,
+    "lokasi_donor_terakhir": "RSI Nashrul Ummah Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00100",
@@ -1497,7 +2190,14 @@
     "longitude": 112.3109904,
     "tanggal_donor_terakhir": "2026-05-01",
     "status_kelayakan": "layak",
-    "nik": "3524000000000100"
+    "nik": "3524000000000100",
+    "total_donasi": 5,
+    "total_volume_ml": 1750,
+    "total_volume_liter": 1.75,
+    "tekanan_darah": "122/82",
+    "hemoglobin": 14.2,
+    "berat_badan": 74,
+    "lokasi_donor_terakhir": "UDD PMI Kabupaten Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00101",
@@ -1512,7 +2212,14 @@
     "longitude": 112.3253477,
     "tanggal_donor_terakhir": "2025-07-26",
     "status_kelayakan": "layak",
-    "nik": "3524000000000101"
+    "nik": "3524000000000101",
+    "total_donasi": 2,
+    "total_volume_ml": 700,
+    "total_volume_liter": 0.7,
+    "tekanan_darah": "124/80",
+    "hemoglobin": 14.5,
+    "berat_badan": 68,
+    "lokasi_donor_terakhir": "RSI Nashrul Ummah Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00102",
@@ -1527,7 +2234,14 @@
     "longitude": 112.2901934,
     "tanggal_donor_terakhir": "2025-09-14",
     "status_kelayakan": "layak",
-    "nik": "3524000000000102"
+    "nik": "3524000000000102",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "120/80",
+    "hemoglobin": 15.5,
+    "berat_badan": 62,
+    "lokasi_donor_terakhir": "UDD PMI Kabupaten Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00103",
@@ -1542,7 +2256,14 @@
     "longitude": 112.4168437,
     "tanggal_donor_terakhir": "2026-07-27",
     "status_kelayakan": "belum_layak",
-    "nik": "3524000000000103"
+    "nik": "3524000000000103",
+    "total_donasi": 6,
+    "total_volume_ml": 2100,
+    "total_volume_liter": 2.1,
+    "tekanan_darah": "115/75",
+    "hemoglobin": 14.8,
+    "berat_badan": 70,
+    "lokasi_donor_terakhir": "Mobile Unit Alun-Alun Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00104",
@@ -1557,7 +2278,14 @@
     "longitude": 112.3795221,
     "tanggal_donor_terakhir": "2026-01-21",
     "status_kelayakan": "layak",
-    "nik": "3524000000000104"
+    "nik": "3524000000000104",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "122/82",
+    "hemoglobin": 14.5,
+    "berat_badan": 74,
+    "lokasi_donor_terakhir": "UDD PMI Kabupaten Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00105",
@@ -1572,7 +2300,14 @@
     "longitude": 112.1119799,
     "tanggal_donor_terakhir": "2026-08-21",
     "status_kelayakan": "belum_layak",
-    "nik": "3524000000000105"
+    "nik": "3524000000000105",
+    "total_donasi": 4,
+    "total_volume_ml": 1400,
+    "total_volume_liter": 1.4,
+    "tekanan_darah": "120/80",
+    "hemoglobin": 15.2,
+    "berat_badan": 65,
+    "lokasi_donor_terakhir": "UDD PMI Kabupaten Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00106",
@@ -1587,7 +2322,14 @@
     "longitude": 112.1576687,
     "tanggal_donor_terakhir": "2025-03-27",
     "status_kelayakan": "layak",
-    "nik": "3524000000000106"
+    "nik": "3524000000000106",
+    "total_donasi": 15,
+    "total_volume_ml": 5250,
+    "total_volume_liter": 5.25,
+    "tekanan_darah": "120/80",
+    "hemoglobin": 14.2,
+    "berat_badan": 68,
+    "lokasi_donor_terakhir": "RSUD Dr. Soegiri Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00107",
@@ -1602,7 +2344,14 @@
     "longitude": 112.3777346,
     "tanggal_donor_terakhir": "2025-04-01",
     "status_kelayakan": "layak",
-    "nik": "3524000000000107"
+    "nik": "3524000000000107",
+    "total_donasi": 3,
+    "total_volume_ml": 1050,
+    "total_volume_liter": 1.05,
+    "tekanan_darah": "115/75",
+    "hemoglobin": 14.8,
+    "berat_badan": 74,
+    "lokasi_donor_terakhir": "UDD PMI Kabupaten Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00108",
@@ -1617,7 +2366,14 @@
     "longitude": 112.2094961,
     "tanggal_donor_terakhir": "2025-06-19",
     "status_kelayakan": "layak",
-    "nik": "3524000000000108"
+    "nik": "3524000000000108",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "115/75",
+    "hemoglobin": 15.2,
+    "berat_badan": 74,
+    "lokasi_donor_terakhir": "Mobile Unit Alun-Alun Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00109",
@@ -1632,7 +2388,14 @@
     "longitude": 112.4064861,
     "tanggal_donor_terakhir": "2025-08-22",
     "status_kelayakan": "layak",
-    "nik": "3524000000000109"
+    "nik": "3524000000000109",
+    "total_donasi": 8,
+    "total_volume_ml": 2800,
+    "total_volume_liter": 2.8,
+    "tekanan_darah": "115/75",
+    "hemoglobin": 13.8,
+    "berat_badan": 62,
+    "lokasi_donor_terakhir": "RSI Nashrul Ummah Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00110",
@@ -1647,7 +2410,14 @@
     "longitude": 112.4087585,
     "tanggal_donor_terakhir": "2026-02-08",
     "status_kelayakan": "layak",
-    "nik": "3524000000000110"
+    "nik": "3524000000000110",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "118/78",
+    "hemoglobin": 15.2,
+    "berat_badan": 65,
+    "lokasi_donor_terakhir": "RSUD Dr. Soegiri Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00111",
@@ -1662,7 +2432,14 @@
     "longitude": 112.2060706,
     "tanggal_donor_terakhir": "2025-12-29",
     "status_kelayakan": "layak",
-    "nik": "3524000000000111"
+    "nik": "3524000000000111",
+    "total_donasi": 2,
+    "total_volume_ml": 700,
+    "total_volume_liter": 0.7,
+    "tekanan_darah": "126/82",
+    "hemoglobin": 14.5,
+    "berat_badan": 74,
+    "lokasi_donor_terakhir": "RSI Nashrul Ummah Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00112",
@@ -1677,7 +2454,14 @@
     "longitude": 112.3215518,
     "tanggal_donor_terakhir": "2026-05-06",
     "status_kelayakan": "layak",
-    "nik": "3524000000000112"
+    "nik": "3524000000000112",
+    "total_donasi": 6,
+    "total_volume_ml": 2100,
+    "total_volume_liter": 2.1,
+    "tekanan_darah": "118/78",
+    "hemoglobin": 15.5,
+    "berat_badan": 62,
+    "lokasi_donor_terakhir": "RSI Nashrul Ummah Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00113",
@@ -1692,7 +2476,14 @@
     "longitude": 112.4646452,
     "tanggal_donor_terakhir": "2025-07-10",
     "status_kelayakan": "layak",
-    "nik": "3524000000000113"
+    "nik": "3524000000000113",
+    "total_donasi": 13,
+    "total_volume_ml": 4550,
+    "total_volume_liter": 4.55,
+    "tekanan_darah": "120/80",
+    "hemoglobin": 14.5,
+    "berat_badan": 65,
+    "lokasi_donor_terakhir": "RSUD Dr. Soegiri Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00114",
@@ -1707,7 +2498,14 @@
     "longitude": 112.3102695,
     "tanggal_donor_terakhir": "2026-01-30",
     "status_kelayakan": "layak",
-    "nik": "3524000000000114"
+    "nik": "3524000000000114",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "126/82",
+    "hemoglobin": 13.8,
+    "berat_badan": 62,
+    "lokasi_donor_terakhir": "RSI Nashrul Ummah Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00115",
@@ -1722,7 +2520,14 @@
     "longitude": 112.3784386,
     "tanggal_donor_terakhir": "2026-08-21",
     "status_kelayakan": "belum_layak",
-    "nik": "3524000000000115"
+    "nik": "3524000000000115",
+    "total_donasi": 9,
+    "total_volume_ml": 3150,
+    "total_volume_liter": 3.15,
+    "tekanan_darah": "115/75",
+    "hemoglobin": 14.2,
+    "berat_badan": 65,
+    "lokasi_donor_terakhir": "RSI Nashrul Ummah Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00116",
@@ -1737,7 +2542,14 @@
     "longitude": 112.1822301,
     "tanggal_donor_terakhir": "2025-08-02",
     "status_kelayakan": "layak",
-    "nik": "3524000000000116"
+    "nik": "3524000000000116",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "126/82",
+    "hemoglobin": 13.8,
+    "berat_badan": 58,
+    "lokasi_donor_terakhir": "RSI Nashrul Ummah Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00117",
@@ -1752,7 +2564,14 @@
     "longitude": 112.4046358,
     "tanggal_donor_terakhir": "2025-09-03",
     "status_kelayakan": "layak",
-    "nik": "3524000000000117"
+    "nik": "3524000000000117",
+    "total_donasi": 4,
+    "total_volume_ml": 1400,
+    "total_volume_liter": 1.4,
+    "tekanan_darah": "115/75",
+    "hemoglobin": 14.2,
+    "berat_badan": 62,
+    "lokasi_donor_terakhir": "Puskesmas Lamongan Kota"
   },
   {
     "id_pmi": "PMI-LMG-00118",
@@ -1767,7 +2586,14 @@
     "longitude": 112.4439905,
     "tanggal_donor_terakhir": "2026-06-25",
     "status_kelayakan": "belum_layak",
-    "nik": "3524000000000118"
+    "nik": "3524000000000118",
+    "total_donasi": 9,
+    "total_volume_ml": 3150,
+    "total_volume_liter": 3.15,
+    "tekanan_darah": "124/80",
+    "hemoglobin": 14.2,
+    "berat_badan": 68,
+    "lokasi_donor_terakhir": "UDD PMI Kabupaten Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00119",
@@ -1782,7 +2608,14 @@
     "longitude": 112.3515527,
     "tanggal_donor_terakhir": "2025-07-03",
     "status_kelayakan": "layak",
-    "nik": "3524000000000119"
+    "nik": "3524000000000119",
+    "total_donasi": 3,
+    "total_volume_ml": 1050,
+    "total_volume_liter": 1.05,
+    "tekanan_darah": "120/80",
+    "hemoglobin": 14.2,
+    "berat_badan": 74,
+    "lokasi_donor_terakhir": "UDD PMI Kabupaten Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00120",
@@ -1797,7 +2630,14 @@
     "longitude": 112.3931913,
     "tanggal_donor_terakhir": "2026-02-19",
     "status_kelayakan": "layak",
-    "nik": "3524000000000120"
+    "nik": "3524000000000120",
+    "total_donasi": 12,
+    "total_volume_ml": 4200,
+    "total_volume_liter": 4.2,
+    "tekanan_darah": "115/75",
+    "hemoglobin": 14.2,
+    "berat_badan": 62,
+    "lokasi_donor_terakhir": "Mobile Unit Alun-Alun Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00121",
@@ -1812,7 +2652,14 @@
     "longitude": 112.1937262,
     "tanggal_donor_terakhir": "2026-05-07",
     "status_kelayakan": "layak",
-    "nik": "3524000000000121"
+    "nik": "3524000000000121",
+    "total_donasi": 5,
+    "total_volume_ml": 1750,
+    "total_volume_liter": 1.75,
+    "tekanan_darah": "118/78",
+    "hemoglobin": 14.5,
+    "berat_badan": 68,
+    "lokasi_donor_terakhir": "RSUD Dr. Soegiri Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00122",
@@ -1827,7 +2674,14 @@
     "longitude": 112.1897497,
     "tanggal_donor_terakhir": "2026-06-29",
     "status_kelayakan": "belum_layak",
-    "nik": "3524000000000122"
+    "nik": "3524000000000122",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "118/78",
+    "hemoglobin": 15.5,
+    "berat_badan": 62,
+    "lokasi_donor_terakhir": "RSI Nashrul Ummah Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00123",
@@ -1842,7 +2696,14 @@
     "longitude": 112.4039907,
     "tanggal_donor_terakhir": "2025-06-02",
     "status_kelayakan": "layak",
-    "nik": "3524000000000123"
+    "nik": "3524000000000123",
+    "total_donasi": 4,
+    "total_volume_ml": 1400,
+    "total_volume_liter": 1.4,
+    "tekanan_darah": "115/75",
+    "hemoglobin": 13.8,
+    "berat_badan": 68,
+    "lokasi_donor_terakhir": "Mobile Unit Alun-Alun Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00124",
@@ -1857,7 +2718,14 @@
     "longitude": 112.4068307,
     "tanggal_donor_terakhir": "2025-11-03",
     "status_kelayakan": "layak",
-    "nik": "3524000000000124"
+    "nik": "3524000000000124",
+    "total_donasi": 6,
+    "total_volume_ml": 2100,
+    "total_volume_liter": 2.1,
+    "tekanan_darah": "118/78",
+    "hemoglobin": 13.8,
+    "berat_badan": 78,
+    "lokasi_donor_terakhir": "Mobile Unit Alun-Alun Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00125",
@@ -1872,7 +2740,14 @@
     "longitude": 112.3202369,
     "tanggal_donor_terakhir": "2025-09-24",
     "status_kelayakan": "layak",
-    "nik": "3524000000000125"
+    "nik": "3524000000000125",
+    "total_donasi": 3,
+    "total_volume_ml": 1050,
+    "total_volume_liter": 1.05,
+    "tekanan_darah": "122/82",
+    "hemoglobin": 13.8,
+    "berat_badan": 70,
+    "lokasi_donor_terakhir": "Puskesmas Lamongan Kota"
   },
   {
     "id_pmi": "PMI-LMG-00126",
@@ -1887,7 +2762,14 @@
     "longitude": 112.4162204,
     "tanggal_donor_terakhir": "2026-03-19",
     "status_kelayakan": "layak",
-    "nik": "3524000000000126"
+    "nik": "3524000000000126",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "120/80",
+    "hemoglobin": 14.8,
+    "berat_badan": 78,
+    "lokasi_donor_terakhir": "UDD PMI Kabupaten Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00127",
@@ -1902,7 +2784,14 @@
     "longitude": 112.4219887,
     "tanggal_donor_terakhir": "2026-04-15",
     "status_kelayakan": "layak",
-    "nik": "3524000000000127"
+    "nik": "3524000000000127",
+    "total_donasi": 13,
+    "total_volume_ml": 4550,
+    "total_volume_liter": 4.55,
+    "tekanan_darah": "115/75",
+    "hemoglobin": 14.5,
+    "berat_badan": 78,
+    "lokasi_donor_terakhir": "Mobile Unit Alun-Alun Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00128",
@@ -1917,7 +2806,14 @@
     "longitude": 112.4394163,
     "tanggal_donor_terakhir": "2025-06-11",
     "status_kelayakan": "layak",
-    "nik": "3524000000000128"
+    "nik": "3524000000000128",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "118/78",
+    "hemoglobin": 13.8,
+    "berat_badan": 68,
+    "lokasi_donor_terakhir": "RSI Nashrul Ummah Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00129",
@@ -1932,7 +2828,14 @@
     "longitude": 112.3072132,
     "tanggal_donor_terakhir": "2026-08-05",
     "status_kelayakan": "belum_layak",
-    "nik": "3524000000000129"
+    "nik": "3524000000000129",
+    "total_donasi": 3,
+    "total_volume_ml": 1050,
+    "total_volume_liter": 1.05,
+    "tekanan_darah": "126/82",
+    "hemoglobin": 15.2,
+    "berat_badan": 58,
+    "lokasi_donor_terakhir": "UDD PMI Kabupaten Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00130",
@@ -1947,7 +2850,14 @@
     "longitude": 111.8891387,
     "tanggal_donor_terakhir": "2025-09-30",
     "status_kelayakan": "layak",
-    "nik": "3524000000000130"
+    "nik": "3524000000000130",
+    "total_donasi": 8,
+    "total_volume_ml": 2800,
+    "total_volume_liter": 2.8,
+    "tekanan_darah": "124/80",
+    "hemoglobin": 14.5,
+    "berat_badan": 62,
+    "lokasi_donor_terakhir": "Puskesmas Lamongan Kota"
   },
   {
     "id_pmi": "PMI-LMG-00131",
@@ -1962,7 +2872,14 @@
     "longitude": 112.2903498,
     "tanggal_donor_terakhir": "2025-08-31",
     "status_kelayakan": "layak",
-    "nik": "3524000000000131"
+    "nik": "3524000000000131",
+    "total_donasi": 4,
+    "total_volume_ml": 1400,
+    "total_volume_liter": 1.4,
+    "tekanan_darah": "120/80",
+    "hemoglobin": 15.5,
+    "berat_badan": 74,
+    "lokasi_donor_terakhir": "RSI Nashrul Ummah Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00132",
@@ -1977,7 +2894,14 @@
     "longitude": 112.4240352,
     "tanggal_donor_terakhir": "2025-11-30",
     "status_kelayakan": "layak",
-    "nik": "3524000000000132"
+    "nik": "3524000000000132",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "120/80",
+    "hemoglobin": 14.5,
+    "berat_badan": 62,
+    "lokasi_donor_terakhir": "UDD PMI Kabupaten Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00133",
@@ -1992,7 +2916,14 @@
     "longitude": 112.3936783,
     "tanggal_donor_terakhir": "2026-06-22",
     "status_kelayakan": "belum_layak",
-    "nik": "3524000000000133"
+    "nik": "3524000000000133",
+    "total_donasi": 7,
+    "total_volume_ml": 2450,
+    "total_volume_liter": 2.45,
+    "tekanan_darah": "115/75",
+    "hemoglobin": 13.8,
+    "berat_badan": 74,
+    "lokasi_donor_terakhir": "RSUD Dr. Soegiri Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00134",
@@ -2007,7 +2938,14 @@
     "longitude": 112.3983395,
     "tanggal_donor_terakhir": "2026-08-29",
     "status_kelayakan": "belum_layak",
-    "nik": "3524000000000134"
+    "nik": "3524000000000134",
+    "total_donasi": 15,
+    "total_volume_ml": 5250,
+    "total_volume_liter": 5.25,
+    "tekanan_darah": "120/80",
+    "hemoglobin": 14.8,
+    "berat_badan": 68,
+    "lokasi_donor_terakhir": "Puskesmas Lamongan Kota"
   },
   {
     "id_pmi": "PMI-LMG-00135",
@@ -2022,7 +2960,14 @@
     "longitude": 112.4018317,
     "tanggal_donor_terakhir": "2026-06-05",
     "status_kelayakan": "layak",
-    "nik": "3524000000000135"
+    "nik": "3524000000000135",
+    "total_donasi": 4,
+    "total_volume_ml": 1400,
+    "total_volume_liter": 1.4,
+    "tekanan_darah": "126/82",
+    "hemoglobin": 15.2,
+    "berat_badan": 68,
+    "lokasi_donor_terakhir": "Puskesmas Lamongan Kota"
   },
   {
     "id_pmi": "PMI-LMG-00136",
@@ -2037,7 +2982,14 @@
     "longitude": 112.3961701,
     "tanggal_donor_terakhir": "2026-03-15",
     "status_kelayakan": "layak",
-    "nik": "3524000000000136"
+    "nik": "3524000000000136",
+    "total_donasi": 6,
+    "total_volume_ml": 2100,
+    "total_volume_liter": 2.1,
+    "tekanan_darah": "122/82",
+    "hemoglobin": 15.5,
+    "berat_badan": 65,
+    "lokasi_donor_terakhir": "Mobile Unit Alun-Alun Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00137",
@@ -2052,7 +3004,14 @@
     "longitude": 112.2369415,
     "tanggal_donor_terakhir": "2025-06-14",
     "status_kelayakan": "layak",
-    "nik": "3524000000000137"
+    "nik": "3524000000000137",
+    "total_donasi": 2,
+    "total_volume_ml": 700,
+    "total_volume_liter": 0.7,
+    "tekanan_darah": "115/75",
+    "hemoglobin": 14.2,
+    "berat_badan": 65,
+    "lokasi_donor_terakhir": "UDD PMI Kabupaten Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00138",
@@ -2067,7 +3026,14 @@
     "longitude": 112.2203776,
     "tanggal_donor_terakhir": "2025-06-01",
     "status_kelayakan": "layak",
-    "nik": "3524000000000138"
+    "nik": "3524000000000138",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "126/82",
+    "hemoglobin": 15.5,
+    "berat_badan": 74,
+    "lokasi_donor_terakhir": "Puskesmas Lamongan Kota"
   },
   {
     "id_pmi": "PMI-LMG-00139",
@@ -2082,7 +3048,14 @@
     "longitude": 112.3920872,
     "tanggal_donor_terakhir": "2025-05-12",
     "status_kelayakan": "layak",
-    "nik": "3524000000000139"
+    "nik": "3524000000000139",
+    "total_donasi": 8,
+    "total_volume_ml": 2800,
+    "total_volume_liter": 2.8,
+    "tekanan_darah": "120/80",
+    "hemoglobin": 15.2,
+    "berat_badan": 74,
+    "lokasi_donor_terakhir": "Puskesmas Lamongan Kota"
   },
   {
     "id_pmi": "PMI-LMG-00140",
@@ -2097,7 +3070,14 @@
     "longitude": 112.3239728,
     "tanggal_donor_terakhir": "2025-04-09",
     "status_kelayakan": "layak",
-    "nik": "3524000000000140"
+    "nik": "3524000000000140",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "126/82",
+    "hemoglobin": 13.8,
+    "berat_badan": 62,
+    "lokasi_donor_terakhir": "RSUD Dr. Soegiri Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00141",
@@ -2112,7 +3092,14 @@
     "longitude": 112.3120803,
     "tanggal_donor_terakhir": "2026-01-18",
     "status_kelayakan": "layak",
-    "nik": "3524000000000141"
+    "nik": "3524000000000141",
+    "total_donasi": 15,
+    "total_volume_ml": 5250,
+    "total_volume_liter": 5.25,
+    "tekanan_darah": "115/75",
+    "hemoglobin": 14.5,
+    "berat_badan": 74,
+    "lokasi_donor_terakhir": "Puskesmas Lamongan Kota"
   },
   {
     "id_pmi": "PMI-LMG-00142",
@@ -2127,7 +3114,14 @@
     "longitude": 112.4266958,
     "tanggal_donor_terakhir": "2025-05-21",
     "status_kelayakan": "layak",
-    "nik": "3524000000000142"
+    "nik": "3524000000000142",
+    "total_donasi": 9,
+    "total_volume_ml": 3150,
+    "total_volume_liter": 3.15,
+    "tekanan_darah": "126/82",
+    "hemoglobin": 15.5,
+    "berat_badan": 58,
+    "lokasi_donor_terakhir": "Puskesmas Lamongan Kota"
   },
   {
     "id_pmi": "PMI-LMG-00143",
@@ -2142,7 +3136,14 @@
     "longitude": 112.1339808,
     "tanggal_donor_terakhir": "2025-03-25",
     "status_kelayakan": "layak",
-    "nik": "3524000000000143"
+    "nik": "3524000000000143",
+    "total_donasi": 3,
+    "total_volume_ml": 1050,
+    "total_volume_liter": 1.05,
+    "tekanan_darah": "115/75",
+    "hemoglobin": 15.2,
+    "berat_badan": 78,
+    "lokasi_donor_terakhir": "Puskesmas Lamongan Kota"
   },
   {
     "id_pmi": "PMI-LMG-00144",
@@ -2157,7 +3158,14 @@
     "longitude": 112.3169124,
     "tanggal_donor_terakhir": "2026-07-14",
     "status_kelayakan": "belum_layak",
-    "nik": "3524000000000144"
+    "nik": "3524000000000144",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "124/80",
+    "hemoglobin": 14.2,
+    "berat_badan": 62,
+    "lokasi_donor_terakhir": "RSUD Dr. Soegiri Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00145",
@@ -2172,7 +3180,14 @@
     "longitude": 112.3061126,
     "tanggal_donor_terakhir": "2025-07-17",
     "status_kelayakan": "layak",
-    "nik": "3524000000000145"
+    "nik": "3524000000000145",
+    "total_donasi": 6,
+    "total_volume_ml": 2100,
+    "total_volume_liter": 2.1,
+    "tekanan_darah": "120/80",
+    "hemoglobin": 13.8,
+    "berat_badan": 78,
+    "lokasi_donor_terakhir": "Mobile Unit Alun-Alun Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00146",
@@ -2187,7 +3202,14 @@
     "longitude": 111.8959416,
     "tanggal_donor_terakhir": "2025-12-31",
     "status_kelayakan": "layak",
-    "nik": "3524000000000146"
+    "nik": "3524000000000146",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "126/82",
+    "hemoglobin": 14.5,
+    "berat_badan": 62,
+    "lokasi_donor_terakhir": "Mobile Unit Alun-Alun Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00147",
@@ -2202,7 +3224,14 @@
     "longitude": 112.1943364,
     "tanggal_donor_terakhir": "2025-09-21",
     "status_kelayakan": "layak",
-    "nik": "3524000000000147"
+    "nik": "3524000000000147",
+    "total_donasi": 4,
+    "total_volume_ml": 1400,
+    "total_volume_liter": 1.4,
+    "tekanan_darah": "115/75",
+    "hemoglobin": 13.8,
+    "berat_badan": 68,
+    "lokasi_donor_terakhir": "Mobile Unit Alun-Alun Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00148",
@@ -2217,7 +3246,14 @@
     "longitude": 112.3846418,
     "tanggal_donor_terakhir": "2025-06-05",
     "status_kelayakan": "layak",
-    "nik": "3524000000000148"
+    "nik": "3524000000000148",
+    "total_donasi": 14,
+    "total_volume_ml": 4900,
+    "total_volume_liter": 4.9,
+    "tekanan_darah": "122/82",
+    "hemoglobin": 14.2,
+    "berat_badan": 65,
+    "lokasi_donor_terakhir": "Mobile Unit Alun-Alun Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00149",
@@ -2232,7 +3268,14 @@
     "longitude": 112.3166162,
     "tanggal_donor_terakhir": "2025-05-20",
     "status_kelayakan": "layak",
-    "nik": "3524000000000149"
+    "nik": "3524000000000149",
+    "total_donasi": 3,
+    "total_volume_ml": 1050,
+    "total_volume_liter": 1.05,
+    "tekanan_darah": "120/80",
+    "hemoglobin": 14.5,
+    "berat_badan": 70,
+    "lokasi_donor_terakhir": "UDD PMI Kabupaten Lamongan"
   },
   {
     "id_pmi": "PMI-LMG-00150",
@@ -2247,6 +3290,13 @@
     "longitude": 112.1427208,
     "tanggal_donor_terakhir": "2025-08-03",
     "status_kelayakan": "layak",
-    "nik": "3524000000000150"
+    "nik": "3524000000000150",
+    "total_donasi": 1,
+    "total_volume_ml": 350,
+    "total_volume_liter": 0.35,
+    "tekanan_darah": "118/78",
+    "hemoglobin": 13.8,
+    "berat_badan": 65,
+    "lokasi_donor_terakhir": "Puskesmas Lamongan Kota"
   }
 ]
