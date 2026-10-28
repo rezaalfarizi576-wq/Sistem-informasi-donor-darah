@@ -31,7 +31,7 @@ class _DonorProfileScreenState extends State<DonorProfileScreen> {
   Widget build(BuildContext context) {
     final userName = widget.currentUser?.name.isNotEmpty == true
         ? widget.currentUser!.name
-        : 'Budi Santoso';
+        : 'Pendonor';
     final userBloodType = widget.currentUser?.bloodType ?? 'O';
     final userRhesus = widget.currentUser?.rhesus ?? '+';
 

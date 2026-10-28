@@ -50,8 +50,8 @@ class DispatchTicketModel {
       bagsNeeded: json['bags_needed'] ?? 1,
       urgencyLevel: json['urgency_level'] ?? 'kritis',
       notes: json['notes'] ?? 'Donor Darurat Fast-Track',
-      hospitalLat: (json['hospital_lat'] as num?)?.toDouble() ?? -7.119812,
-      hospitalLng: (json['hospital_lng'] as num?)?.toDouble() ?? 112.415155,
+      hospitalLat: (json['hospital_lat'] as num?)?.toDouble() ?? -7.1159,
+      hospitalLng: (json['hospital_lng'] as num?)?.toDouble() ?? 112.4103,
       status: json['status'] ?? 'diterima',
       waktuRespon: json['waktu_respon'] != null
           ? DateTime.tryParse(json['waktu_respon'])

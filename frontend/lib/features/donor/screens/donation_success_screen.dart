@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../data/repositories/auth_repository.dart';
 import '../../../routes/app_router.dart';
 
-class DonationSuccessScreen extends StatelessWidget {
-  final String donorName;
-  final String bloodType;
+class DonationSuccessScreen extends StatefulWidget {
+  final String? donorName;
+  final String? bloodType;
   final String volume;
   final String hospitalName;
   final String certificateNo;
@@ -18,8 +19,8 @@ class DonationSuccessScreen extends StatelessWidget {
 
   const DonationSuccessScreen({
     super.key,
-    this.donorName = 'Budi Santoso',
-    this.bloodType = 'O+ (Rhesus +)',
+    this.donorName,
+    this.bloodType,
     this.volume = '400 mL',
     this.hospitalName = 'RSUD Dr. Soegiri',
     this.certificateNo = 'PMI-2025-0847',
@@ -33,7 +34,56 @@ class DonationSuccessScreen extends StatelessWidget {
   });
 
   @override
+  State<DonationSuccessScreen> createState() => _DonationSuccessScreenState();
+}
+
+class _DonationSuccessScreenState extends State<DonationSuccessScreen> {
+  late String _donorName;
+  late String _bloodType;
+
+  @override
+  void initState() {
+    super.initState();
+    _donorName = widget.donorName ?? '';
+    _bloodType = widget.bloodType ?? '';
+    // Jika nama/golongan darah belum dioper, ambil dari akun yang sedang login
+    if (_donorName.isEmpty || _bloodType.isEmpty) {
+      _loadCurrentUser();
+    }
+  }
+
+  Future<void> _loadCurrentUser() async {
+    try {
+      final user = await AuthRepository().getCurrentUser();
+      if (user != null && mounted) {
+        setState(() {
+          if (_donorName.isEmpty) {
+            _donorName = user.name.isNotEmpty ? user.name : 'Pendonor';
+          }
+          if (_bloodType.isEmpty) {
+            final bt = user.bloodType ?? 'O';
+            final rh = user.rhesus ?? '+';
+            final rhLabel = rh == '-' ? 'Rhesus -' : 'Rhesus +';
+            _bloodType = '$bt$rh ($rhLabel)';
+          }
+        });
+      }
+    } catch (_) {
+      // Fallback jika gagal mengambil data user
+      if (mounted) {
+        setState(() {
+          if (_donorName.isEmpty) _donorName = 'Pendonor';
+          if (_bloodType.isEmpty) _bloodType = 'O+ (Rhesus +)';
+        });
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final donorName = _donorName.isNotEmpty ? _donorName : 'Pendonor';
+    final bloodType = _bloodType.isNotEmpty ? _bloodType : 'O+ (Rhesus +)';
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       body: SingleChildScrollView(
@@ -151,7 +201,7 @@ class DonationSuccessScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Data dikirim ke PMI Lamongan • $donationDate',
+                        'Data dikirim ke PMI Lamongan • ${widget.donationDate}',
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 11,
                           color: const Color(0xFF64748B),
@@ -174,7 +224,7 @@ class DonationSuccessScreen extends StatelessWidget {
                           Expanded(
                             child: _buildInfoBox(
                               label: 'Volume',
-                              value: volume,
+                              value: widget.volume,
                             ),
                           ),
                         ],
@@ -185,14 +235,14 @@ class DonationSuccessScreen extends StatelessWidget {
                           Expanded(
                             child: _buildInfoBox(
                               label: 'Rumah Sakit',
-                              value: hospitalName,
+                              value: widget.hospitalName,
                             ),
                           ),
                           const SizedBox(width: 10),
                           Expanded(
                             child: _buildInfoBox(
                               label: 'No. Sertifikat',
-                              value: certificateNo,
+                              value: widget.certificateNo,
                             ),
                           ),
                         ],
@@ -212,7 +262,7 @@ class DonationSuccessScreen extends StatelessWidget {
                           children: [
                             Expanded(
                               child: _buildImpactColumn(
-                                value: '${totalDonations}x',
+                                value: '${widget.totalDonations}x',
                                 label: 'Total\nDonor',
                               ),
                             ),
@@ -223,7 +273,7 @@ class DonationSuccessScreen extends StatelessWidget {
                             ),
                             Expanded(
                               child: _buildImpactColumn(
-                                value: totalVolume,
+                                value: widget.totalVolume,
                                 label: 'Total\nVolume',
                               ),
                             ),
@@ -234,7 +284,7 @@ class DonationSuccessScreen extends StatelessWidget {
                             ),
                             Expanded(
                               child: _buildImpactColumn(
-                                value: livesSaved,
+                                value: widget.livesSaved,
                                 label: 'Nyawa\nTerbantu',
                               ),
                             ),
@@ -272,7 +322,7 @@ class DonationSuccessScreen extends StatelessWidget {
                         ),
                         const Spacer(),
                         Text(
-                          'Minimal $nextDonationDays hari',
+                          'Minimal ${widget.nextDonationDays} hari',
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 10.5,
                             color: const Color(0xFF94A3B8),
@@ -300,7 +350,7 @@ class DonationSuccessScreen extends StatelessWidget {
                         const Text('📅', style: TextStyle(fontSize: 14)),
                         const SizedBox(width: 6),
                         Text(
-                          nextDonationDate,
+                          widget.nextDonationDate,
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 12.5,
                             fontWeight: FontWeight.w800,
@@ -352,7 +402,7 @@ class DonationSuccessScreen extends StatelessWidget {
                     child: _buildAchievementCard(
                       icon: '🥈',
                       title: 'Silver\nDonor',
-                      subtitle: '$totalDonations kali donor',
+                      subtitle: '${widget.totalDonations} kali donor',
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -368,7 +418,7 @@ class DonationSuccessScreen extends StatelessWidget {
                     child: _buildAchievementCard(
                       icon: '❤️',
                       title: 'Life Saver',
-                      subtitle: '$livesSaved terbantu',
+                      subtitle: '${widget.livesSaved} terbantu',
                     ),
                   ),
                 ],
@@ -384,15 +434,14 @@ class DonationSuccessScreen extends StatelessWidget {
                 width: double.infinity,
                 height: 48,
                 child: ElevatedButton(
-                  onPressed: () {
-                    if (onBackToDashboard != null) {
-                      onBackToDashboard!();
+                  onPressed: () async {
+                    if (widget.onBackToDashboard != null) {
+                      widget.onBackToDashboard!();
                     } else {
-                      Navigator.pushNamedAndRemoveUntil(
-                        context,
-                        AppRouter.donorDashboardRoute,
-                        (route) => false,
-                      );
+                      final role = await AuthRepository().getSavedRole() ?? 'donor';
+                      if (context.mounted) {
+                        AppRouter.navigateByRole(context, role);
+                      }
                     }
                   },
                   style: ElevatedButton.styleFrom(

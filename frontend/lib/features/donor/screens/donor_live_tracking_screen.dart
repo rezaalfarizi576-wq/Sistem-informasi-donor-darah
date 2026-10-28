@@ -31,7 +31,7 @@ class _DonorLiveTrackingScreenState extends State<DonorLiveTrackingScreen>
   final MapController _mapController = MapController();
 
   // Koordinat Faskes RSUD Dr. Soegiri Lamongan
-  static const LatLng _defaultHospitalLocation = LatLng(-7.119812, 112.415155);
+  static const LatLng _defaultHospitalLocation = LatLng(-7.1159, 112.4103);
   // Posisi awal donor (Jalan Basuki Rahmat / Veteran Lamongan)
   static const LatLng _defaultDonorLocation = LatLng(-7.132500, 112.418200);
 

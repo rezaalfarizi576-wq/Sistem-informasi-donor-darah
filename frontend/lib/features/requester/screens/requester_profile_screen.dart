@@ -64,6 +64,49 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
     }
   }
 
+  /// Menyesuaikan nama pemohon dari email jika nama kosong atau berisi default 'string'
+  String _resolveDisplayName() {
+    final rawName = _currentUser?.name.trim() ?? '';
+    final email = _currentUser?.email.trim() ?? '';
+
+    if (rawName.isNotEmpty && rawName.toLowerCase() != 'string') {
+      return rawName;
+    }
+
+    if (email.isNotEmpty) {
+      final username = email.split('@').first;
+      final parts = username.split(RegExp(r'[._\-\+]')).where((p) => p.isNotEmpty).toList();
+      if (parts.isNotEmpty) {
+        final formatted = parts.map((p) {
+          final clean = p.replaceAll(RegExp(r'^[0-9]+|[0-9]+$'), '');
+          final word = clean.isNotEmpty ? clean : p;
+          if (word.isEmpty) return '';
+          return word[0].toUpperCase() + (word.length > 1 ? word.substring(1).toLowerCase() : '');
+        }).where((w) => w.isNotEmpty).join(' ');
+
+        if (formatted.isNotEmpty) return formatted;
+      }
+      return username;
+    }
+
+    return 'Dimas Prayoga';
+  }
+
+  /// Format alamat email
+  String _resolveEmail() {
+    final email = _currentUser?.email.trim() ?? '';
+    return email.isNotEmpty ? email : 'dimas@example.com';
+  }
+
+  /// Nama pasien yang valid (tidak menampilkan placeholder 'string')
+  String _resolvePatientName() {
+    final reqName = _activeRequest?.patientName.trim() ?? '';
+    if (reqName.isNotEmpty && reqName.toLowerCase() != 'string') {
+      return reqName;
+    }
+    return 'Satriatama Bisma Yodha';
+  }
+
   void _onBottomNavTapped(int index) {
     if (index == _selectedTabIndex) return;
 
@@ -87,13 +130,17 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final patientName = _activeRequest?.patientName ?? _currentUser?.name ?? 'Dewi Rahayu';
-    final bloodType = _activeRequest?.bloodType ?? 'O';
+    final displayName = _resolveDisplayName();
+    final userEmail = _resolveEmail();
+    final patientName = _resolvePatientName();
+    final bloodType = _activeRequest?.bloodType ?? 'B';
     final rhesus = _activeRequest?.rhesus ?? '+';
     final hospital = _activeRequest?.hospitalName ?? 'RSUD Dr. Soegiri Lamongan';
-    final bagsNeeded = _activeRequest?.bagsNeeded ?? 2;
-    final phone = _currentUser?.phone ?? '+62 812-3456-7890';
-    final nik = _currentUser?.nik ?? '3524**********8901';
+    final bagsNeeded = _activeRequest?.bagsNeeded ?? 1;
+    final phone = _currentUser?.phone ?? '089577556823';
+    final nik = (_currentUser?.nik.isNotEmpty == true && _currentUser!.nik.toLowerCase() != 'string')
+        ? _currentUser!.nik
+        : '3524021908920001';
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -102,70 +149,95 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
             ? const Center(
                 child: CircularProgressIndicator(color: Color(0xFFDC2626)),
               )
-            : SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // ─── 1. HEADER APP BAR (PMI LAMONGAN DARURAT & PROFIL) ───
-                      _buildHeader(),
-                      const SizedBox(height: 12),
+            : Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 1040),
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // ── 1. TOP HEADER (Identik dengan Donor Profile) ──
+                        _buildTopHeader(),
 
-                      // ─── 2. BANNER VERIFIKASI IDENTITAS (HIJAU) ───
-                      _buildVerificationBanner(),
-                      const SizedBox(height: 14),
+                        const Divider(height: 1, color: Color(0xFFF1F5F9)),
 
-                      // ─── 3. CARD PROFIL PEMOHON (DEWI RAHAYU) ───
-                      _buildRequesterCard(
-                        name: patientName,
-                        nik: nik,
-                        phone: phone,
-                      ),
-                      const SizedBox(height: 14),
+                        // ── 2. SUB BAR: STATUS IDENTITAS & FASKES ──
+                        _buildSubBar(hospital),
 
-                      // ─── 4. CARD STATUS MERAH: TANGGAP DARURAT SIAGA ───
-                      _buildEmergencyStatusCard(
-                        bagsNeeded: bagsNeeded,
-                        bloodType: bloodType,
-                        rhesus: rhesus,
-                      ),
-                      const SizedBox(height: 14),
+                        const SizedBox(height: 8),
 
-                      // ─── 5. CARD DATA PASIEN UTAMA ───
-                      _buildPatientDataCard(
-                        patientName: patientName,
-                        hospital: hospital,
-                        bloodType: bloodType,
-                        rhesus: rhesus,
-                      ),
-                      const SizedBox(height: 14),
+                        // ── 3. CARD UTAMA PROFIL PEMOHON (Merah Stripe & Card Putih) ──
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: _buildMainProfileCard(
+                            displayName: displayName,
+                            userEmail: userEmail,
+                            phone: phone,
+                            nik: nik,
+                            bloodType: bloodType,
+                            rhesus: rhesus,
+                          ),
+                        ),
 
-                      // ─── 6. CARD KELUARGA PENDAMPING ───
-                      _buildCompanionCard(),
-                      const SizedBox(height: 14),
+                        const SizedBox(height: 14),
 
-                      // ─── 7. CARD DOKUMEN MEDIS TERUNGGAH ───
-                      _buildUploadedDocumentsCard(),
-                      const SizedBox(height: 14),
+                        // ── 4. STATUS PERMOHONAN & KEBUTUHAN DARAH ──
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: _buildEmergencyStatusCard(
+                            bagsNeeded: bagsNeeded,
+                            bloodType: bloodType,
+                            rhesus: rhesus,
+                            hospital: hospital,
+                          ),
+                        ),
 
-                      // ─── 8. STATISTIK PERMOHONAN (2 KOTAK) ───
-                      _buildHistoryStatsRow(),
-                      const SizedBox(height: 18),
+                        const SizedBox(height: 14),
 
-                      // ─── 9. PENGATURAN SIAGA & DUKUNGAN ───
-                      _buildSettingsGroup(),
-                      const SizedBox(height: 16),
+                        // ── 5. CARD DATA PASIEN & DIAGNOSIS MEDIS ──
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: _buildPatientDataCard(
+                            patientName: patientName,
+                            hospital: hospital,
+                            bloodType: bloodType,
+                            rhesus: rhesus,
+                          ),
+                        ),
 
-                      // ─── 10. TOMBOL KELUAR SESI SIAGA ───
-                      _buildLogoutButton(),
-                      const SizedBox(height: 14),
+                        const SizedBox(height: 14),
 
-                      // ─── 11. FOOTER PROTOKOL RESMI PMI ───
-                      _buildFooterNote(),
-                      const SizedBox(height: 24),
-                    ],
+                        // ── 6. STATISTIK PERMOHONAN DARAH (2 METRIK BESAR) ──
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: _buildStatisticsCard(),
+                        ),
+
+                        const SizedBox(height: 14),
+
+                        // ── 7. PENGATURAN AKUN & BANTUAN ──
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: _buildSettingsGroup(),
+                        ),
+
+                        const SizedBox(height: 18),
+
+                        // ── 8. TOMBOL AKSI BAWAH ──
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: _buildBottomActionButtons(),
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        // ── 9. FOOTER PROTOKOL RESMI PMI ──
+                        _buildFooterNote(),
+
+                        const SizedBox(height: 24),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -176,161 +248,152 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
     );
   }
 
-  // ─── Widget: Header PMI Lamongan ───
-  Widget _buildHeader() {
-    return Row(
-      children: [
-        // Badge Logo PMI Kotak Merah
-        Container(
-          width: 36,
-          height: 36,
-          decoration: BoxDecoration(
-            color: const Color(0xFFDC2626),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: const Center(
-            child: Icon(Icons.add, color: Colors.white, size: 24),
-          ),
-        ),
-        const SizedBox(width: 10),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(
-                  'PMI LAMONGAN',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w900,
-                    color: const Color(0xFFDC2626),
-                    letterSpacing: 0.3,
-                  ),
-                ),
-                const SizedBox(width: 6),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFDC2626),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    'DARURAT',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 8,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            Text(
-              'Profil',
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 11,
-                color: const Color(0xFF64748B),
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-        const Spacer(),
-        // Tombol Lonceng
-        Container(
-          width: 36,
-          height: 36,
-          decoration: BoxDecoration(
-            color: const Color(0xFFF1F5F9),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: const Icon(
-            Icons.notifications_none_rounded,
-            color: Color(0xFF475569),
-            size: 20,
-          ),
-        ),
-        const SizedBox(width: 8),
-        // Tombol Avatar Merah
-        Container(
-          width: 36,
-          height: 36,
-          decoration: const BoxDecoration(
-            color: Color(0xFF991B1B),
-            shape: BoxShape.circle,
-          ),
-          child: const Icon(
-            Icons.person_rounded,
-            color: Colors.white,
-            size: 20,
-          ),
-        ),
-      ],
-    );
-  }
-
-  // ─── Widget: Banner Verifikasi Identitas Hijau ───
-  Widget _buildVerificationBanner() {
+  // ── 1. TOP HEADER (PMI LAMONGAN Requester Profile) ──
+  Widget _buildTopHeader() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: const Color(0xFFDCFCE7),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFF86EFAC)),
-      ),
+      color: Colors.white,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
         children: [
-          const Icon(
-            Icons.check_circle_rounded,
-            color: Color(0xFF16A34A),
-            size: 16,
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              'IDENTITAS TERVERIFIKASI DUKCAPIL & KIS#',
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
-                color: const Color(0xFF15803D),
-                letterSpacing: 0.2,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+            width: 38,
+            height: 38,
             decoration: BoxDecoration(
-              color: const Color(0xFF16A34A),
-              borderRadius: BorderRadius.circular(6),
+              color: const Color(0xFFDC2626),
+              borderRadius: BorderRadius.circular(10),
             ),
-            child: Text(
-              'AKTIF',
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 9,
-                fontWeight: FontWeight.w900,
-                color: Colors.white,
+            child: const Icon(Icons.water_drop_rounded, color: Colors.white, size: 22),
+          ),
+          const SizedBox(width: 10),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'PMI LAMONGAN',
+                style: GoogleFonts.plusJakartaSans(
+                  color: const Color(0xFFDC2626),
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.6,
+                ),
               ),
+              Text(
+                'Requester Profile',
+                style: GoogleFonts.plusJakartaSans(
+                  color: const Color(0xFF0F172A),
+                  fontSize: 17,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.3,
+                ),
+              ),
+            ],
+          ),
+          const Spacer(),
+          // Lonceng Notifikasi
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              IconButton(
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Membuka notifikasi permohonan darah...', style: GoogleFonts.plusJakartaSans()),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.notifications_none_rounded, color: Color(0xFF475569), size: 24),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+              Positioned(
+                right: 1,
+                top: 1,
+                child: Container(
+                  width: 8,
+                  height: 8,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFDC2626),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(width: 12),
+          // Profile Avatar Aktif
+          Container(
+            width: 36,
+            height: 36,
+            decoration: const BoxDecoration(
+              color: Color(0xFF991B1B),
+              shape: BoxShape.circle,
             ),
+            child: const Icon(Icons.person_rounded, color: Colors.white, size: 20),
           ),
         ],
       ),
     );
   }
 
-  // ─── Widget: Card Profil Pemohon ───
-  Widget _buildRequesterCard({
-    required String name,
-    required String nik,
+  // ── 2. SUB BAR: STATUS IDENTITAS & FASKES ──
+  Widget _buildSubBar(String hospital) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 4),
+      child: Row(
+        children: [
+          Container(
+            width: 7,
+            height: 7,
+            decoration: const BoxDecoration(
+              color: Color(0xFF22C55E),
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            'IDENTITAS TERVERIFIKASI DUKCAPIL & KIS',
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+              color: const Color(0xFF15803D),
+              letterSpacing: 0.3,
+            ),
+          ),
+          const Spacer(),
+          Row(
+            children: [
+              const Icon(Icons.location_on_rounded, size: 13, color: Color(0xFF94A3B8)),
+              const SizedBox(width: 2),
+              Text(
+                hospital.contains('Soegiri') ? 'RSUD Soegiri (1.8 km)' : 'Lamongan',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 11,
+                  color: const Color(0xFF64748B),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── 3. CARD UTAMA PROFIL PEMOHON ──
+  Widget _buildMainProfileCard({
+    required String displayName,
+    required String userEmail,
     required String phone,
+    required String nik,
+    required String bloodType,
+    required String rhesus,
   }) {
     return Container(
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -341,141 +404,475 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
       ),
       child: Column(
         children: [
-          Row(
-            children: [
-              // Avatar dengan Badge Centang Hijau
-              Stack(
-                clipBehavior: Clip.none,
+          // Accent line merah tipis atas (Signature PMI)
+          Container(
+            height: 3.5,
+            decoration: const BoxDecoration(
+              color: Color(0xFFDC2626),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+            ),
+          ),
+
+          // User Info Row
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                // Avatar Profil dengan Badge Centang Hijau
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Container(
+                      width: 58,
+                      height: 58,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFF1F2),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: const Color(0xFFFECDD3)),
+                      ),
+                      child: const Icon(Icons.person_rounded, color: Color(0xFFDC2626), size: 36),
+                    ),
+                    Positioned(
+                      right: -2,
+                      bottom: -2,
+                      child: Container(
+                        width: 20,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF16A34A),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
+                        child: const Icon(Icons.check_rounded, color: Colors.white, size: 12),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 14),
+
+                // Nama & Identitas Email / ID
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        displayName,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                          color: const Color(0xFF0F172A),
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          const Icon(Icons.mail_outline_rounded, size: 12, color: Color(0xFF64748B)),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              userEmail,
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 11.5,
+                                color: const Color(0xFF64748B),
+                                fontWeight: FontWeight.w600,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          const Icon(Icons.phone_rounded, size: 12, color: Color(0xFF16A34A)),
+                          const SizedBox(width: 4),
+                          Text(
+                            phone,
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 11,
+                              color: const Color(0xFF334155),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            '• ID: REQ-${_currentUser?.id ?? 155}',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 11,
+                              color: const Color(0xFF94A3B8),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          const Icon(Icons.shield_outlined, size: 13, color: Color(0xFFDC2626)),
+                          const SizedBox(width: 3),
+                          Expanded(
+                            child: Text(
+                              'Pemohon Siaga BDRS Terverifikasi',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 10.5,
+                                fontWeight: FontWeight.w700,
+                                color: const Color(0xFF475569),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(width: 8),
+
+                // Badge Golongan Darah Kotak Hitam (Identik dengan Profil Donor)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0F172A),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        bloodType,
+                        style: GoogleFonts.plusJakartaSans(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w900,
+                          height: 1,
+                        ),
+                      ),
+                      Text(
+                        'Rh$rhesus',
+                        style: GoogleFonts.plusJakartaSans(
+                          color: Colors.white.withValues(alpha: 0.8),
+                          fontSize: 9,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Box Toggle Siaga Radar Darurat (Identik dengan Toggle Donor)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFF1F2),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFFECDD3)),
+              ),
+              child: Row(
                 children: [
                   Container(
-                    width: 54,
-                    height: 54,
+                    width: 34,
+                    height: 34,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE2E8F0),
-                      borderRadius: BorderRadius.circular(14),
-                      image: const DecorationImage(
-                        image: NetworkImage('https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80'),
-                        fit: BoxFit.cover,
-                      ),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
                     ),
+                    child: const Icon(Icons.radar_rounded, color: Color(0xFFDC2626), size: 18),
                   ),
-                  Positioned(
-                    right: -2,
-                    bottom: -2,
-                    child: Container(
-                      width: 18,
-                      height: 18,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF16A34A),
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 2),
-                      ),
-                      child: const Icon(Icons.check, color: Colors.white, size: 10),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(width: 14),
-              // Nama & Identitas NIK
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name,
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w900,
-                        color: const Color(0xFF0F172A),
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      'ID/NIK: $nik',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 11,
-                        color: const Color(0xFF64748B),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Row(
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.phone_rounded, size: 12, color: Color(0xFF16A34A)),
-                        const SizedBox(width: 4),
                         Text(
-                          phone,
+                          'Radar Relawan Siaga (Radius 10 km)',
                           style: GoogleFonts.plusJakartaSans(
-                            fontSize: 11.5,
-                            fontWeight: FontWeight.w700,
-                            color: const Color(0xFF1E293B),
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w800,
+                            color: const Color(0xFF0F172A),
+                          ),
+                        ),
+                        Text(
+                          'Koneksi live broadcast WhatsApp & Aplikasi Relawan',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 10.5,
+                            color: const Color(0xFF64748B),
                           ),
                         ),
                       ],
                     ),
-                  ],
+                  ),
+                  Switch(
+                    value: _isRadarWaActive,
+                    activeThumbColor: const Color(0xFFDC2626),
+                    activeTrackColor: const Color(0xFFFECDD3),
+                    onChanged: (val) {
+                      setState(() => _isRadarWaActive = val);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            val
+                                ? 'Radar Relawan Siaga Aktif! Notifikasi broadcast diaktifkan.'
+                                : 'Radar Relawan Dinonaktifkan.',
+                            style: GoogleFonts.plusJakartaSans(),
+                          ),
+                          behavior: SnackBarBehavior.floating,
+                          backgroundColor: val ? const Color(0xFF16A34A) : const Color(0xFF64748B),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // 2 Tombol Aksi Cepat: Ubah Data Profil & Hotline PMI
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Membuka form pembaruan profil pemohon...', style: GoogleFonts.plusJakartaSans()),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.edit_note_rounded, size: 16),
+                    label: Text(
+                      'Ubah Data Profil',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: const Color(0xFF334155),
+                      backgroundColor: const Color(0xFFF1F5F9),
+                      side: const BorderSide(color: Color(0xFFE2E8F0)),
+                      padding: const EdgeInsets.symmetric(vertical: 9),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Menghubungi Hotline Darurat PMI Lamongan: (0322) 321118', style: GoogleFonts.plusJakartaSans()),
+                          backgroundColor: const Color(0xFFDC2626),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.phone_in_talk_rounded, size: 16),
+                    label: Text(
+                      'Hotline PMI (24 Jam)',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: const Color(0xFFDC2626),
+                      backgroundColor: const Color(0xFFFEF2F2),
+                      side: const BorderSide(color: Color(0xFFFECDD3)),
+                      padding: const EdgeInsets.symmetric(vertical: 9),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── 4. STATUS PERMOHONAN & KEBUTUHAN DARAH (Identik dengan Indeks Kebugaran Donor) ──
+  Widget _buildEmergencyStatusCard({
+    required int bagsNeeded,
+    required String bloodType,
+    required String rhesus,
+    required String hospital,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header Card
+          Row(
+            children: [
+              const Icon(Icons.health_and_safety_outlined, color: Color(0xFFDC2626), size: 18),
+              const SizedBox(width: 8),
+              Text(
+                'Status Permohonan &\nKebutuhan Darah',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF0F172A),
+                  height: 1.2,
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEEF2FF),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  'TERVALIDASI\nBDRS',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 8.5,
+                    fontWeight: FontWeight.w900,
+                    color: const Color(0xFF4F46E5),
+                    height: 1.1,
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 14),
-          // 2 Tombol Aksi: Ubah Data Profil & Hotline PMI
+
+          const SizedBox(height: 12),
+
+          // Box Progres Dispatch Relawan (Identik Progress Box Donor)
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      'PROGRES DISPATCH RELAWAN',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        color: const Color(0xFF64748B),
+                        letterSpacing: 0.4,
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      _activeRequest != null && _activeRequest!.acceptedDonorsCount > 0
+                          ? '${_activeRequest!.acceptedDonorsCount} Relawan Siaga Menuju RS'
+                          : 'Belum Ada Relawan',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w900,
+                        color: _activeRequest != null && _activeRequest!.acceptedDonorsCount > 0
+                            ? const Color(0xFFDC2626)
+                            : const Color(0xFF94A3B8),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    value: _activeRequest != null && _activeRequest!.acceptedDonorsCount > 0
+                        ? 0.70
+                        : 0.15,
+                    backgroundColor: const Color(0xFFE2E8F0),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      _activeRequest != null && _activeRequest!.acceptedDonorsCount > 0
+                          ? const Color(0xFFDC2626)
+                          : const Color(0xFFD97706),
+                    ),
+                    minHeight: 6,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    const Icon(Icons.history_rounded, size: 13, color: Color(0xFF94A3B8)),
+                    const SizedBox(width: 4),
+                    Text(
+                      _activeRequest != null && _activeRequest!.acceptedDonorsCount > 0
+                          ? 'Terakhir: Resep BDRS Diverifikasi'
+                          : 'Menunggu konfirmasi relawan...',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 10.5,
+                        color: const Color(0xFF64748B),
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      _activeRequest != null && _activeRequest!.acceptedDonorsCount > 0
+                          ? 'Est. Tiba: ~12 Menit'
+                          : 'Menunggu...',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w700,
+                        color: _activeRequest != null && _activeRequest!.acceptedDonorsCount > 0
+                            ? const Color(0xFF16A34A)
+                            : const Color(0xFF94A3B8),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          // 3 Kolom Vital Signs / Specs
           Row(
             children: [
               Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Membuka form pembaruan profil pemohon...', style: GoogleFonts.plusJakartaSans()),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.edit_note_rounded, size: 16),
-                  label: Text(
-                    'Ubah Data Profil',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF334155),
-                    backgroundColor: const Color(0xFFF1F5F9),
-                    side: const BorderSide(color: Color(0xFFE2E8F0)),
-                    padding: const EdgeInsets.symmetric(vertical: 9),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  ),
+                child: _buildVitalSignBox(
+                  label: 'Kebutuhan',
+                  value: '$bagsNeeded',
+                  unit: 'Ktg',
+                  status: '● Menunggu',
+                  statusColor: const Color(0xFFD97706),
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 8),
               Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Menghubungi Hotline Darurat PMI Lamongan: (0322) 321118', style: GoogleFonts.plusJakartaSans()),
-                        backgroundColor: const Color(0xFFDC2626),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.support_agent_rounded, size: 16),
-                  label: Text(
-                    'Hotline PMI',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFFDC2626),
-                    backgroundColor: const Color(0xFFFEF2F2),
-                    side: const BorderSide(color: Color(0xFFFECDD3)),
-                    padding: const EdgeInsets.symmetric(vertical: 9),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  ),
+                child: _buildVitalSignBox(
+                  label: 'Gol. Darah',
+                  value: bloodType,
+                  unit: 'Rh$rhesus',
+                  status: '● Kritis',
+                  statusColor: const Color(0xFFDC2626),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _buildVitalSignBox(
+                  label: 'Lokasi RS',
+                  value: 'Soegiri',
+                  unit: '',
+                  status: '● Rawat Inap',
+                  statusColor: const Color(0xFF16A34A),
                 ),
               ),
             ],
@@ -485,71 +882,48 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
     );
   }
 
-  // ─── Widget: Card Merah Tanggap Darurat Siaga ───
-  Widget _buildEmergencyStatusCard({
-    required int bagsNeeded,
+  // ── 5. CARD DATA PASIEN & DIAGNOSIS MEDIS ──
+  Widget _buildPatientDataCard({
+    required String patientName,
+    required String hospital,
     required String bloodType,
     required String rhesus,
   }) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFFB91C1C), Color(0xFFDC2626)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFFDC2626).withValues(alpha: 0.25),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header Baris: TANGGAP DARURAT SIAGA | 1 Berjalan
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Container(
-                    width: 7,
-                    height: 7,
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    'TANGGAP DARURAT SIAGA',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                ],
+              const Icon(Icons.personal_injury_outlined, color: Color(0xFFDC2626), size: 18),
+              const SizedBox(width: 8),
+              Text(
+                'Data Pasien & Diagnosis Medis',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF0F172A),
+                ),
               ),
+              const Spacer(),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                  color: const Color(0xFFEEF2FF),
+                  borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
-                  '1 Berjalan',
+                  'RAWAT INAP',
                   style: GoogleFonts.plusJakartaSans(
-                    fontSize: 9.5,
+                    fontSize: 9,
                     fontWeight: FontWeight.w800,
-                    color: Colors.white,
+                    color: const Color(0xFF4F46E5),
                   ),
                 ),
               ),
@@ -557,836 +931,453 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
           ),
           const SizedBox(height: 12),
 
-          // Detail Kebutuhan & Badge Golongan Darah
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+            ),
+            child: Column(
+              children: [
+                _buildPatientInfoRow('Nama Pasien', patientName, isHighlight: true),
+                const SizedBox(height: 6),
+                _buildPatientInfoRow('Usia / Gender', '28 Tahun • Laki-laki'),
+                const SizedBox(height: 6),
+                _buildPatientInfoRow('Rumah Sakit', hospital),
+                const SizedBox(height: 6),
+                _buildPatientInfoRow('Diagnosis Medis', 'Operasi Emergensi & Anemia Gravis'),
+                const SizedBox(height: 6),
+                _buildPatientInfoRow('Dokter Penanggung', 'dr. Andri Kusuma, Sp.PD (BDRS)'),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPatientInfoRow(String label, String value, {bool isHighlight = false}) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 120,
+          child: Text(
+            label,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 11,
+              color: const Color(0xFF64748B),
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+        const Text(': ', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11)),
+        Expanded(
+          child: Text(
+            value,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 11.5,
+              fontWeight: isHighlight ? FontWeight.w800 : FontWeight.w600,
+              color: isHighlight ? const Color(0xFF0F172A) : const Color(0xFF334155),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ── 6. STATISTIK PERMOHONAN DARAH (Identik Statistik Kontribusi Jiwa Donor) ──
+  Widget _buildStatisticsCard() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Dibutuhkan: $bagsNeeded Kantong\nDarah',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 15.5,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white,
-                      height: 1.2,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Kode Tiket: KMB-LMG-202510-158',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 9.5,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white.withValues(alpha: 0.85),
-                    ),
-                  ),
-                ],
+              const Icon(Icons.track_changes_rounded, color: Color(0xFFDC2626), size: 18),
+              const SizedBox(width: 8),
+              Text(
+                'Statistik Permohonan Darah',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF0F172A),
+                ),
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    '$bloodType$rhesus',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 26,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white,
-                      height: 1.0,
-                    ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFEE2E2),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  'PRIORITAS RESMI',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 9,
+                    fontWeight: FontWeight.w900,
+                    color: const Color(0xFFDC2626),
+                    letterSpacing: 0.4,
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    rhesus == '+' ? 'RHESUS\nPOSITIF' : 'RHESUS\nNEGATIF',
-                    textAlign: TextAlign.end,
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 8,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white.withValues(alpha: 0.85),
-                      height: 1.1,
-                    ),
-                  ),
-                ],
+                ),
               ),
             ],
           ),
 
-          const SizedBox(height: 14),
+          const SizedBox(height: 12),
 
-          // Progress Bar
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: 0.5,
-              minHeight: 5,
-              backgroundColor: Colors.white.withValues(alpha: 0.25),
-              valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
-            ),
+          // 2 Card Metrik Besar (Identik Donor)
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.water_drop_rounded, color: Color(0xFFDC2626), size: 20),
+                      const SizedBox(height: 8),
+                      Text(
+                        '4.200',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w900,
+                          color: const Color(0xFF0F172A),
+                          height: 1,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Mililiter (4.2 L)\nTerfasilitasi',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 10.5,
+                          color: const Color(0xFF64748B),
+                          height: 1.25,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.volunteer_activism_rounded, color: Color(0xFF059669), size: 20),
+                      const SizedBox(height: 8),
+                      Text(
+                        '100%',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w900,
+                          color: const Color(0xFF059669),
+                          height: 1,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Pemenuhan Kebutuhan\nPasien Darurat',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 10.5,
+                          color: const Color(0xFF64748B),
+                          height: 1.25,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
 
           const SizedBox(height: 10),
 
-          // Keterangan Status Bawah
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '1 Donor Terkonfirmasi Menuju Faskes',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
-                ),
-              ),
-              Text(
-                '1 Lagi Diperlukan',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white.withValues(alpha: 0.85),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ─── Widget: Card Data Pasien Utama ───
-  Widget _buildPatientDataCard({
-    required String patientName,
-    required String hospital,
-    required String bloodType,
-    required String rhesus,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Judul Bagian
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.bloodtype_rounded, size: 16, color: Color(0xFFDC2626)),
-                const SizedBox(width: 6),
-                Text(
-                  'Data Pasien Utama',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w900,
-                    color: const Color(0xFF0F172A),
-                  ),
-                ),
-              ],
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF1F5F9),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Text(
-                'RAWAT INAP',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 9,
-                  fontWeight: FontWeight.w800,
-                  color: const Color(0xFF475569),
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFF1F5F9)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.02),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      patientName,
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w900,
-                        color: const Color(0xFF0F172A),
-                      ),
-                    ),
-                    Text(
-                      'Usia: 28 Tahun • Perempuan',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 11,
-                        color: const Color(0xFF64748B),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        const Icon(Icons.local_hospital_outlined, size: 13, color: Color(0xFF64748B)),
-                        const SizedBox(width: 4),
-                        Text(
-                          'FASILITAS KESEHATAN SAAT INI:',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 9,
-                            fontWeight: FontWeight.w800,
-                            color: const Color(0xFF64748B),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      hospital,
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w800,
-                        color: const Color(0xFF0F172A),
-                      ),
-                    ),
-                    Text(
-                      'Ruang Dahlia 3 - Bed 08',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 11,
-                        color: const Color(0xFF64748B),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        const Icon(Icons.assignment_outlined, size: 13, color: Color(0xFF64748B)),
-                        const SizedBox(width: 4),
-                        Text(
-                          'NOMOR REKAM MEDIS (RM):',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 9,
-                            fontWeight: FontWeight.w800,
-                            color: const Color(0xFF64748B),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      'RM-2025-03491',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 13.5,
-                        fontWeight: FontWeight.w900,
-                        color: const Color(0xFFDC2626),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Kotak Merah Tua Golongan Darah
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF991B1B),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.water_drop_rounded, color: Colors.white, size: 14),
-                    const SizedBox(height: 1),
-                    Text(
-                      '$bloodType$rhesus',
-                      style: GoogleFonts.plusJakartaSans(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w900,
-                        height: 1,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  // ─── Widget: Card Keluarga Pendamping ───
-  Widget _buildCompanionCard() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.badge_outlined, size: 16, color: Color(0xFF16A34A)),
-                const SizedBox(width: 6),
-                Text(
-                  'Keluarga Pendamping',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w900,
-                    color: const Color(0xFF0F172A),
-                  ),
-                ),
-              ],
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-              decoration: BoxDecoration(
-                color: const Color(0xFFDCFCE7),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Text(
-                'SIAGA 24 JAM',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 9,
-                  fontWeight: FontWeight.w900,
-                  color: const Color(0xFF15803D),
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-
-        Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFF1F5F9)),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Agus Prasetyo',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w800,
-                        color: const Color(0xFF0F172A),
-                      ),
-                    ),
-                    const SizedBox(height: 1),
-                    Text(
-                      'Hubungan: Suami Pasien',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 11,
-                        color: const Color(0xFF64748B),
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      '+62 813-9876-5432',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 11.5,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF1E293B),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              // Tombol Call Telepon
-              InkWell(
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Menghubungi Pendamping Agus Prasetyo (+62 813-9876-5432)...', style: GoogleFonts.plusJakartaSans()),
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                },
-                child: Container(
-                  width: 38,
-                  height: 38,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFEFF6FF),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: const Color(0xFFDBEAFE)),
-                  ),
-                  child: const Icon(
-                    Icons.phone_rounded,
-                    color: Color(0xFF2563EB),
-                    size: 18,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  // ─── Widget: Card Dokumen Medis Terunggah ───
-  Widget _buildUploadedDocumentsCard() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.folder_shared_outlined, size: 16, color: Color(0xFFDC2626)),
-                const SizedBox(width: 6),
-                Text(
-                  'Dokumen Medis Terunggah',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w900,
-                    color: const Color(0xFF0F172A),
-                  ),
-                ),
-              ],
-            ),
-            Text(
-              '3/3 LENGKAP',
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 10,
-                fontWeight: FontWeight.w900,
-                color: const Color(0xFF16A34A),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFF1F5F9)),
-          ),
-          child: Column(
-            children: [
-              _buildDocItem(
-                icon: Icons.badge_outlined,
-                iconColor: const Color(0xFFDC2626),
-                iconBg: const Color(0xFFFEF2F2),
-                title: 'e-KTP Pemohon & Pasien',
-                subtitle: 'ID Terverifikasi Otomatis',
-                isSuccess: true,
-              ),
-              const Divider(height: 1, color: Color(0xFFF1F5F9)),
-              _buildDocItem(
-                icon: Icons.health_and_safety_outlined,
-                iconColor: const Color(0xFF16A34A),
-                iconBg: const Color(0xFFDCFCE7),
-                title: 'Kartu BPJS Kesehatan',
-                subtitle: 'Status Peserta Aktif',
-                isSuccess: true,
-              ),
-              const Divider(height: 1, color: Color(0xFFF1F5F9)),
-              _buildDocItem(
-                icon: Icons.description_outlined,
-                iconColor: const Color(0xFFDC2626),
-                iconBg: const Color(0xFFFEF2F2),
-                title: 'Formulir Permintaan DRUP',
-                subtitle: 'ID Valid: RS-Sgr-No-4921',
-                isSuccess: false,
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDocItem({
-    required IconData icon,
-    required Color iconColor,
-    required Color iconBg,
-    required String title,
-    required String subtitle,
-    required bool isSuccess,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
-      child: Row(
-        children: [
+          // Card Progress Target Pin Layanan
           Container(
-            width: 32,
-            height: 32,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
-              color: iconBg,
-              borderRadius: BorderRadius.circular(8),
+              color: const Color(0xFFFAF5FF),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: const Color(0xFFF3E8FF)),
             ),
-            child: Icon(icon, color: iconColor, size: 16),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
               children: [
-                Text(
-                  title,
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w800,
-                    color: const Color(0xFF0F172A),
-                  ),
-                ),
-                Text(
-                  subtitle,
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 10.5,
-                    color: isSuccess ? const Color(0xFF16A34A) : const Color(0xFF64748B),
-                    fontWeight: isSuccess ? FontWeight.w700 : FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          IconButton(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Melihat pratinjau dokumen: $title', style: GoogleFonts.plusJakartaSans()),
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
-            },
-            icon: const Icon(Icons.visibility_outlined, size: 18, color: Color(0xFF94A3B8)),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ─── Widget: Statistik Permohonan (2 Kotak Berdampingan) ───
-  Widget _buildHistoryStatsRow() {
-    return Row(
-      children: [
-        // Kotak 1: SIAGA BERJALAN
-        Expanded(
-          child: Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: const Color(0xFFF1F5F9)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'SIAGA BERJALAN',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 9,
-                        fontWeight: FontWeight.w800,
-                        color: const Color(0xFF64748B),
-                        letterSpacing: 0.3,
-                      ),
-                    ),
-                    const Icon(Icons.confirmation_number_outlined, size: 14, color: Color(0xFFDC2626)),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  '1',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w900,
-                    color: const Color(0xFFDC2626),
-                  ),
-                ),
-                Text(
-                  'Tiket Darurat',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 10,
-                    color: const Color(0xFF64748B),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        // Kotak 2: DONOR SUKSES
-        Expanded(
-          child: Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: const Color(0xFFF1F5F9)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'DONOR SUKSES',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 9,
-                        fontWeight: FontWeight.w800,
-                        color: const Color(0xFF64748B),
-                        letterSpacing: 0.3,
-                      ),
-                    ),
-                    const Icon(Icons.check_circle_outline_rounded, size: 14, color: Color(0xFF16A34A)),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  '0',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w900,
-                    color: const Color(0xFF0F172A),
-                  ),
-                ),
-                Text(
-                  'Siklus Sebelumnya',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 10,
-                    color: const Color(0xFF64748B),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // ─── Widget: Pengaturan Siaga & Dukungan ───
-  Widget _buildSettingsGroup() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Pengaturan Siaga & Dukungan',
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 13,
-            fontWeight: FontWeight.w900,
-            color: const Color(0xFF0F172A),
-          ),
-        ),
-        const SizedBox(height: 8),
-
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFF1F5F9)),
-          ),
-          child: Column(
-            children: [
-              // Switch: Radar Siaga WhatsApp & SMS
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 32,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFDCFCE7),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(Icons.cell_tower_rounded, color: Color(0xFF16A34A), size: 18),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                const Icon(Icons.military_tech_rounded, color: Color(0xFF9333EA), size: 22),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
                         children: [
                           Text(
-                            'Radar Siaga WhatsApp & SMS',
+                            'Layanan Prioritas BDRS',
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 12,
                               fontWeight: FontWeight.w800,
                               color: const Color(0xFF0F172A),
                             ),
                           ),
+                          const Spacer(),
                           Text(
-                            'Notifikasi donor terdekat di radius 15km',
+                            'Standar UDD PMI',
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 10,
-                              color: const Color(0xFF64748B),
+                              fontWeight: FontWeight.w800,
+                              color: const Color(0xFF9333EA),
                             ),
                           ),
                         ],
                       ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Seluruh permintaan darah diverifikasi dokter spesialis patologi klinik & BDRS.',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 10,
+                          color: const Color(0xFF64748B),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── 7. PENGATURAN AKUN & BANTUAN (Identik Donor Profile) ──
+  Widget _buildSettingsGroup() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'PENGATURAN & LAYANAN RESMI',
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 11,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.5,
+            color: const Color(0xFF0F172A),
+          ),
+        ),
+        const SizedBox(height: 8),
+
+        Column(
+          children: [
+            _buildMenuItem(
+              icon: Icons.history_rounded,
+              iconBg: const Color(0xFFFFF1F2),
+              iconColor: const Color(0xFFDC2626),
+              title: 'Riwayat Permohonan Darah Selesai',
+              subtitle: 'Arsip riwayat permohonan & distribusi donor',
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Membuka riwayat permohonan darah...', style: GoogleFonts.plusJakartaSans()),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 8),
+            _buildMenuItem(
+              icon: Icons.verified_outlined,
+              iconBg: const Color(0xFFF0FDF4),
+              iconColor: const Color(0xFF16A34A),
+              title: 'Surat Bukti Kebutuhan Darah (BDRS)',
+              subtitle: 'Formulir resmi rujukan dokter rumah sakit',
+              badge: 'TERVERIFIKASI',
+              badgeBg: const Color(0xFFDCFCE7),
+              badgeColor: const Color(0xFF16A34A),
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Dokumen rujukan telah terverifikasi oleh BDRS.', style: GoogleFonts.plusJakartaSans()),
+                    backgroundColor: const Color(0xFF16A34A),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 8),
+            _buildMenuItem(
+              icon: Icons.cell_tower_rounded,
+              iconBg: const Color(0xFFEEF2FF),
+              iconColor: const Color(0xFF4F46E5),
+              title: 'Notifikasi Broadcast Radar Relawan',
+              subtitle: 'Notifikasi real-time via WhatsApp & Push Alert',
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Pengaturan broadcast aktif untuk relawan terdekat.', style: GoogleFonts.plusJakartaSans()),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 8),
+            _buildMenuItem(
+              icon: Icons.support_agent_rounded,
+              iconBg: const Color(0xFFFFF1F2),
+              iconColor: const Color(0xFFDC2626),
+              title: 'Posko & Layanan Darurat PMI Lamongan',
+              subtitle: 'Jl. Kusuma Bangsa No. 24, Lamongan • (0322) 321118',
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Menghubungi Posko PMI Lamongan: (0322) 321118', style: GoogleFonts.plusJakartaSans()),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 8),
+            _buildMenuItem(
+              icon: Icons.privacy_tip_outlined,
+              iconBg: const Color(0xFFF8FAFC),
+              iconColor: const Color(0xFF64748B),
+              title: 'Kebijakan Privasi & Enkripsi Rekam Medis',
+              subtitle: 'Data terenkripsi dan terlindungi standar Kemenkes',
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Membuka pedoman privasi & kerahasiaan rekam medis...', style: GoogleFonts.plusJakartaSans()),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  // ── 8. TOMBOL AKSI BAWAH (Unduh Bukti & Keluar Akun) ──
+  Widget _buildBottomActionButtons() {
+    return Column(
+      children: [
+        // Tombol Unduh Bukti Permohonan Darah
+        SizedBox(
+          width: double.infinity,
+          height: 46,
+          child: ElevatedButton(
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Mengunduh Surat Bukti Permohonan Darah resmi PDF...', style: GoogleFonts.plusJakartaSans()),
+                  backgroundColor: const Color(0xFFDC2626),
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFDC2626),
+              foregroundColor: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.download_rounded, size: 18),
+                const SizedBox(width: 8),
+                Text(
+                  'Unduh Bukti Permohonan Darah (PDF)',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 10),
+
+        // Tombol Keluar Sesi Akun Pemohon
+        SizedBox(
+          width: double.infinity,
+          height: 44,
+          child: OutlinedButton(
+            onPressed: () async {
+              final confirm = await showDialog<bool>(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  title: Text('Konfirmasi Keluar', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold)),
+                  content: Text('Apakah Anda yakin ingin keluar dari akun pemohon?', style: GoogleFonts.plusJakartaSans()),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx, false),
+                      child: Text('Batal', style: GoogleFonts.plusJakartaSans()),
                     ),
-                    Switch(
-                      value: _isRadarWaActive,
-                      activeThumbColor: const Color(0xFF16A34A),
-                      onChanged: (val) {
-                        setState(() => _isRadarWaActive = val);
-                      },
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFDC2626)),
+                      onPressed: () => Navigator.pop(ctx, true),
+                      child: Text('Keluar', style: GoogleFonts.plusJakartaSans(color: Colors.white)),
                     ),
                   ],
                 ),
-              ),
+              );
 
-              const Divider(height: 1, color: Color(0xFFF1F5F9)),
-
-              // Menu: Posko Donor Darah 24 Jam PMI Lamongan
-              Material(
-                color: Colors.transparent,
-                child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 0),
-                  leading: Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFEF2F2),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(Icons.local_hospital_rounded, color: Color(0xFFDC2626), size: 17),
+              if (confirm == true && mounted) {
+                await _authRepo.logout();
+                if (mounted) {
+                  Navigator.pushNamedAndRemoveUntil(context, AppRouter.loginRoute, (route) => false);
+                }
+              }
+            },
+            style: OutlinedButton.styleFrom(
+              foregroundColor: const Color(0xFFDC2626),
+              side: const BorderSide(color: Color(0xFFFECDD3)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.logout_rounded, size: 18),
+                const SizedBox(width: 8),
+                Text(
+                  'Keluar Sesi Akun Pemohon',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
                   ),
-                  title: Text(
-                    'Posko Donor Darah 24 Jam PMI Lamongan',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
-                      color: const Color(0xFF0F172A),
-                    ),
-                  ),
-                  subtitle: Text(
-                    'Jl. Kusuma Bangsa No. 24, Lamongan',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 10,
-                      color: const Color(0xFF64748B),
-                    ),
-                  ),
-                  trailing: const Icon(Icons.chevron_right_rounded, size: 20, color: Color(0xFF94A3B8)),
-                  onTap: () {},
                 ),
-              ),
-
-              const Divider(height: 1, color: Color(0xFFF1F5F9)),
-
-              // Menu: Kebijakan Privasi & Enkripsi Rekam Medis
-              Material(
-                color: Colors.transparent,
-                child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 0),
-                  leading: Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF1F5F9),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(Icons.privacy_tip_outlined, color: Color(0xFF475569), size: 17),
-                  ),
-                  title: Text(
-                    'Kebijakan Privasi & Enkripsi Rekam Medis',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
-                      color: const Color(0xFF0F172A),
-                    ),
-                  ),
-                  subtitle: Text(
-                    'Data terlindungi UU PDP & standar Kemenkes',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 10,
-                      color: const Color(0xFF64748B),
-                    ),
-                  ),
-                  trailing: const Icon(Icons.chevron_right_rounded, size: 20, color: Color(0xFF94A3B8)),
-                  onTap: () {},
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ],
     );
   }
 
-  // ─── Widget: Tombol Keluar dari Sesi Siaga Darurat ───
-  Widget _buildLogoutButton() {
-    return SizedBox(
-      width: double.infinity,
-      height: 44,
-      child: ElevatedButton.icon(
-        onPressed: () async {
-          final confirm = await showDialog<bool>(
-            context: context,
-            builder: (ctx) => AlertDialog(
-              title: Text('Keluar Sesi?', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold)),
-              content: Text('Apakah Anda yakin ingin keluar dari sesi siaga darurat ini?', style: GoogleFonts.plusJakartaSans()),
-              actions: [
-                TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Batal')),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFDC2626)),
-                  onPressed: () => Navigator.pop(ctx, true),
-                  child: const Text('Keluar', style: TextStyle(color: Colors.white)),
-                ),
-              ],
-            ),
-          );
-
-          if (confirm == true && mounted) {
-            await _authRepo.logout();
-            if (mounted) {
-              Navigator.pushNamedAndRemoveUntil(context, AppRouter.loginRoute, (route) => false);
-            }
-          }
-        },
-        icon: const Icon(Icons.logout_rounded, size: 16, color: Color(0xFF4338CA)),
-        label: Text(
-          'Keluar dari Sesi Siaga Darurat',
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 12,
-            fontWeight: FontWeight.w800,
-            color: const Color(0xFF4338CA),
-          ),
-        ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFFEEF2FF),
-          foregroundColor: const Color(0xFF4338CA),
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: const BorderSide(color: Color(0xFFE0E7FF)),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ─── Widget: Catatan Protokol Resmi PMI ───
+  // ── 9. FOOTER PROTOKOL RESMI PMI ──
   Widget _buildFooterNote() {
     return Center(
       child: Text(
@@ -1402,7 +1393,161 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
     );
   }
 
-  // ─── Widget: Bottom Navigation Bar 3 Tab ───
+  // ─── Helper: Vital Sign / Spec Box (Identik Donor) ───
+  Widget _buildVitalSignBox({
+    required String label,
+    required String value,
+    required String unit,
+    required String status,
+    required Color statusColor,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 9.5,
+              color: const Color(0xFF64748B),
+              fontWeight: FontWeight.w600,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 4),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Text(
+                value,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w900,
+                  color: const Color(0xFF0F172A),
+                ),
+              ),
+              if (unit.isNotEmpty) ...[
+                const SizedBox(width: 2),
+                Text(
+                  unit,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 9,
+                    color: const Color(0xFF64748B),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ],
+          ),
+          const SizedBox(height: 2),
+          Text(
+            status,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 9.5,
+              fontWeight: FontWeight.w700,
+              color: statusColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ─── Helper: Menu List Item (Identik Donor) ───
+  Widget _buildMenuItem({
+    required IconData icon,
+    required Color iconBg,
+    required Color iconColor,
+    required String title,
+    required String subtitle,
+    String? badge,
+    Color? badgeBg,
+    Color? badgeColor,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: iconBg,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(icon, color: iconColor, size: 17),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w800,
+                      color: const Color(0xFF0F172A),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 10.5,
+                      color: const Color(0xFF64748B),
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            if (badge != null) ...[
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                decoration: BoxDecoration(
+                  color: badgeBg,
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: Text(
+                  badge,
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 8,
+                    fontWeight: FontWeight.w900,
+                    color: badgeColor,
+                    height: 1.1,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 6),
+            ],
+            const Icon(Icons.chevron_right_rounded, size: 20, color: Color(0xFF94A3B8)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ─── Bottom Navigation Bar (Permohonan, Pantau, Profil) ───
   Widget _buildBottomNavigationBar() {
     return Container(
       decoration: const BoxDecoration(
@@ -1418,7 +1563,7 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
             children: [
               _buildBottomNavItem(
                 index: 0,
-                icon: Icons.description_outlined,
+                icon: Icons.assignment_turned_in_rounded,
                 label: 'Permohonan',
                 isSelected: _selectedTabIndex == 0,
               ),

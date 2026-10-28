@@ -37,7 +37,7 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
   int _selectedTabIndex = 1; // Aktif di tab 1: Pantau
 
   // Koordinat Faskes RSUD Dr. Soegiri Lamongan
-  static const LatLng _hospitalLocation = LatLng(-7.119812, 112.415155);
+  static const LatLng _hospitalLocation = LatLng(-7.1159, 112.4103);
   // Titik awal donor di Jl. Basuki Rahmat Lamongan
   static const LatLng _startDonorLocation = LatLng(-7.132500, 112.418200);
 
@@ -80,9 +80,17 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
     super.dispose();
   }
 
+  bool get _hasAcceptedDonor {
+    if (_activeRequest == null) return false;
+    if (_activeRequest!.donorName != null && _activeRequest!.donorName!.isNotEmpty) {
+      return true;
+    }
+    final s = _activeRequest!.status.toLowerCase();
+    return s == 'diproses' || s == 'diterima' || s == 'menuju_lokasi' || s == 'sampai';
+  }
+
   Future<void> _initScreenData() async {
     final reqIdStr = widget.requestId ?? '1';
-    final reqIdInt = int.tryParse(reqIdStr) ?? 1;
 
     // 1. Hubungkan WebSocket untuk pelacakan live dari relawan
     _trackingRepo.startTracking(reqIdStr);
@@ -100,20 +108,34 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
 
     // 2. Ambil data permohonan darah
     try {
-      final req = await _requestRepo.getRequestById(reqIdInt);
-      if (mounted) {
+      BloodRequestModel? req;
+      if (widget.requestId != null && int.tryParse(widget.requestId!) != null) {
+        req = await _requestRepo.getRequestById(int.parse(widget.requestId!));
+      } else {
+        final allReqs = await _requestRepo.getRequests();
+        if (allReqs.isNotEmpty) {
+          req = allReqs.firstWhere(
+            (r) => r.status == 'diproses' || r.status == 'menunggu' || r.urgencyLevel == 'kritis',
+            orElse: () => allReqs.first,
+          );
+        }
+      }
+
+      if (mounted && req != null) {
         setState(() {
           _activeRequest = req;
-          _hospitalName = req.hospitalName ?? 'RSUD Dr. Soegiri';
+          _hospitalName = req!.hospitalName ?? 'RSUD Dr. Soegiri';
         });
       }
     } catch (_) {}
 
-    // 3. Ambil rute jalan riil Lamongan
-    await _fetchRoadRoute();
-
-    // 4. Simulasi pergerakan dinamis halus
-    _startSmoothSimulation();
+    // 3. Hanya load rute jalan & jalankan simulasi pergerakan JIKA sudah ada relawan yang setuju
+    if (_hasAcceptedDonor) {
+      await _fetchRoadRoute();
+      _startSmoothSimulation();
+    } else {
+      _simTimer?.cancel();
+    }
 
     if (mounted) {
       setState(() => _isLoading = false);
@@ -136,10 +158,10 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
           _routePoints = [
             _startDonorLocation,
             const LatLng(-7.128000, 112.418200),
-            const LatLng(-7.124500, 112.415155),
+            const LatLng(-7.120000, 112.412000),
             _hospitalLocation,
           ];
-          _volunteerLocation = const LatLng(-7.124500, 112.415155);
+          _volunteerLocation = const LatLng(-7.120000, 112.412000);
         });
       }
     }
@@ -190,6 +212,8 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
 
   @override
   Widget build(BuildContext context) {
+    final hasDonor = _hasAcceptedDonor;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       body: SafeArea(
@@ -197,41 +221,60 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
             ? const Center(
                 child: CircularProgressIndicator(color: Color(0xFFDC2626)),
               )
-            : SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // ─── 1. HEADER APP BAR (PMI LAMONGAN DARURAT & PANTAU) ───
-                      _buildHeader(),
-                      const SizedBox(height: 12),
+            : Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 1040),
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // ─── 1. HEADER APP BAR (PMI LAMONGAN DARURAT & PANTAU) ───
+                          _buildHeader(),
+                          const SizedBox(height: 12),
 
-                      // ─── 2. STATUS BANNER (LIVE GPS AKTIF & JARAK) ───
-                      _buildStatusBanner(),
-                      const SizedBox(height: 12),
+                          if (!hasDonor) ...[
+                            // ─── KONDISI BELUM ADA PEN DONOR (STATUS: MENUNGGU) ───
+                            _buildSearchingBanner(),
+                            const SizedBox(height: 12),
 
-                      // ─── 3. PETA INTERAKTIF LIVE MAP ───
-                      _buildInteractiveMapSection(),
-                      const SizedBox(height: 14),
+                            // Peta Radius Radar (Tanpa rute motor / tanpa Budi Santoso)
+                            _buildSearchingMapSection(),
+                            const SizedBox(height: 14),
 
-                      // ─── 4. KARTU RELAWAN: BUDI SANTOSO ───
-                      _buildVolunteerCard(),
-                      const SizedBox(height: 14),
+                            // Kartu Status: Menunggu Respon Pendonor
+                            _buildSearchingVolunteerCard(),
+                            const SizedBox(height: 14),
+                          ] else ...[
+                            // ─── KONDISI SUDAH ADA PENDONOR MENYETUJUI (STATUS: DIPROSES) ───
+                            _buildStatusBanner(),
+                            const SizedBox(height: 12),
 
-                      // ─── 5. CARD: PERGERAKAN TERKINI ───
-                      _buildCurrentMovementCard(),
-                      const SizedBox(height: 14),
+                            // Peta Rute GPS Jalan Raya & Posisi Relawan
+                            _buildInteractiveMapSection(),
+                            const SizedBox(height: 14),
 
-                      // ─── 6. CARD: PANDUAN KEDATANGAN KELUARGA ───
-                      _buildArrivalGuideChecklistCard(),
-                      const SizedBox(height: 14),
+                            // Kartu Profil Relawan yang Menyetujui
+                            _buildVolunteerCard(),
+                            const SizedBox(height: 14),
 
-                      // ─── 7. FOOTER NOTE: RANTAI DINGIN (COLD BOX) ───
-                      _buildColdChainFooterNote(),
-                      const SizedBox(height: 20),
-                    ],
+                            // Pergerakan Terkini
+                            _buildCurrentMovementCard(),
+                            const SizedBox(height: 14),
+                          ],
+
+                          // ─── CARD: PANDUAN KEDATANGAN KELUARGA ───
+                          _buildArrivalGuideChecklistCard(),
+                          const SizedBox(height: 14),
+
+                          // ─── FOOTER NOTE: RANTAI DINGIN (COLD BOX) ───
+                          _buildColdChainFooterNote(),
+                          const SizedBox(height: 20),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -341,7 +384,534 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
     );
   }
 
-  // ─── 2. Status Banner (Live GPS Aktif & Sisa Jarak) ───
+  // ─── 2A. Banner Pencarian Relawan (Kondisi Belum Disetujui) ───
+  Widget _buildSearchingBanner() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFFBEB),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFFDE68A)),
+      ),
+      child: Row(
+        children: [
+          // Radar Icon with Pulsing Dot
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFD97706),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.radar_rounded, color: Colors.white, size: 20),
+              ),
+              Positioned(
+                right: -2,
+                top: -2,
+                child: AnimatedBuilder(
+                  animation: _pulseAnimation,
+                  builder: (context, child) {
+                    return Container(
+                      width: 9,
+                      height: 9,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEF4444),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 1.5),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFFEF4444).withValues(alpha: 0.5),
+                            blurRadius: 4,
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(width: 12),
+
+          // Teks Status
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 6,
+                      height: 6,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFD97706),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      'MEMINDAI RELAWAN DI SEKITAR',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.w900,
+                        color: const Color(0xFFD97706),
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Menunggu Respon Pendonor Siaga',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w900,
+                    color: const Color(0xFF78350F),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+
+          // Badge Radius
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFDE68A),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.near_me_outlined, size: 12, color: Color(0xFF78350F)),
+                const SizedBox(width: 4),
+                Text(
+                  'Radius 5 km',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF78350F),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ─── 3A. Peta Pemindaian Radar (Kondisi Belum Disetujui) ───
+  Widget _buildSearchingMapSection() {
+    return Container(
+      height: 240,
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          FlutterMap(
+            mapController: _mapController,
+            options: const MapOptions(
+              initialCenter: _hospitalLocation,
+              initialZoom: 14.2,
+              minZoom: 12.0,
+              maxZoom: 18.0,
+              interactionOptions: InteractionOptions(
+                flags: InteractiveFlag.all,
+              ),
+            ),
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'id.pmi.donordarah.lamongan',
+              ),
+
+              // Lingkaran Radar Pemindaian (Pulsing Radius)
+              AnimatedBuilder(
+                animation: _pulseAnimation,
+                builder: (context, child) {
+                  return CircleLayer(
+                    circles: [
+                      CircleMarker(
+                        point: _hospitalLocation,
+                        radius: 80 * _pulseAnimation.value,
+                        useRadiusInMeter: false,
+                        color: const Color(0xFFDC2626).withValues(alpha: 0.12),
+                        borderColor: const Color(0xFFDC2626).withValues(alpha: 0.5),
+                        borderStrokeWidth: 1.5,
+                      ),
+                      CircleMarker(
+                        point: _hospitalLocation,
+                        radius: 38,
+                        useRadiusInMeter: false,
+                        color: const Color(0xFFDC2626).withValues(alpha: 0.22),
+                        borderColor: const Color(0xFFDC2626),
+                        borderStrokeWidth: 2,
+                      ),
+                    ],
+                  );
+                },
+              ),
+
+              MarkerLayer(
+                markers: [
+                  // Marker Rumah Sakit / UDD PMI Tujuan
+                  Marker(
+                    point: _hospitalLocation,
+                    width: 170,
+                    height: 52,
+                    alignment: Alignment.centerLeft,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFDC2626),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.white, width: 2),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.25),
+                                blurRadius: 6,
+                              ),
+                            ],
+                          ),
+                          child: const Icon(Icons.local_hospital_rounded, color: Colors.white, size: 18),
+                        ),
+                        const SizedBox(width: 5),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF0F172A),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            'Lokasi Tujuan (RSUD)',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 9.5,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+
+          // Overlay Info Pemindaian di Peta
+          Positioned(
+            top: 10,
+            left: 10,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.94),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 4),
+                ],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 7,
+                    height: 7,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFD97706),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Pemindaian Siaga UDD PMI Lamongan',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                      color: const Color(0xFF0F172A),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ─── 4A. Kartu Status Pemindaian (Kondisi Belum Disetujui) ───
+  Widget _buildSearchingVolunteerCard() {
+    final bType = _activeRequest?.bloodType ?? 'O';
+    final rh = _activeRequest?.rhesus ?? '+';
+    final patient = _activeRequest?.patientName ?? 'Pasien Darurat';
+    final bags = _activeRequest?.bagsNeeded ?? 1;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFF1F5F9)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header Status
+          Row(
+            children: [
+              Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFFBEB),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFFDE68A)),
+                ),
+                child: const Center(
+                  child: Icon(Icons.hourglass_top_rounded, color: Color(0xFFD97706), size: 24),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          'Menunggu Pendonor',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 14.5,
+                            fontWeight: FontWeight.w900,
+                            color: const Color(0xFF0F172A),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFEF3C7),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            'Belum Ada Respon',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 9,
+                              fontWeight: FontWeight.w800,
+                              color: const Color(0xFFB45309),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Sinyal darurat aktif dipancarkan',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 10.5,
+                        color: const Color(0xFF64748B),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Kotak Golongan Darah
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFDC2626),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      '$bType$rh',
+                      style: GoogleFonts.plusJakartaSans(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w900,
+                        height: 1,
+                      ),
+                    ),
+                    const SizedBox(height: 1),
+                    Text(
+                      'DARAH',
+                      style: GoogleFonts.plusJakartaSans(
+                        color: Colors.white.withValues(alpha: 0.8),
+                        fontSize: 7.5,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 14),
+          const Divider(height: 1, color: Color(0xFFF1F5F9)),
+          const SizedBox(height: 12),
+
+          // Detail Kebutuhan Pasien
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Nama Pasien:', style: GoogleFonts.plusJakartaSans(fontSize: 11, color: const Color(0xFF64748B))),
+                    Text(patient, style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w800, color: const Color(0xFF0F172A))),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Faskes Penyerahan:', style: GoogleFonts.plusJakartaSans(fontSize: 11, color: const Color(0xFF64748B))),
+                    Text(_hospitalName, style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w800, color: const Color(0xFF0F172A))),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Kebutuhan Kantong:', style: GoogleFonts.plusJakartaSans(fontSize: 11, color: const Color(0xFF64748B))),
+                    Text('$bags Kantong ($bType$rh)', style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w900, color: const Color(0xFFDC2626))),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 12),
+          // Info box
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: const Color(0xFFEFF6FF),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: const Color(0xFFDBEAFE)),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(Icons.info_outline_rounded, size: 16, color: Color(0xFF2563EB)),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Belum ada relawan yang mengonfirmasi. Tampilan rute peta dan identitas relawan akan otomatis muncul setelah ada pendonor yang menekan tombol setuju.',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 10.5,
+                      color: const Color(0xFF1E40AF),
+                      height: 1.35,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 14),
+
+          // Tombol Perbarui Status & Hotline
+          Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 42,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      _initScreenData();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Memeriksa respon relawan pendonor...'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.refresh_rounded, size: 16, color: Color(0xFF0F172A)),
+                    label: Text(
+                      'Periksa Status',
+                      style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w800, color: const Color(0xFF0F172A)),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Color(0xFFCBD5E1)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: SizedBox(
+                  height: 42,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Menghubungi Posko Siaga UDD PMI Lamongan: (0322) 321118'),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.phone_in_talk_rounded, size: 16, color: Colors.white),
+                    label: Text(
+                      'Call Center PMI',
+                      style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w800, color: Colors.white),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFDC2626),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ─── 2B. Status Banner (Live GPS Aktif & Sisa Jarak) ───
   Widget _buildStatusBanner() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -598,7 +1168,7 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
-                                'Budi (O+)',
+                                '${_activeRequest?.donorName?.split(" ").first ?? "Relawan"} (${_activeRequest?.bloodType ?? "O"}+)',
                                 style: GoogleFonts.plusJakartaSans(
                                   fontSize: 9.5,
                                   fontWeight: FontWeight.w800,
@@ -785,7 +1355,7 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
                     Row(
                       children: [
                         Text(
-                          'Budi Santoso',
+                          _activeRequest?.donorName ?? 'Relawan Terverifikasi',
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 14.5,
                             fontWeight: FontWeight.w900,
@@ -949,7 +1519,7 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
                   onTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('Menghubungi Relawan Budi Santoso...', style: GoogleFonts.plusJakartaSans()),
+                        content: Text('Menghubungi Relawan ${_activeRequest?.donorName ?? "Terverifikasi"}...', style: GoogleFonts.plusJakartaSans()),
                         behavior: SnackBarBehavior.floating,
                       ),
                     );

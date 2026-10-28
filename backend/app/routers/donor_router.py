@@ -382,8 +382,8 @@ def get_donor_tracking_status(
     
     # Koordinat default faskes RSUD Dr. Soegiri Lamongan
     hospital_name = req.hospital_name if req else "RSUD Dr. Soegiri Lamongan"
-    r_lat = float(req.latitude_faskes) if req and req.latitude_faskes else -7.119812
-    r_lng = float(req.longitude_faskes) if req and req.longitude_faskes else 112.415155
+    r_lat = float(req.latitude_faskes) if req and req.latitude_faskes else -7.1159
+    r_lng = float(req.longitude_faskes) if req and req.longitude_faskes else 112.4103
 
     # Posisi donor saat ini (default: titik awal ~1.8 km dari RSUD Soegiri)
     donor_lat = lat if lat is not None else -7.132500
@@ -526,8 +526,8 @@ def get_active_dispatch(
     today_str = resp.created_at.strftime("%Y%m%d") if resp.created_at else datetime.utcnow().strftime("%Y%m%d")
     ticket_code = getattr(resp, "kode_tiket", None) or f"TGP-{today_str}-{req.id:04d}-{donor_id:04d}"
 
-    r_lat = float(req.latitude_faskes) if req.latitude_faskes else -7.119812
-    r_lng = float(req.longitude_faskes) if req.longitude_faskes else 112.415155
+    r_lat = float(req.latitude_faskes) if req.latitude_faskes else -7.1159
+    r_lng = float(req.longitude_faskes) if req.longitude_faskes else 112.4103
 
     return {
         "has_active_dispatch": True,

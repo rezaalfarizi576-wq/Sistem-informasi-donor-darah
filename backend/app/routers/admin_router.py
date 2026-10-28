@@ -278,8 +278,8 @@ def respond_to_blood_request(
         "bags_needed": req.bags_needed,
         "urgency_level": req.urgency_level,
         "notes": req.notes or "Donor Darurat Fast-Track",
-        "hospital_lat": float(req.latitude_faskes) if req.latitude_faskes else -7.119812,
-        "hospital_lng": float(req.longitude_faskes) if req.longitude_faskes else 112.415155,
+        "hospital_lat": float(req.latitude_faskes) if req.latitude_faskes else -7.1159,
+        "hospital_lng": float(req.longitude_faskes) if req.longitude_faskes else 112.4103,
         "created_at": datetime.utcnow().isoformat(),
     }
 
@@ -345,8 +345,8 @@ def get_all_facilities(
             HealthFacility(
                 nama_faskes="RSUD Dr. Soegiri Lamongan",
                 alamat="Jl. Kusuma Bangsa No. 7, Lamongan",
-                latitude=-7.119812,
-                longitude=112.415155,
+                latitude=-7.1159,
+                longitude=112.4103,
                 telepon="(0322) 321718",
                 terverifikasi=True,
             ),

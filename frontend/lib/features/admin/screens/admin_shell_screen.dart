@@ -48,14 +48,10 @@ class _AdminShellScreenState extends State<AdminShellScreen> {
     _SidebarItem(
       icon: Icons.description_outlined,
       label: 'Permintaan',
-      badgeText: '4',
-      badgeColor: Color(0xFFEF4444),
     ),
     _SidebarItem(
       icon: Icons.groups_2_outlined,
       label: 'Relawan',
-      badgeText: '1.482',
-      badgeColor: Color(0xFF059669),
     ),
     _SidebarItem(
       icon: Icons.local_hospital_outlined,
@@ -85,9 +81,6 @@ class _AdminShellScreenState extends State<AdminShellScreen> {
       backgroundColor: const Color(0xFF101423),
       body: Column(
         children: [
-          // ─── TOP WEB DESKTOP COMMAND CENTER BREADCRUMB / BROWSER BAR ───
-          _buildTopWindowHeader(),
-
           // ─── MAIN BODY (SIDEBAR + CONTENT) ───
           Expanded(
             child: Row(
@@ -120,17 +113,7 @@ class _AdminShellScreenState extends State<AdminShellScreen> {
       ),
       child: Row(
         children: [
-          // Window action dots (Red, Yellow, Green)
-          Row(
-            children: [
-              _windowDot(const Color(0xFFEF4444)),
-              const SizedBox(width: 7),
-              _windowDot(const Color(0xFFF59E0B)),
-              const SizedBox(width: 7),
-              _windowDot(const Color(0xFF10B981)),
-            ],
-          ),
-          const SizedBox(width: 20),
+
 
           // Mock Address Bar
           Expanded(

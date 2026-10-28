@@ -22,6 +22,9 @@ class BloodRequestModel {
   final String? suratDokter;
   final double? distanceKm;
   final String? distanceDisplay;
+  final String? donorName;
+  final String? donorPhone;
+  final int acceptedDonorsCount;
 
   BloodRequestModel({
     required this.id,
@@ -45,6 +48,9 @@ class BloodRequestModel {
     this.suratDokter,
     this.distanceKm,
     this.distanceDisplay,
+    this.donorName,
+    this.donorPhone,
+    this.acceptedDonorsCount = 0,
   }) : _rawPatientName = patientName;
 
   factory BloodRequestModel.fromJson(Map<String, dynamic> json) {
@@ -70,6 +76,9 @@ class BloodRequestModel {
       suratDokter: json['surat_dokter'] as String?,
       distanceKm: (json['distance_km'] as num?)?.toDouble(),
       distanceDisplay: json['distance_display'] as String?,
+      donorName: json['donor_name'] as String?,
+      donorPhone: json['donor_phone'] as String?,
+      acceptedDonorsCount: json['accepted_donors_count'] as int? ?? 0,
     );
   }
 
@@ -102,6 +111,13 @@ class BloodRequestModel {
 
   /// Check if this request is in a "pending" state
   bool get isPending => status == 'menunggu' || status == 'pending';
+
+  /// Check if a donor has accepted/responded
+  bool get hasAcceptedDonor {
+    final s = status.toLowerCase();
+    final isProc = s == 'diproses' || s == 'diterima' || s == 'menuju_lokasi' || s == 'sampai' || s == 'terpenuhi' || s == 'selesai';
+    return isProc && (donorName != null && donorName!.isNotEmpty);
+  }
 
   /// Formatted time ago string
   String get timeAgo {

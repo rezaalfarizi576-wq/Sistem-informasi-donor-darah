@@ -128,7 +128,7 @@ class AppRouter {
         Navigator.pushReplacementNamed(context, adminDashboardRoute);
         break;
       case 'requester':
-        Navigator.pushReplacementNamed(context, requestStatusRoute);
+        Navigator.pushReplacementNamed(context, requesterRequestRoute);
         break;
       case 'donor':
       default:

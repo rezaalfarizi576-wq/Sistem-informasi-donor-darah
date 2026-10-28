@@ -205,6 +205,9 @@ class BloodRequestResponse(BloodRequestBase):
     patient_name: Optional[str] = None
     surat_dokter: Optional[str] = None
     status: str
+    donor_name: Optional[str] = None
+    donor_phone: Optional[str] = None
+    accepted_donors_count: int = 0
     created_at: datetime
     updated_at: Optional[datetime] = None
 

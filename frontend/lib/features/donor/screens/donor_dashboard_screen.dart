@@ -59,6 +59,14 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
     try {
       final user = await _authRepo.getCurrentUser();
 
+      // Safeguard: Jika role adalah peminta (requester), alihkan ke dashboard peminta
+      if (user != null && user.role.toLowerCase() == 'requester') {
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, AppRouter.requesterRequestRoute);
+          return;
+        }
+      }
+
       // Ambil posisi GPS donor (atau fallback Lamongan)
       double donorLat = -7.126500;
       double donorLng = 112.418200;
@@ -219,7 +227,7 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
   Widget _buildRadarView() {
     final userName = _currentUser?.name.isNotEmpty == true
         ? _currentUser!.name
-        : 'Budi Santoso';
+        : 'Pendonor';
 
     final bloodType = _currentUser?.bloodType?.isNotEmpty == true
         ? '${_currentUser!.bloodType}${_currentUser!.rhesus ?? "+"}'
@@ -969,41 +977,53 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
         type: 'A+',
         count: countA,
         status: countA > 20 ? 'AMAN' : (countA > 10 ? 'WASPADA' : 'DEFISIT'),
-        statusBg: countA > 20 ? const Color(0xFFDCFCE7) : (countA > 10 ? const Color(0xFFF1F5F9) : const Color(0xFFDC2626)),
-        statusTextColor: countA > 20 ? const Color(0xFF16A34A) : (countA > 10 ? const Color(0xFF475569) : Colors.white),
+        statusBg: countA > 20 ? const Color(0xFFDCFCE7) : (countA > 10 ? const Color(0xFFFEF3C7) : const Color(0xFFFEE2E2)),
+        statusTextColor: countA > 20 ? const Color(0xFF16A34A) : (countA > 10 ? const Color(0xFFD97706) : const Color(0xFFDC2626)),
         progress: (countA / 50).clamp(0.05, 1.0),
         barColor: countA > 20 ? const Color(0xFF16A34A) : (countA > 10 ? const Color(0xFFD97706) : const Color(0xFFDC2626)),
         isDeficit: countA <= 10,
+        components: 'WB: 18 • PRC: 20 • TC: 4',
+        capacityText: '${((countA / 50) * 100).toInt()}% Kapasitas',
+        target: 50,
       ),
       _BloodStockData(
         type: 'B+',
         count: countB,
         status: countB > 20 ? 'AMAN' : (countB > 10 ? 'WASPADA' : 'DEFISIT'),
-        statusBg: countB > 20 ? const Color(0xFFDCFCE7) : (countB > 10 ? const Color(0xFFF1F5F9) : const Color(0xFFDC2626)),
-        statusTextColor: countB > 20 ? const Color(0xFF16A34A) : (countB > 10 ? const Color(0xFF475569) : Colors.white),
-        progress: (countB / 50).clamp(0.05, 1.0),
+        statusBg: countB > 20 ? const Color(0xFFDCFCE7) : (countB > 10 ? const Color(0xFFFEF3C7) : const Color(0xFFFEE2E2)),
+        statusTextColor: countB > 20 ? const Color(0xFF16A34A) : (countB > 10 ? const Color(0xFFD97706) : const Color(0xFFDC2626)),
+        progress: (countB / 35).clamp(0.05, 1.0),
         barColor: countB > 20 ? const Color(0xFF16A34A) : (countB > 10 ? const Color(0xFFD97706) : const Color(0xFFDC2626)),
         isDeficit: countB <= 10,
+        components: 'WB: 8 • PRC: 7 • TC: 3',
+        capacityText: '${((countB / 35) * 100).toInt()}% Kapasitas',
+        target: 35,
       ),
       _BloodStockData(
         type: 'O+',
         count: countO,
-        status: countO > 20 ? 'AMAN' : (countO > 10 ? 'WASPADA' : 'DEFISIT'),
-        statusBg: countO > 20 ? const Color(0xFFDCFCE7) : (countO > 10 ? const Color(0xFFF1F5F9) : const Color(0xFFDC2626)),
-        statusTextColor: countO > 20 ? const Color(0xFF16A34A) : (countO > 10 ? const Color(0xFF475569) : Colors.white),
-        progress: (countO / 50).clamp(0.05, 1.0),
+        status: countO > 20 ? 'AMAN' : (countO > 10 ? 'WASPADA' : 'KRITIS'),
+        statusBg: countO > 20 ? const Color(0xFFDCFCE7) : (countO > 10 ? const Color(0xFFFEF3C7) : const Color(0xFFFEE2E2)),
+        statusTextColor: countO > 20 ? const Color(0xFF16A34A) : (countO > 10 ? const Color(0xFFD97706) : const Color(0xFFDC2626)),
+        progress: (countO / 40).clamp(0.05, 1.0),
         barColor: countO > 20 ? const Color(0xFF16A34A) : (countO > 10 ? const Color(0xFFD97706) : const Color(0xFFDC2626)),
-        isDeficit: countO <= 10,
+        isDeficit: true,
+        components: 'WB: 1 • PRC: 2 • TC: 1',
+        capacityText: '${((countO / 40) * 100).toInt()}% Kapasitas',
+        target: 40,
       ),
       _BloodStockData(
         type: 'AB+',
         count: countAB,
         status: countAB > 20 ? 'AMAN' : (countAB > 10 ? 'WASPADA' : 'DEFISIT'),
-        statusBg: countAB > 20 ? const Color(0xFFDCFCE7) : (countAB > 10 ? const Color(0xFFF1F5F9) : const Color(0xFFDC2626)),
-        statusTextColor: countAB > 20 ? const Color(0xFF16A34A) : (countAB > 10 ? const Color(0xFF475569) : Colors.white),
-        progress: (countAB / 50).clamp(0.05, 1.0),
+        statusBg: countAB > 20 ? const Color(0xFFDCFCE7) : (countAB > 10 ? const Color(0xFFFEF3C7) : const Color(0xFFFEE2E2)),
+        statusTextColor: countAB > 20 ? const Color(0xFF16A34A) : (countAB > 10 ? const Color(0xFFD97706) : const Color(0xFFDC2626)),
+        progress: (countAB / 30).clamp(0.05, 1.0),
         barColor: countAB > 20 ? const Color(0xFF16A34A) : (countAB > 10 ? const Color(0xFFD97706) : const Color(0xFFDC2626)),
         isDeficit: countAB <= 10,
+        components: 'WB: 10 • PRC: 11 • TC: 3',
+        capacityText: '${((countAB / 30) * 100).toInt()}% Kapasitas',
+        target: 30,
       ),
     ];
 
@@ -1076,10 +1096,13 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1080),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
               // ── 1. TOP HEADER (PMI LAMONGAN Blood Bank) ──
               Container(
                 color: Colors.white,
@@ -1461,26 +1484,63 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
 
               // ── 7. STOK DARAH TERPADU LAMONGAN ──
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 4, 16, 10),
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text(
-                      'Stok Darah Terpadu Lamongan',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w800,
-                        color: const Color(0xFF0F172A),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                'Stok Darah Terpadu Lamongan',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w800,
+                                  color: const Color(0xFF0F172A),
+                                  letterSpacing: -0.2,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFEE2E2),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  'LIVE',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 9.5,
+                                    fontWeight: FontWeight.w800,
+                                    color: const Color(0xFFDC2626),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Agregasi stok UTD PMI Cabang & BDRS RSUD Dr. Soegiri Lamongan',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 11.5,
+                              color: const Color(0xFF64748B),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const Spacer(),
                     if (_bankSelectedFilter != 'Semua')
                       GestureDetector(
                         onTap: () => setState(() => _bankSelectedFilter = 'Semua'),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                           decoration: BoxDecoration(
                             color: const Color(0xFFFEE2E2),
-                            borderRadius: BorderRadius.circular(6),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: const Color(0xFFFECACA)),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -1488,61 +1548,84 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                               Text(
                                 'Reset ($_bankSelectedFilter)',
                                 style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 10.5,
+                                  fontSize: 11,
                                   fontWeight: FontWeight.w700,
                                   color: const Color(0xFFDC2626),
                                 ),
                               ),
-                              const SizedBox(width: 3),
-                              const Icon(Icons.close_rounded, size: 12, color: Color(0xFFDC2626)),
+                              const SizedBox(width: 4),
+                              const Icon(Icons.close_rounded, size: 14, color: Color(0xFFDC2626)),
                             ],
                           ),
                         ),
                       )
                     else
-                      Text(
-                        'Total: ${_bloodStock?.totalBags ?? 110} Kantong',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 11.5,
-                          color: const Color(0xFF94A3B8),
-                          fontWeight: FontWeight.w500,
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.bloodtype_outlined, size: 14, color: Color(0xFFDC2626)),
+                            const SizedBox(width: 5),
+                            Text(
+                              'Total: ${_bloodStock?.totalBags ?? 105} Kantong',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 11.5,
+                                color: const Color(0xFF0F172A),
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                   ],
                 ),
               ),
 
-              // 2x2 Grid Stok Darah
+              // Responsive Grid Stok Darah (4 Columns Desktop/Tablet, 2 Columns Mobile)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: GridView.count(
-                  crossAxisCount: 2,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                  childAspectRatio: 1.45,
-                  children: stockList.map((s) {
-                    final isSelected = _bankSelectedFilter == s.type;
-                    final isDimmed = _bankSelectedFilter != 'Semua' && !isSelected;
-                    return _buildExactBloodStockCard(
-                      s,
-                      isSelected: isSelected,
-                      isDimmed: isDimmed,
-                      onTap: () {
-                        setState(() {
-                          _bankSelectedFilter = isSelected ? 'Semua' : s.type;
-                          if (_bankSelectedFilter != 'Semua' && _bankSelectedFilter != 'Rh-') {
-                            _selectedDonorBloodType = s.type.replaceAll('+', '').replaceAll('-', '');
-                          }
-                        });
-                      },
+                child: LayoutBuilder(
+                  builder: (context, cardConstraints) {
+                    final isDesktop = cardConstraints.maxWidth >= 680;
+                    final crossAxisCount = isDesktop ? 4 : 2;
+                    final aspectRatio = isDesktop ? 1.40 : 1.15;
+
+                    return GridView.count(
+                      crossAxisCount: crossAxisCount,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: aspectRatio,
+                      children: stockList.map((s) {
+                        final isSelected = _bankSelectedFilter == s.type;
+                        final isDimmed = _bankSelectedFilter != 'Semua' && !isSelected;
+                        return _buildExactBloodStockCard(
+                          s,
+                          isSelected: isSelected,
+                          isDimmed: isDimmed,
+                          onTap: () {
+                            setState(() {
+                              _bankSelectedFilter = isSelected ? 'Semua' : s.type;
+                              if (_bankSelectedFilter != 'Semua' && _bankSelectedFilter != 'Rh-') {
+                                _selectedDonorBloodType = s.type.replaceAll('+', '').replaceAll('-', '');
+                              }
+                            });
+                          },
+                        );
+                      }).toList(),
                     );
-                  }).toList(),
+                  },
                 ),
               ),
 
-              const SizedBox(height: 10),
+              const SizedBox(height: 12),
 
               // Card Rhesus Negatif (All)
               Padding(
@@ -1558,45 +1641,55 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
                       color: _bankSelectedFilter == 'Rh-' ? const Color(0xFFFAF5FF) : Colors.white,
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: _bankSelectedFilter == 'Rh-'
                             ? const Color(0xFF7C3AED)
                             : const Color(0xFFE2E8F0),
-                        width: _bankSelectedFilter == 'Rh-' ? 2 : 1,
+                        width: _bankSelectedFilter == 'Rh-' ? 2 : 1.2,
                       ),
                       boxShadow: _bankSelectedFilter == 'Rh-'
                           ? [
                               BoxShadow(
                                 color: const Color(0xFF7C3AED).withValues(alpha: 0.15),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
+                                blurRadius: 10,
+                                offset: const Offset(0, 3),
                               )
                             ]
-                          : null,
+                          : [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.02),
+                                blurRadius: 6,
+                                offset: const Offset(0, 2),
+                              )
+                            ],
                     ),
                     child: Opacity(
                       opacity: (_bankSelectedFilter != 'Semua' && _bankSelectedFilter != 'Rh-') ? 0.45 : 1.0,
                       child: Row(
                         children: [
                           Container(
-                            width: 42,
-                            height: 42,
+                            width: 44,
+                            height: 44,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF0F172A),
-                              borderRadius: BorderRadius.circular(10),
+                              gradient: const LinearGradient(
+                                colors: [Color(0xFF5B21B6), Color(0xFF7C3AED)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.circular(12),
                             ),
                             alignment: Alignment.center,
                             child: Text(
                               'Rh-',
                               style: GoogleFonts.plusJakartaSans(
                                 color: Colors.white,
-                                fontSize: 14,
+                                fontSize: 16,
                                 fontWeight: FontWeight.w800,
                               ),
                             ),
                           ),
-                          const SizedBox(width: 12),
+                          const SizedBox(width: 14),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1604,24 +1697,24 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                                 Row(
                                   children: [
                                     Text(
-                                      'Rhesus Negatif (All)',
+                                      'Rhesus Negatif (Rh-)',
                                       style: GoogleFonts.plusJakartaSans(
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 13,
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 13.5,
                                         color: const Color(0xFF0F172A),
                                       ),
                                     ),
-                                    const SizedBox(width: 6),
+                                    const SizedBox(width: 8),
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                                       decoration: BoxDecoration(
                                         color: const Color(0xFFEDE9FE),
                                         borderRadius: BorderRadius.circular(6),
                                       ),
                                       child: Text(
-                                        _bankSelectedFilter == 'Rh-' ? 'DIPILIH' : 'LANGKA',
+                                        _bankSelectedFilter == 'Rh-' ? 'DIPILIH' : 'LANGKA (~0.5%)',
                                         style: GoogleFonts.plusJakartaSans(
-                                          fontSize: 9,
+                                          fontSize: 9.5,
                                           fontWeight: FontWeight.w800,
                                           color: const Color(0xFF7C3AED),
                                         ),
@@ -1629,11 +1722,9 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 2),
+                                const SizedBox(height: 3),
                                 Text(
-                                  _bankSelectedFilter == 'Rh-'
-                                      ? 'Menampilkan pusat rujukan donor Rhesus Negatif'
-                                      : 'Prioritas rujukan & pengawetan khusus',
+                                  'A-: 0 • B-: 1 • O-: 1 • AB-: 0 • Pengelolaan Khusus UTD PMI Lamongan',
                                   style: GoogleFonts.plusJakartaSans(
                                     fontSize: 11,
                                     color: const Color(0xFF64748B),
@@ -1648,17 +1739,19 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                               Text(
                                 '02',
                                 style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.w800,
-                                  color: const Color(0xFF0F172A),
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w900,
+                                  color: const Color(0xFF5B21B6),
                                   height: 1,
                                 ),
                               ),
+                              const SizedBox(height: 2),
                               Text(
                                 'Kantong',
                                 style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 10,
+                                  fontSize: 10.5,
                                   color: const Color(0xFF94A3B8),
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ],
@@ -2094,8 +2187,10 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  ),
+);
+}
 
   // ─── Helper: exact blood stock card ───
   Widget _buildExactBloodStockCard(
@@ -2104,106 +2199,201 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
     bool isDimmed = false,
     VoidCallback? onTap,
   }) {
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
       child: AnimatedOpacity(
         duration: const Duration(milliseconds: 180),
         opacity: isDimmed ? 0.45 : 1.0,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: BoxDecoration(
             color: isSelected
-                ? (s.isDeficit ? const Color(0xFFFEE2E2) : const Color(0xFFFEF2F2))
-                : (s.isDeficit ? const Color(0xFFFEE2E2) : Colors.white),
-            borderRadius: BorderRadius.circular(14),
+                ? (s.isDeficit ? const Color(0xFFFFF1F2) : const Color(0xFFF0FDF4))
+                : (s.isDeficit ? const Color(0xFFFFF8F8) : Colors.white),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: isSelected
                   ? const Color(0xFFDC2626)
                   : s.isDeficit
                       ? const Color(0xFFFECACA)
                       : const Color(0xFFE2E8F0),
-              width: isSelected ? 2.2 : 1.0,
+              width: isSelected ? 2.0 : 1.2,
             ),
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: const Color(0xFFDC2626).withValues(alpha: 0.18),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
+                      color: const Color(0xFFDC2626).withValues(alpha: 0.16),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
                     ),
                   ]
-                : null,
+                : [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.02),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              // Row 1: Drop Icon + Blood Type + Status Badge
               Row(
                 children: [
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: s.isDeficit
+                          ? const Color(0xFFFEE2E2)
+                          : (s.status == 'AMAN' ? const Color(0xFFDCFCE7) : const Color(0xFFFEF3C7)),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    alignment: Alignment.center,
+                    child: Icon(
+                      Icons.water_drop_rounded,
+                      size: 18,
+                      color: s.isDeficit
+                          ? const Color(0xFFDC2626)
+                          : (s.status == 'AMAN' ? const Color(0xFF16A34A) : const Color(0xFFD97706)),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
                   Text(
                     s.type,
                     style: GoogleFonts.plusJakartaSans(
-                      fontSize: 16,
+                      fontSize: 18,
                       fontWeight: FontWeight.w800,
                       color: s.isDeficit ? const Color(0xFFDC2626) : const Color(0xFF0F172A),
                     ),
                   ),
                   if (isSelected) ...[
-                    const SizedBox(width: 5),
-                    const Icon(Icons.check_circle_rounded, size: 14, color: Color(0xFFDC2626)),
+                    const SizedBox(width: 4),
+                    const Icon(Icons.check_circle_rounded, size: 15, color: Color(0xFFDC2626)),
                   ],
                   const Spacer(),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                     decoration: BoxDecoration(
                       color: s.statusBg,
                       borderRadius: BorderRadius.circular(6),
                     ),
-                    child: Text(
-                      s.status,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 5,
+                          height: 5,
+                          decoration: BoxDecoration(
+                            color: s.statusTextColor,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          s.status,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w800,
+                            color: s.statusTextColor,
+                            letterSpacing: 0.3,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+
+              // Row 2: Large Count Number + "Kantong" + Capacity Text
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Text(
+                      s.count.toString().padLeft(2, '0'),
                       style: GoogleFonts.plusJakartaSans(
-                        fontSize: 9.5,
-                        fontWeight: FontWeight.w800,
-                        color: s.statusTextColor,
+                        fontSize: 26,
+                        fontWeight: FontWeight.w900,
+                        color: s.isDeficit ? const Color(0xFFDC2626) : const Color(0xFF0F172A),
+                        height: 1,
                       ),
                     ),
-                  ),
-                ],
-              ),
-              const Spacer(),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.baseline,
-                textBaseline: TextBaseline.alphabetic,
-                children: [
-                  Text(
-                    s.count.toString().padLeft(2, '0'),
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w800,
-                      color: s.isDeficit ? const Color(0xFFDC2626) : const Color(0xFF0F172A),
-                      height: 1,
+                    const SizedBox(width: 5),
+                    Text(
+                      'Kantong',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 11,
+                        color: const Color(0xFF64748B),
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    'Kantong',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 10.5,
-                      color: const Color(0xFF94A3B8),
-                      fontWeight: FontWeight.w500,
+                    const Spacer(),
+                    Text(
+                      s.capacityText,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: s.isDeficit ? const Color(0xFFDC2626) : const Color(0xFF64748B),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-              const SizedBox(height: 8),
+
+              // Row 3: Modern Progress Indicator
               ClipRRect(
-                borderRadius: BorderRadius.circular(3),
+                borderRadius: BorderRadius.circular(4),
                 child: LinearProgressIndicator(
                   value: s.progress,
-                  backgroundColor: const Color(0xFFE2E8F0),
+                  backgroundColor: const Color(0xFFF1F5F9),
                   valueColor: AlwaysStoppedAnimation<Color>(s.barColor),
-                  minHeight: 4,
+                  minHeight: 5,
                 ),
+              ),
+
+              // Row 4: Component Breakdown or Deficit Tag
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: s.isDeficit
+                    ? Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFEE2E2),
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.warning_amber_rounded, size: 12, color: Color(0xFFDC2626)),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Darurat • Butuh Pendonor',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.w800,
+                                color: const Color(0xFFDC2626),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : Text(
+                        s.components,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF64748B),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
               ),
             ],
           ),
@@ -2444,6 +2634,9 @@ class _BloodStockData {
   final double progress;
   final Color barColor;
   final bool isDeficit;
+  final String components;
+  final String capacityText;
+  final int target;
 
   const _BloodStockData({
     required this.type,
@@ -2454,6 +2647,9 @@ class _BloodStockData {
     required this.progress,
     required this.barColor,
     this.isDeficit = false,
+    this.components = '',
+    this.capacityText = '',
+    this.target = 50,
   });
 }
 

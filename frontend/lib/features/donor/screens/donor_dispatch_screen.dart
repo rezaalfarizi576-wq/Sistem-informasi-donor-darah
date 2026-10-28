@@ -35,7 +35,7 @@ class _DonorDispatchScreenState extends State<DonorDispatchScreen> {
 
   // Koordinat Lamongan untuk mini live tracking
   LatLng _donorPos = const LatLng(-7.1265, 112.4182);
-  LatLng _faskesPos = const LatLng(-7.119812, 112.415155);
+  LatLng _faskesPos = const LatLng(-7.1159, 112.4103);
   List<LatLng> _routePoints = [];
 
   @override

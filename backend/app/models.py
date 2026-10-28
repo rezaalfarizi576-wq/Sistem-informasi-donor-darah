@@ -119,6 +119,43 @@ class BloodRequest(Base):
             return self.facility.nama_faskes
         return "RSUD Dr. Soegiri Lamongan"
 
+    @property
+    def accepted_donor(self):
+        if not self.responses:
+            return None
+        for resp in self.responses:
+            if resp.status in ["diterima", "menuju_lokasi", "sampai"] and resp.donor:
+                return {
+                    "id": resp.donor.id,
+                    "nama": resp.donor.nama,
+                    "no_hp": resp.donor.no_hp,
+                    "blood_type": resp.donor.blood_type,
+                    "rhesus": resp.donor.rhesus,
+                    "status": resp.status,
+                    "kode_tiket": resp.kode_tiket,
+                }
+        return None
+
+    @property
+    def accepted_donors_count(self):
+        """Jumlah donor yang sudah menerima/menuju lokasi."""
+        if not self.responses:
+            return 0
+        return sum(
+            1 for resp in self.responses
+            if resp.status in ["diterima", "menuju_lokasi", "sampai"] and resp.donor
+        )
+
+    @property
+    def donor_name(self):
+        donor = self.accepted_donor
+        return donor["nama"] if donor else None
+
+    @property
+    def donor_phone(self):
+        donor = self.accepted_donor
+        return donor["no_hp"] if donor else None
+
 
 class DonationResponse(Base):
     """Respon donor terhadap permintaan darah (tabel `request_responses`)."""
