@@ -67,7 +67,7 @@ class AppRouter {
 
       case liveTrackingRoute:
       case requesterPantauRoute:
-        final requestId = settings.arguments as String? ?? '1';
+        final requestId = settings.arguments as String?;
         return MaterialPageRoute(
           builder: (_) => RequesterTrackingScreen(requestId: requestId),
         );

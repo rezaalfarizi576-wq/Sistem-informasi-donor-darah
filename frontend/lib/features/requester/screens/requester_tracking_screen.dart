@@ -92,41 +92,49 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
   }
 
   Future<void> _initScreenData() async {
-    final reqIdStr = widget.requestId ?? '1';
-
-    // 1. Hubungkan WebSocket untuk pelacakan live dari relawan
-    _trackingRepo.startTracking(reqIdStr);
-    _locationSubscription = _trackingRepo.locationStream?.listen((data) {
-      if (data is Map && mounted) {
-        if (data.containsKey('latitude') && data.containsKey('longitude')) {
-          final lat = (data['latitude'] as num).toDouble();
-          final lng = (data['longitude'] as num).toDouble();
-          setState(() {
-            _volunteerLocation = LatLng(lat, lng);
-          });
-        }
-      }
-    });
-
-    // 2. Ambil data permohonan darah
+    // 1. Ambil data permohonan darah milik user
     try {
       BloodRequestModel? req;
+      final myReqs = await _requestRepo.getMyRequests();
+
       if (widget.requestId != null && int.tryParse(widget.requestId!) != null) {
-        req = await _requestRepo.getRequestById(int.parse(widget.requestId!));
-      } else {
-        final allReqs = await _requestRepo.getRequests();
-        if (allReqs.isNotEmpty) {
-          req = allReqs.firstWhere(
+        final targetId = int.parse(widget.requestId!);
+        try {
+          req = myReqs.firstWhere((r) => r.id == targetId);
+        } catch (_) {
+          req = null;
+        }
+      }
+
+      if (req == null && myReqs.isNotEmpty) {
+        try {
+          req = myReqs.firstWhere(
             (r) => r.status == 'diproses' || r.status == 'menunggu' || r.urgencyLevel == 'kritis',
-            orElse: () => allReqs.first,
           );
+        } catch (_) {
+          req = null;
         }
       }
 
       if (mounted && req != null) {
+        final activeReq = req;
         setState(() {
-          _activeRequest = req;
-          _hospitalName = req!.hospitalName ?? 'RSUD Dr. Soegiri';
+          _activeRequest = activeReq;
+          _hospitalName = activeReq.hospitalName ?? 'RSUD Dr. Soegiri';
+        });
+
+        // Hubungkan WebSocket untuk pelacakan live HANYA JIKA ada permohonan aktif
+        _trackingRepo.startTracking(activeReq.id.toString());
+        _locationSubscription = _trackingRepo.locationStream?.listen((data) {
+          if (data is Map && mounted) {
+            if (data.containsKey('latitude') && data.containsKey('longitude')) {
+              final lat = (data['latitude'] as num).toDouble();
+              final lng = (data['longitude'] as num).toDouble();
+              setState(() {
+                _volunteerLocation = LatLng(lat, lng);
+              });
+            }
+          }
         });
       }
     } catch (_) {}
@@ -237,7 +245,10 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
                           _buildHeader(),
                           const SizedBox(height: 12),
 
-                          if (!hasDonor) ...[
+                          if (_activeRequest == null) ...[
+                            // ─── KONDISI BELUM ADA PERMOHONAN AKTIF (EMPTY STATE) ───
+                            _buildEmptyTrackingState(),
+                          ] else if (!hasDonor) ...[
                             // ─── KONDISI BELUM ADA PEN DONOR (STATUS: MENUNGGU) ───
                             _buildSearchingBanner(),
                             const SizedBox(height: 12),
@@ -284,6 +295,206 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
 
       // ─── BOTTOM NAVIGATION BAR (PERMOHONAN, PANTAU, PROFIL) ───
       bottomNavigationBar: _buildBottomNavigationBar(),
+    );
+  }
+
+  // ─── EMPTY STATE: BELUM ADA PERMOHONAN AKTIF ───
+  Widget _buildEmptyTrackingState() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // Icon radar siaga
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              color: const Color(0xFFFEF2F2),
+              shape: BoxShape.circle,
+              border: Border.all(color: const Color(0xFFFCA5A5), width: 1.5),
+            ),
+            child: const Center(
+              child: Icon(
+                Icons.radar_rounded,
+                color: Color(0xFFDC2626),
+                size: 40,
+              ),
+            ),
+          ),
+          const SizedBox(height: 18),
+
+          Text(
+            'Belum Ada Pantauan Aktif',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 18,
+              fontWeight: FontWeight.w900,
+              color: const Color(0xFF0F172A),
+              letterSpacing: -0.2,
+            ),
+          ),
+          const SizedBox(height: 8),
+
+          Text(
+            'Saat ini akun Anda belum memiliki permohonan darah darurat yang sedang diproses. Silakan buat permohonan baru untuk mulai menyebarkan sinyal darurat ke relawan pendonor siaga terdekat.',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 12.5,
+              color: const Color(0xFF64748B),
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 22),
+
+          // Tombol Buat Permohonan
+          ElevatedButton.icon(
+            onPressed: () => _onBottomNavTapped(0),
+            icon: const Icon(Icons.add_circle_outline_rounded, size: 18, color: Colors.white),
+            label: Text(
+              'Buat Permohonan Darah Baru',
+              style: GoogleFonts.plusJakartaSans(
+                fontWeight: FontWeight.w800,
+                fontSize: 13,
+                color: Colors.white,
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFDC2626),
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
+
+          const SizedBox(height: 28),
+          const Divider(height: 1, color: Color(0xFFF1F5F9)),
+          const SizedBox(height: 20),
+
+          // Alur Pantauan Siaga
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              'Cara Kerja Pantauan Siaga PMI Lamongan',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+                color: const Color(0xFF1E293B),
+              ),
+            ),
+          ),
+          const SizedBox(height: 14),
+
+          _buildStepRow(
+            step: '1',
+            title: 'Kirim Permohonan Darurat',
+            desc: 'Isi formulir kebutuhan kantong darah, faskes penyerahan, dan unggah surat dokter.',
+          ),
+          const SizedBox(height: 12),
+          _buildStepRow(
+            step: '2',
+            title: 'Sinyal Darurat Dipancarkan',
+            desc: 'Posko UDD PMI Lamongan memverifikasi dan menyiagakan pendonor di radius terdekat.',
+          ),
+          const SizedBox(height: 12),
+          _buildStepRow(
+            step: '3',
+            title: 'Pantau GPS Relawan Live',
+            desc: 'Saat pendonor bersedia, posisi relawan menuju RS dapat dipantau langsung di peta radar.',
+          ),
+
+          const SizedBox(height: 20),
+          // Bantuan Posko Box
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.phone_in_talk_rounded, color: Color(0xFFDC2626), size: 20),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Butuh darah mendesak? Hubungi Posko Siaga UDD PMI Lamongan: (0322) 321118',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF334155),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStepRow({required String step, required String title, required String desc}) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 24,
+          height: 24,
+          decoration: BoxDecoration(
+            color: const Color(0xFFFEE2E2),
+            shape: BoxShape.circle,
+            border: Border.all(color: const Color(0xFFEF4444), width: 1),
+          ),
+          child: Center(
+            child: Text(
+              step,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 11,
+                fontWeight: FontWeight.w900,
+                color: const Color(0xFFDC2626),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF0F172A),
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                desc,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 11,
+                  color: const Color(0xFF64748B),
+                  height: 1.35,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 

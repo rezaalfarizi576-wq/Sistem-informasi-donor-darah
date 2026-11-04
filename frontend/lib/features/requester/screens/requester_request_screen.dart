@@ -67,12 +67,16 @@ class _RequesterRequestScreenState extends State<RequesterRequestScreen> {
 
   Future<void> _loadRequestData() async {
     try {
-      final requests = await _requestRepo.getRequests();
+      final requests = await _requestRepo.getMyRequests();
       if (requests.isNotEmpty) {
-        final active = requests.firstWhere(
-          (r) => r.status == 'diproses' || r.status == 'menunggu' || r.urgencyLevel == 'kritis',
-          orElse: () => requests.first,
-        );
+        BloodRequestModel? active;
+        try {
+          active = requests.firstWhere(
+            (r) => r.status == 'diproses' || r.status == 'menunggu' || r.urgencyLevel == 'kritis',
+          );
+        } catch (_) {
+          active = null;
+        }
         if (mounted) {
           setState(() {
             _activeRequest = active;
@@ -80,7 +84,12 @@ class _RequesterRequestScreenState extends State<RequesterRequestScreen> {
           });
         }
       } else {
-        if (mounted) setState(() => _isLoading = false);
+        if (mounted) {
+          setState(() {
+            _activeRequest = null;
+            _isLoading = false;
+          });
+        }
       }
     } catch (_) {
       if (mounted) setState(() => _isLoading = false);
@@ -237,7 +246,7 @@ class _RequesterRequestScreenState extends State<RequesterRequestScreen> {
       if (widget.onNavigateToTracking != null) {
         widget.onNavigateToTracking!();
       } else {
-        final reqId = _activeRequest?.id.toString() ?? '1';
+        final reqId = _activeRequest?.id.toString();
         Navigator.pushReplacementNamed(
           context,
           AppRouter.requesterPantauRoute,
@@ -1371,7 +1380,135 @@ class _RequesterRequestScreenState extends State<RequesterRequestScreen> {
 
   // ─── 2. Hero Banner: Respon Cepat Tanggap / Memindai ───
   Widget _buildHeroResponseBanner({required String hospital}) {
-    final hasDonor = _activeRequest?.hasAcceptedDonor == true;
+    final reqStatus = _activeRequest?.status.toLowerCase() ?? 'menunggu';
+    final hasDonor = (_activeRequest?.hasAcceptedDonor == true) || ((_activeRequest?.acceptedDonorsCount ?? 0) > 0);
+    final isPendingAdmin = reqStatus == 'menunggu';
+
+    if (isPendingAdmin) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFFFBEB),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFFDE68A)),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFFD97706).withValues(alpha: 0.08),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFD97706),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 6,
+                        height: 6,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFFEF3C7),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        'MENUNGGU VERIFIKASI ADMIN',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                          letterSpacing: 0.3,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Text(
+                  'Ref: PMI/LMG-${_activeRequest?.id ?? "001"}',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF92400E),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Permohonan Terkirim • Menunggu Verifikasi',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 14.5,
+                fontWeight: FontWeight.w900,
+                color: const Color(0xFF78350F),
+                height: 1.25,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Data pasien dan kebutuhan darah sedang divalidasi oleh petugas Posko UDD PMI Lamongan sebelum disiarkan ke relawan.',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF92400E),
+                height: 1.3,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.9),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.hourglass_top_rounded, size: 18, color: Color(0xFFD97706)),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Status: Menunggu Persetujuan Admin Posko',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        color: const Color(0xFF78350F),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFEF3C7),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: const Color(0xFFFDE68A)),
+                    ),
+                    child: Text(
+                      'MENUNGGU',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 9,
+                        fontWeight: FontWeight.w900,
+                        color: const Color(0xFFB45309),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
 
     if (!hasDonor) {
       return Container(
@@ -1425,7 +1562,7 @@ class _RequesterRequestScreenState extends State<RequesterRequestScreen> {
                   ),
                 ),
                 Text(
-                  'Ref: PMI/LMG-${_activeRequest?.id ?? "9921"}',
+                  'Ref: PMI/LMG-${_activeRequest?.id ?? "001"}',
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
@@ -1436,7 +1573,7 @@ class _RequesterRequestScreenState extends State<RequesterRequestScreen> {
             ),
             const SizedBox(height: 10),
             Text(
-              'Permohonan Disiarkan • Menunggu Konfirmasi',
+              'Permohonan Disetujui • Menyiagakan Relawan',
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 14.5,
                 fontWeight: FontWeight.w900,
@@ -1446,7 +1583,7 @@ class _RequesterRequestScreenState extends State<RequesterRequestScreen> {
             ),
             const SizedBox(height: 4),
             Text(
-              'Permintaan sedang disiarkan ke relawan donor siaga terdekat di Lamongan. Belum ada pendonor yang mengonfirmasi.',
+              'Permintaan telah disetujui admin dan sedang disiarkan ke relawan donor siaga terdekat di Lamongan. Belum ada pendonor yang mengonfirmasi.',
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
@@ -1482,7 +1619,7 @@ class _RequesterRequestScreenState extends State<RequesterRequestScreen> {
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
-                      'MENUNGGU',
+                      'DIPROSES',
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 9,
                         fontWeight: FontWeight.w900,
@@ -1627,6 +1764,36 @@ class _RequesterRequestScreenState extends State<RequesterRequestScreen> {
 
   // ─── 3. Card: Progres Distribusi Darurat (Timeline Tracker) ───
   Widget _buildDistributionTimelineCard() {
+    final status = _activeRequest?.status.toLowerCase() ?? 'menunggu';
+    final isApproved = status == 'diproses' || status == 'selesai';
+    final isDoneAll = status == 'selesai';
+    final hasDonor = (_activeRequest?.hasAcceptedDonor == true) || ((_activeRequest?.acceptedDonorsCount ?? 0) > 0);
+    final donorsCount = _activeRequest?.acceptedDonorsCount ?? 0;
+    final hospital = _activeRequest?.hospitalName ?? 'RSUD Dr. Soegiri Lamongan';
+
+    // Estimasi / Status Badge
+    String estText;
+    Color estBgColor;
+    Color estTextColor;
+
+    if (isDoneAll) {
+      estText = 'SELESAI';
+      estBgColor = const Color(0xFFDCFCE7);
+      estTextColor = const Color(0xFF15803D);
+    } else if (hasDonor) {
+      estText = 'EST. 12 MENIT';
+      estBgColor = const Color(0xFFFEE2E2);
+      estTextColor = const Color(0xFFDC2626);
+    } else if (isApproved) {
+      estText = 'MEMINDAI RELAWAN';
+      estBgColor = const Color(0xFFEFF6FF);
+      estTextColor = const Color(0xFF2563EB);
+    } else {
+      estText = 'MENUNGGU VERIFIKASI';
+      estBgColor = const Color(0xFFFEF3C7);
+      estTextColor = const Color(0xFFB45309);
+    }
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -1674,15 +1841,15 @@ class _RequesterRequestScreenState extends State<RequesterRequestScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFEE2E2),
+                  color: estBgColor,
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
-                  'EST. 12 MENIT',
+                  estText,
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 9.5,
                     fontWeight: FontWeight.w900,
-                    color: const Color(0xFFDC2626),
+                    color: estTextColor,
                   ),
                 ),
               ),
@@ -1691,41 +1858,66 @@ class _RequesterRequestScreenState extends State<RequesterRequestScreen> {
           const SizedBox(height: 16),
 
           // Stepper Items
+          // Step 1: Formulir Diajukan (Tercatat)
           _buildTimelineStep(
             isDone: true,
             title: 'Formulir Diajukan',
-            time: '10:15 WIB',
-            description: 'Data pasien & resep darah tercatat di sistem PMI Lamongan',
+            time: 'Tercatat',
+            description: 'Data pasien & kebutuhan darah tercatat di sistem PMI Lamongan',
             showLine: true,
           ),
+
+          // Step 2: Verifikasi Dokter & Admin PMI
           _buildTimelineStep(
-            isDone: true,
+            isDone: isApproved,
+            isActive: !isApproved && status != 'ditolak',
             title: 'Verifikasi Dokter & Admin PMI',
-            time: '10:20 WIB',
-            description: 'Tervalidasi dr. Andri Kusuma, Sp.PD (BDRS Soegiri)',
+            time: isApproved ? 'Telah Diverifikasi' : 'Menunggu Persetujuan',
+            description: isApproved
+                ? 'Tervalidasi & disetujui oleh Posko UDD PMI Lamongan'
+                : 'Menunggu validasi data resep & persetujuan petugas Posko PMI',
             showLine: true,
           ),
+
+          // Step 3: Radar Dispatch Relawan
           _buildTimelineStep(
-            isDone: true,
+            isDone: isApproved && hasDonor,
+            isActive: isApproved && !hasDonor,
             title: 'Radar Dispatch Relawan',
-            time: '10:25 WIB',
-            description: '2 relawan cocok langsung menyetujui panggilan darurat',
+            time: (isApproved && hasDonor)
+                ? 'Relawan Terhubung'
+                : (isApproved ? 'Sedang Memindai' : 'Menunggu'),
+            description: (isApproved && hasDonor)
+                ? '$donorsCount relawan siap membantu kebutuhan pasien'
+                : (isApproved
+                    ? 'Sinyal darurat disiarkan ke relawan donor siaga terdekat'
+                    : 'Sinyal darurat akan disiarkan setelah disetujui admin PMI'),
             showLine: true,
           ),
+
+          // Step 4: Perjalanan Relawan
           _buildTimelineStep(
-            isDone: false,
-            isActive: true,
+            isDone: isDoneAll,
+            isActive: isApproved && hasDonor && !isDoneAll,
             title: 'Perjalanan Relawan',
-            time: 'Sedang Berlangsung',
-            description: 'Jarak terdekat 1.8 km — Estimasi tiba di lobi BDRS: 8-12 menit',
+            time: isDoneAll
+                ? 'Tiba di RS'
+                : (hasDonor ? 'Sedang Berlangsung' : 'Menunggu'),
+            description: hasDonor
+                ? 'Relawan sedang dalam perjalanan menuju $hospital'
+                : 'Menunggu konfirmasi relawan pendonor',
             showLine: true,
           ),
+
+          // Step 5: Pengambilan Sampel & Transfusi
           _buildTimelineStep(
-            isDone: false,
+            isDone: isDoneAll,
             isActive: false,
             title: 'Pengambilan Sampel & Transfusi',
-            time: 'Menunggu',
-            description: 'Pemeriksaan crossmatch akhir di BDRS sebelum injeksi',
+            time: isDoneAll ? 'Selesai' : 'Menunggu',
+            description: isDoneAll
+                ? 'Proses donor & penyerahan darah telah selesai'
+                : 'Pemeriksaan crossmatch akhir di BDRS sebelum injeksi',
             showLine: false,
           ),
         ],
@@ -2624,7 +2816,7 @@ class _RequesterRequestScreenState extends State<RequesterRequestScreen> {
       height: 48,
       child: ElevatedButton(
         onPressed: () {
-          final reqId = _activeRequest?.id.toString() ?? '1';
+          final reqId = _activeRequest?.id.toString();
           Navigator.pushNamed(
             context,
             AppRouter.requesterPantauRoute,

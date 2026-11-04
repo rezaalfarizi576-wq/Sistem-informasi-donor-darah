@@ -177,6 +177,21 @@ def get_all_blood_requests(
     )
 
 
+@requests_router.get("/my", response_model=List[BloodRequestResponse])
+def get_my_blood_requests(
+    status_filter: Optional[str] = Query(None, alias="status"),
+    db: Session = Depends(get_db),
+    user: Optional[User] = Depends(get_current_user_optional),
+):
+    """Melihat permohonan darah milik pengguna yang sedang login."""
+    if not user:
+        return []
+    query = db.query(BloodRequest).filter(BloodRequest.requester_id == user.id)
+    if status_filter:
+        query = query.filter(BloodRequest.status == status_filter)
+    return query.order_by(BloodRequest.created_at.desc()).all()
+
+
 @router.put("/requests/{request_id}", response_model=BloodRequestResponse)
 @requests_router.put("/{request_id}", response_model=BloodRequestResponse)
 def update_blood_request_status(

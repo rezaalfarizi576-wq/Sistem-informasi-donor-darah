@@ -20,6 +20,15 @@ class BloodRequestRepository {
     return [];
   }
 
+  Future<List<BloodRequestModel>> getMyRequests({String? status}) async {
+    final endpoint = status != null ? '/requests/my?status=$status' : '/requests/my';
+    final response = await _apiClient.get(endpoint);
+    if (response is List) {
+      return response.map((item) => BloodRequestModel.fromJson(item)).toList();
+    }
+    return [];
+  }
+
   Future<BloodRequestModel> getRequestById(int requestId) async {
     final response = await _apiClient.get('/requests/$requestId');
     return BloodRequestModel.fromJson(response);

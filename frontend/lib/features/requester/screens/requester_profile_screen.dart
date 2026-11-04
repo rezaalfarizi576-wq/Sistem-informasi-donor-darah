@@ -5,7 +5,7 @@ import '../../../data/models/user_model.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../../data/repositories/blood_request_repository.dart';
 import '../../../routes/app_router.dart';
-import '../../donor/screens/notification_screen.dart';
+import 'requester_notification_screen.dart';
 
 class RequesterProfileScreen extends StatefulWidget {
   final VoidCallback? onNavigateToForm;
@@ -40,15 +40,18 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
   Future<void> _loadProfileData() async {
     try {
       final user = await _authRepo.getCurrentUser();
-      final requests = await _requestRepo.getRequests();
+      final requests = await _requestRepo.getMyRequests();
 
       BloodRequestModel? activeReq;
       if (requests.isNotEmpty) {
-        // Cari permintaan yang sedang aktif atau yang paling baru
-        activeReq = requests.firstWhere(
-          (r) => r.status == 'diproses' || r.status == 'menunggu' || r.urgencyLevel == 'kritis',
-          orElse: () => requests.first,
-        );
+        // Cari permintaan yang sedang aktif
+        try {
+          activeReq = requests.firstWhere(
+            (r) => r.status == 'diproses' || r.status == 'menunggu' || r.urgencyLevel == 'kritis',
+          );
+        } catch (_) {
+          activeReq = null;
+        }
       }
 
       if (mounted) {
@@ -90,22 +93,22 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
       return username;
     }
 
-    return 'Dimas Prayoga';
+    return 'Pemohon Siaga';
   }
 
   /// Format alamat email
   String _resolveEmail() {
     final email = _currentUser?.email.trim() ?? '';
-    return email.isNotEmpty ? email : 'dimas@example.com';
+    return email.isNotEmpty ? email : '-';
   }
 
-  /// Nama pasien yang valid (tidak menampilkan placeholder 'string')
+  /// Nama pasien yang valid
   String _resolvePatientName() {
     final reqName = _activeRequest?.patientName.trim() ?? '';
     if (reqName.isNotEmpty && reqName.toLowerCase() != 'string') {
       return reqName;
     }
-    return 'Satriatama Bisma Yodha';
+    return _currentUser?.name ?? 'Pasien Darurat';
   }
 
   void _onBottomNavTapped(int index) {
@@ -123,7 +126,7 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
       if (widget.onNavigateToStatus != null) {
         widget.onNavigateToStatus!();
       } else {
-        final reqId = _activeRequest?.id.toString() ?? '1';
+        final reqId = _activeRequest?.id.toString();
         Navigator.pushReplacementNamed(context, AppRouter.requesterPantauRoute, arguments: reqId);
       }
     }
@@ -134,14 +137,14 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
     final displayName = _resolveDisplayName();
     final userEmail = _resolveEmail();
     final patientName = _resolvePatientName();
-    final bloodType = _activeRequest?.bloodType ?? 'B';
-    final rhesus = _activeRequest?.rhesus ?? '+';
+    final bloodType = _currentUser?.bloodType ?? _activeRequest?.bloodType ?? 'A';
+    final rhesus = _currentUser?.rhesus ?? _activeRequest?.rhesus ?? '+';
     final hospital = _activeRequest?.hospitalName ?? 'RSUD Dr. Soegiri Lamongan';
-    final bagsNeeded = _activeRequest?.bagsNeeded ?? 1;
-    final phone = _currentUser?.phone ?? '089577556823';
-    final nik = (_currentUser?.nik.isNotEmpty == true && _currentUser!.nik.toLowerCase() != 'string')
-        ? _currentUser!.nik
-        : '3524021908920001';
+    final bagsNeeded = _activeRequest?.bagsNeeded ?? 0;
+    final rawPhone = _currentUser?.phone?.trim() ?? '';
+    final phone = (rawPhone.isNotEmpty && rawPhone.toLowerCase() != 'string') ? rawPhone : '-';
+    final rawNik = _currentUser?.nik?.trim() ?? '';
+    final nik = (rawNik.isNotEmpty && rawNik.toLowerCase() != 'string') ? rawNik : '-';
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -183,29 +186,36 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
 
                         const SizedBox(height: 14),
 
-                        // ── 4. STATUS PERMOHONAN & KEBUTUHAN DARAH ──
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: _buildEmergencyStatusCard(
-                            bagsNeeded: bagsNeeded,
-                            bloodType: bloodType,
-                            rhesus: rhesus,
-                            hospital: hospital,
+                        // ── 4 & 5. STATUS PERMOHONAN & DATA PASIEN (HANYA JIKA ADA REQUEST AKTIF) ──
+                        if (_activeRequest != null) ...[
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: _buildEmergencyStatusCard(
+                              bagsNeeded: bagsNeeded,
+                              bloodType: bloodType,
+                              rhesus: rhesus,
+                              hospital: hospital,
+                            ),
                           ),
-                        ),
+                          const SizedBox(height: 14),
 
-                        const SizedBox(height: 14),
-
-                        // ── 5. CARD DATA PASIEN & DIAGNOSIS MEDIS ──
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: _buildPatientDataCard(
-                            patientName: patientName,
-                            hospital: hospital,
-                            bloodType: bloodType,
-                            rhesus: rhesus,
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: _buildPatientDataCard(
+                              patientName: patientName,
+                              hospital: hospital,
+                              bloodType: bloodType,
+                              rhesus: rhesus,
+                            ),
                           ),
-                        ),
+                          const SizedBox(height: 14),
+                        ] else ...[
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: _buildNoActiveRequestCard(),
+                          ),
+                          const SizedBox(height: 14),
+                        ],
 
                         const SizedBox(height: 14),
 
@@ -299,7 +309,7 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => const NotificationScreen(),
+                      builder: (_) => const RequesterNotificationScreen(),
                     ),
                   );
                 },
@@ -498,7 +508,7 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            '• ID: REQ-${_currentUser?.id ?? 155}',
+                            '• ID: REQ-${_currentUser?.id ?? ''}',
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 11,
                               color: const Color(0xFF94A3B8),
@@ -704,6 +714,89 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
   }
 
   // ── 4. STATUS PERMOHONAN & KEBUTUHAN DARAH (Identik dengan Indeks Kebugaran Donor) ──
+  // ─── CARD EMPTY STATE KHUSUS PEMOHON TANPA PERMOHONAN AKTIF ───
+  Widget _buildNoActiveRequestCard() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.assignment_outlined, color: Color(0xFFDC2626), size: 20),
+              const SizedBox(width: 8),
+              Text(
+                'Status Permohonan Darah',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF0F172A),
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF1F5F9),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  'TIDAK ADA PERMINTAAN AKTIF',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 9,
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF64748B),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Saat ini akun Anda belum memiliki permohonan darah darurat yang sedang berjalan di rumah sakit.',
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 12,
+              color: const Color(0xFF64748B),
+              height: 1.45,
+            ),
+          ),
+          const SizedBox(height: 14),
+          ElevatedButton.icon(
+            onPressed: () => _onBottomNavTapped(0),
+            icon: const Icon(Icons.add_circle_outline_rounded, size: 16, color: Colors.white),
+            label: Text(
+              'Buat Permohonan Darah Baru',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+                color: Colors.white,
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFDC2626),
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildEmergencyStatusCard({
     required int bagsNeeded,
     required String bloodType,
@@ -943,13 +1036,16 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
               children: [
                 _buildPatientInfoRow('Nama Pasien', patientName, isHighlight: true),
                 const SizedBox(height: 6),
-                _buildPatientInfoRow('Usia / Gender', '28 Tahun • Laki-laki'),
-                const SizedBox(height: 6),
                 _buildPatientInfoRow('Rumah Sakit', hospital),
                 const SizedBox(height: 6),
-                _buildPatientInfoRow('Diagnosis Medis', 'Operasi Emergensi & Anemia Gravis'),
+                _buildPatientInfoRow('Kebutuhan Darah', '${_activeRequest?.bagsNeeded ?? 1} Kantong ($bloodType$rhesus)'),
                 const SizedBox(height: 6),
-                _buildPatientInfoRow('Dokter Penanggung', 'dr. Andri Kusuma, Sp.PD (BDRS)'),
+                _buildPatientInfoRow(
+                  'Catatan Medis',
+                  (_activeRequest?.notes?.isNotEmpty == true && _activeRequest!.notes!.toLowerCase() != 'string')
+                      ? _activeRequest!.notes!
+                      : 'Permohonan Darah Siaga Emergensi RS',
+                ),
               ],
             ),
           ),
@@ -990,6 +1086,9 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
 
   // ── 6. STATISTIK PERMOHONAN DARAH (Identik Statistik Kontribusi Jiwa Donor) ──
   Widget _buildStatisticsCard() {
+    final bags = _activeRequest?.bagsNeeded ?? 0;
+    final donorsCount = _activeRequest?.acceptedDonorsCount ?? 0;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -1035,7 +1134,7 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
 
           const SizedBox(height: 12),
 
-          // 2 Card Metrik Besar (Identik Donor)
+          // 2 Card Metrik Pemohon Darah
           Row(
             children: [
               Expanded(
@@ -1052,7 +1151,7 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
                       const Icon(Icons.water_drop_rounded, color: Color(0xFFDC2626), size: 20),
                       const SizedBox(height: 8),
                       Text(
-                        '4.200',
+                        '$bags',
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 22,
                           fontWeight: FontWeight.w900,
@@ -1062,7 +1161,7 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Mililiter (4.2 L)\nTerfasilitasi',
+                        'Kantong Darah\nDibutuhkan',
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 10.5,
                           color: const Color(0xFF64748B),
@@ -1088,7 +1187,7 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
                       const Icon(Icons.volunteer_activism_rounded, color: Color(0xFF059669), size: 20),
                       const SizedBox(height: 8),
                       Text(
-                        '100%',
+                        '$donorsCount',
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 22,
                           fontWeight: FontWeight.w900,
@@ -1098,7 +1197,7 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Pemenuhan Kebutuhan\nPasien Darurat',
+                        'Relawan Siaga\nMenuju RS',
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 10.5,
                           color: const Color(0xFF64748B),
