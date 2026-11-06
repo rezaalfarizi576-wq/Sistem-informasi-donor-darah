@@ -158,20 +158,14 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
       if (mounted && route.points.isNotEmpty) {
         setState(() {
           _routePoints = route.points;
-          final idx = (_simProgress * (_routePoints.length - 1)).toInt();
-          _volunteerLocation = _routePoints[idx];
+          _volunteerLocation = _routingService.getPointAlongRoute(_routePoints, _simProgress);
         });
       }
     } catch (_) {
       if (mounted) {
         setState(() {
-          _routePoints = [
-            _startDonorLocation,
-            const LatLng(-7.128000, 112.418200),
-            const LatLng(-7.120000, 112.412000),
-            _hospitalLocation,
-          ];
-          _volunteerLocation = const LatLng(-7.120000, 112.412000);
+          _routePoints = List<LatLng>.from(RoutingService.defaultLamonganRoad);
+          _volunteerLocation = _routingService.getPointAlongRoute(_routePoints, _simProgress);
         });
       }
     }
@@ -179,20 +173,20 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
 
   void _startSmoothSimulation() {
     _simTimer?.cancel();
-    _simTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
+    _simTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
       if (!mounted || _routePoints.length < 2) return;
 
-      _simProgress += 0.04;
-      if (_simProgress >= 0.95) {
-        _simProgress = 0.92;
+      _simProgress += 0.025;
+      if (_simProgress >= 0.96) {
+        _simProgress = 0.95;
       }
 
-      final index = (_simProgress * (_routePoints.length - 1)).clamp(0, _routePoints.length - 1).toInt();
-      final currentPos = _routePoints[index];
+      // Pastikan posisi selalu tepat berada di atas garis rute jalan riil
+      final currentPos = _routingService.getPointAlongRoute(_routePoints, _simProgress);
 
       setState(() {
         _volunteerLocation = currentPos;
-        final remDist = (1.4 * (1.0 - _simProgress)).clamp(0.2, 1.4);
+        final remDist = (1.4 * (1.0 - _simProgress)).clamp(0.1, 1.4);
         _distanceKm = '${remDist.toStringAsFixed(1)} km';
         final remMnt = (6 * (1.0 - _simProgress)).ceil().clamp(1, 6);
         _etaMinutes = '~$remMnt Menit';
@@ -1345,18 +1339,22 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
                     ),
                   ),
 
-                  // Marker Relawan (Motor Merah + Badge Budi O+)
+                  // Marker Relawan (Motor Merah berpusat tepat di jalur rute + Badge Nama)
                   Marker(
                     point: _volunteerLocation,
-                    width: 100,
-                    height: 48,
-                    alignment: Alignment.centerLeft,
+                    width: 34,
+                    height: 34,
+                    alignment: Alignment.center,
                     child: AnimatedBuilder(
                       animation: _pulseAnimation,
                       builder: (context, child) {
-                        return Row(
-                          mainAxisSize: MainAxisSize.min,
+                        final displayName = _activeRequest?.donorName?.split(' ').first ?? 'Relawan';
+                        final goldar = '${_activeRequest?.bloodType ?? "O"}${_activeRequest?.rhesus ?? "+"}';
+                        return Stack(
+                          clipBehavior: Clip.none,
+                          alignment: Alignment.center,
                           children: [
+                            // Lingkaran Motor Merah (Tepat Center di Garis Jalan)
                             Container(
                               width: 32,
                               height: 32,
@@ -1373,19 +1371,28 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
                               ),
                               child: const Icon(Icons.two_wheeler_rounded, color: Colors.white, size: 17),
                             ),
-                            const SizedBox(width: 4),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF0F172A),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                '${_activeRequest?.donorName?.split(" ").first ?? "Relawan"} (${_activeRequest?.bloodType ?? "O"}+)',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 9.5,
-                                  fontWeight: FontWeight.w800,
-                                  color: Colors.white,
+                            // Badge Nama Relawan di sebelah kanan
+                            Positioned(
+                              left: 36,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF0F172A),
+                                  borderRadius: BorderRadius.circular(6),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.25),
+                                      blurRadius: 3,
+                                    ),
+                                  ],
+                                ),
+                                child: Text(
+                                  '$displayName ($goldar)',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 9.5,
+                                    fontWeight: FontWeight.w800,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                             ),

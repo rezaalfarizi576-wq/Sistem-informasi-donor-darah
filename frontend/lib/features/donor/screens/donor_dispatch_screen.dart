@@ -9,6 +9,7 @@ import '../../../data/models/dispatch_ticket_model.dart';
 import '../../../data/repositories/donor_repository.dart';
 import '../../../routes/app_router.dart';
 import 'notification_screen.dart';
+import 'donor_profile_screen.dart';
 
 class DonorDispatchScreen extends StatefulWidget {
   final VoidCallback? onNavigateToRadar;
@@ -129,6 +130,15 @@ class _DonorDispatchScreenState extends State<DonorDispatchScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Row(
                   children: [
+                    if (Navigator.canPop(context)) ...[
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF0F172A), size: 22),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
                     Container(
                       width: 38,
                       height: 38,
@@ -197,7 +207,18 @@ class _DonorDispatchScreenState extends State<DonorDispatchScreen> {
                     const SizedBox(width: 12),
                     // Profile avatar
                     GestureDetector(
-                      onTap: widget.onNavigateToProfile,
+                      onTap: () {
+                        if (widget.onNavigateToProfile != null) {
+                          widget.onNavigateToProfile!();
+                        } else {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const DonorProfileScreen(),
+                            ),
+                          );
+                        }
+                      },
                       child: Container(
                         width: 36,
                         height: 36,

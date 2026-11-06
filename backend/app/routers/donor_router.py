@@ -481,6 +481,10 @@ def confirm_donor_arrival(
         )
         db.add(resp)
 
+    # Otomatis tandai permohonan darah selesai karena relawan telah sampai & mendonor
+    if req:
+        req.status = "selesai"
+
     db.flush()
 
     # Otomatis catat di DonationHistory jika belum ada

@@ -39,6 +39,12 @@ class BloodRequestRepository {
     return response as Map<String, dynamic>;
   }
 
+  Future<void> updateRequestStatus(int requestId, String status) async {
+    try {
+      await _apiClient.put('/requests/' + requestId.toString(), body: {'status': status});
+    } catch (_) {}
+  }
+
   /// Mengambil permohonan darah darurat yang berada dalam radius 5 - 10 km dari posisi donor
   Future<List<BloodRequestModel>> getNearbyRequests({
     double? lat,

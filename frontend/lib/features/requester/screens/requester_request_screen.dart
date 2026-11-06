@@ -603,6 +603,8 @@ class _RequesterRequestScreenState extends State<RequesterRequestScreen> {
 
         // ─── 7. TOMBOL MERAH: PANTAU LOKASI RELAWAN ───
         _buildLiveTrackingButton(),
+        const SizedBox(height: 10),
+        _buildCompleteAndNewButton(),
       ],
     );
   }
@@ -1340,20 +1342,43 @@ class _RequesterRequestScreenState extends State<RequesterRequestScreen> {
         ),
         const Spacer(),
         // Tombol Switch Mode Cepat
-        if (_activeRequest != null)
-          IconButton(
-            tooltip: _permohonanViewMode == 0 ? 'Lihat Status Terkini' : 'Buka Form Permohonan',
-            onPressed: () {
+        if (_activeRequest != null) ...[
+          InkWell(
+            onTap: () {
               setState(() {
                 _permohonanViewMode = _permohonanViewMode == 0 ? 1 : 0;
               });
             },
-            icon: Icon(
-              _permohonanViewMode == 0 ? Icons.analytics_outlined : Icons.edit_note_rounded,
-              color: const Color(0xFFDC2626),
-              size: 22,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFEF2F2),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: const Color(0xFFFECACA)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    _permohonanViewMode == 0 ? Icons.analytics_outlined : Icons.edit_note_rounded,
+                    color: const Color(0xFFDC2626),
+                    size: 16,
+                  ),
+                  const SizedBox(width: 5),
+                  Text(
+                    _permohonanViewMode == 0 ? 'Status' : 'Form Baru',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w800,
+                      color: const Color(0xFFDC2626),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
+          const SizedBox(width: 6),
+        ],
         const SizedBox(width: 4),
         // Tombol Avatar Merah
         InkWell(
@@ -2343,7 +2368,7 @@ class _RequesterRequestScreenState extends State<RequesterRequestScreen> {
               ],
             ),
             Text(
-              'Semua O+\nTerverifikasi',
+              'Semua ${_activeRequest?.bloodType ?? "O"}${_activeRequest?.rhesus ?? "+"}\nTerverifikasi',
               textAlign: TextAlign.end,
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 10.5,
@@ -2412,7 +2437,7 @@ class _RequesterRequestScreenState extends State<RequesterRequestScreen> {
                                 Row(
                                   children: [
                                     Text(
-                                      'Budi Santoso',
+                                      _activeRequest?.donorName ?? 'Relawan Siaga',
                                       style: GoogleFonts.plusJakartaSans(
                                         fontSize: 13.5,
                                         fontWeight: FontWeight.w800,
@@ -2433,7 +2458,7 @@ class _RequesterRequestScreenState extends State<RequesterRequestScreen> {
                                         borderRadius: BorderRadius.circular(4),
                                       ),
                                       child: Text(
-                                        'Gol. O+',
+                                        'Gol. ${_activeRequest?.bloodType ?? "O"}${_activeRequest?.rhesus ?? "+"}',
                                         style: GoogleFonts.plusJakartaSans(
                                           fontSize: 9,
                                           fontWeight: FontWeight.w800,
@@ -2501,7 +2526,7 @@ class _RequesterRequestScreenState extends State<RequesterRequestScreen> {
                             onTap: () {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text('Menghubungi Relawan Budi Santoso...', style: GoogleFonts.plusJakartaSans()),
+                                  content: Text('Menghubungi ${_activeRequest?.donorName ?? "Relawan"} (${_activeRequest?.donorPhone ?? "0857-xxxx"})...', style: GoogleFonts.plusJakartaSans()),
                                   behavior: SnackBarBehavior.floating,
                                 ),
                               );
@@ -2535,7 +2560,7 @@ class _RequesterRequestScreenState extends State<RequesterRequestScreen> {
                             onTap: () {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text('Membuka chat WhatsApp relawan...', style: GoogleFonts.plusJakartaSans()),
+                                  content: Text('Membuka WhatsApp ${_activeRequest?.donorName ?? "Relawan"} (${_activeRequest?.donorPhone ?? ""})...', style: GoogleFonts.plusJakartaSans()),
                                   backgroundColor: const Color(0xFF15803D),
                                   behavior: SnackBarBehavior.floating,
                                 ),
@@ -2648,7 +2673,7 @@ class _RequesterRequestScreenState extends State<RequesterRequestScreen> {
                                         borderRadius: BorderRadius.circular(4),
                                       ),
                                       child: Text(
-                                        'Gol. O+',
+                                        'Gol. ${_activeRequest?.bloodType ?? "O"}${_activeRequest?.rhesus ?? "+"}',
                                         style: GoogleFonts.plusJakartaSans(
                                           fontSize: 9,
                                           fontWeight: FontWeight.w800,
@@ -2809,7 +2834,47 @@ class _RequesterRequestScreenState extends State<RequesterRequestScreen> {
 
   // ─── 7. Tombol: Pantau Status Pemindaian / Live Tracking ───
   Widget _buildLiveTrackingButton() {
+    final status = _activeRequest?.status.toLowerCase() ?? 'menunggu';
+    final isDoneAll = status == 'selesai' || status == 'terpenuhi';
     final hasDonor = _activeRequest?.hasAcceptedDonor == true;
+
+    if (isDoneAll) {
+      return SizedBox(
+        width: double.infinity,
+        height: 48,
+        child: ElevatedButton(
+          onPressed: () {
+            setState(() {
+              _activeRequest = null;
+              _permohonanViewMode = 0;
+            });
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF15803D),
+            foregroundColor: Colors.white,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.check_circle_rounded, size: 18, color: Colors.white),
+              const SizedBox(width: 8),
+              Text(
+                'Permohonan Selesai • Buat Permohonan Baru',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     return SizedBox(
       width: double.infinity,
@@ -2842,6 +2907,57 @@ class _RequesterRequestScreenState extends State<RequesterRequestScreen> {
                 fontSize: 13.5,
                 fontWeight: FontWeight.w800,
                 color: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ─── 8. Tombol: Tutup Permohonan Ini & Buat Baru ───
+  Widget _buildCompleteAndNewButton() {
+    return SizedBox(
+      width: double.infinity,
+      height: 44,
+      child: OutlinedButton(
+        onPressed: () async {
+          final reqId = _activeRequest?.id;
+          if (reqId != null) {
+            await _requestRepo.updateRequestStatus(reqId, 'selesai');
+          }
+          if (mounted) {
+            setState(() {
+              _activeRequest = null;
+              _permohonanViewMode = 0;
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Permohonan selesai ditutup. Formulir baru siap diisi.', style: GoogleFonts.plusJakartaSans()),
+                backgroundColor: const Color(0xFF16A34A),
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+        },
+        style: OutlinedButton.styleFrom(
+          foregroundColor: const Color(0xFF475569),
+          side: const BorderSide(color: Color(0xFFCBD5E1)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.add_circle_outline_rounded, size: 16, color: Color(0xFF475569)),
+            const SizedBox(width: 8),
+            Text(
+              'Tutup Permohonan & Buat Permohonan Baru',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF475569),
               ),
             ),
           ],
