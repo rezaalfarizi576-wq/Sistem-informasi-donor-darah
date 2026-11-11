@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../core/utils/url_helper.dart';
 import '../../../data/models/blood_request_model.dart';
 import '../../../data/models/blood_stock_model.dart';
 import '../../../data/models/donor_stats_model.dart';
@@ -1421,10 +1422,14 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                       ),
                     ),
                     const SizedBox(height: 14),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    Wrap(
+                      alignment: WrapAlignment.spaceBetween,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 10,
+                      runSpacing: 8,
                       children: [
                         Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             const Icon(Icons.water_drop_outlined, color: Colors.white, size: 14),
                             const SizedBox(width: 5),
@@ -1495,20 +1500,22 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
+                          Wrap(
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            spacing: 6,
+                            runSpacing: 4,
                             children: [
                               Text(
                                 'Stok Darah Terpadu Lamongan',
                                 style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 16,
+                                  fontSize: 15,
                                   fontWeight: FontWeight.w800,
                                   color: const Color(0xFF0F172A),
                                   letterSpacing: -0.2,
                                 ),
                               ),
-                              const SizedBox(width: 8),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                 decoration: BoxDecoration(
                                   color: const Color(0xFFFEE2E2),
                                   borderRadius: BorderRadius.circular(6),
@@ -1597,7 +1604,7 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                   builder: (context, cardConstraints) {
                     final isDesktop = cardConstraints.maxWidth >= 680;
                     final crossAxisCount = isDesktop ? 4 : 2;
-                    final aspectRatio = isDesktop ? 1.40 : 1.15;
+                    final aspectRatio = isDesktop ? 1.40 : 1.10;
 
                     return GridView.count(
                       crossAxisCount: crossAxisCount,
@@ -1697,19 +1704,21 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Row(
+                                Wrap(
+                                  crossAxisAlignment: WrapCrossAlignment.center,
+                                  spacing: 6,
+                                  runSpacing: 2,
                                   children: [
                                     Text(
                                       'Rhesus Negatif (Rh-)',
                                       style: GoogleFonts.plusJakartaSans(
                                         fontWeight: FontWeight.w800,
-                                        fontSize: 13.5,
+                                        fontSize: 13,
                                         color: const Color(0xFF0F172A),
                                       ),
                                     ),
-                                    const SizedBox(width: 8),
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                       decoration: BoxDecoration(
                                         color: const Color(0xFFEDE9FE),
                                         borderRadius: BorderRadius.circular(6),
@@ -1717,7 +1726,7 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                                       child: Text(
                                         _bankSelectedFilter == 'Rh-' ? 'DIPILIH' : 'LANGKA (~0.5%)',
                                         style: GoogleFonts.plusJakartaSans(
-                                          fontSize: 9.5,
+                                          fontSize: 9,
                                           fontWeight: FontWeight.w800,
                                           color: const Color(0xFF7C3AED),
                                         ),
@@ -1729,9 +1738,11 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                                 Text(
                                   'A-: 0 • B-: 1 • O-: 1 • AB-: 0 • Pengelolaan Khusus UTD PMI Lamongan',
                                   style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 11,
+                                    fontSize: 10.5,
                                     color: const Color(0xFF64748B),
                                   ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ],
                             ),
@@ -2322,28 +2333,32 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                     Text(
                       s.count.toString().padLeft(2, '0'),
                       style: GoogleFonts.plusJakartaSans(
-                        fontSize: 26,
+                        fontSize: 22,
                         fontWeight: FontWeight.w900,
                         color: s.isDeficit ? const Color(0xFFDC2626) : const Color(0xFF0F172A),
                         height: 1,
                       ),
                     ),
-                    const SizedBox(width: 5),
+                    const SizedBox(width: 4),
                     Text(
-                      'Kantong',
+                      'Ktg',
                       style: GoogleFonts.plusJakartaSans(
-                        fontSize: 11,
+                        fontSize: 10.5,
                         color: const Color(0xFF64748B),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     const Spacer(),
-                    Text(
-                      s.capacityText,
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: s.isDeficit ? const Color(0xFFDC2626) : const Color(0xFF64748B),
+                    Flexible(
+                      child: Text(
+                        s.capacityText.replaceAll(' Kapasitas', '%'),
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w700,
+                          color: s.isDeficit ? const Color(0xFFDC2626) : const Color(0xFF64748B),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -2366,7 +2381,7 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                 padding: const EdgeInsets.only(top: 2),
                 child: s.isDeficit
                     ? Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
+                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                         decoration: BoxDecoration(
                           color: const Color(0xFFFEE2E2),
                           borderRadius: BorderRadius.circular(5),
@@ -2374,14 +2389,18 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.warning_amber_rounded, size: 12, color: Color(0xFFDC2626)),
-                            const SizedBox(width: 4),
-                            Text(
-                              'Darurat • Butuh Pendonor',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 9.5,
-                                fontWeight: FontWeight.w800,
-                                color: const Color(0xFFDC2626),
+                            const Icon(Icons.warning_amber_rounded, size: 11, color: Color(0xFFDC2626)),
+                            const SizedBox(width: 3),
+                            Flexible(
+                              child: Text(
+                                'Butuh Pendonor',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w800,
+                                  color: const Color(0xFFDC2626),
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],
@@ -2390,7 +2409,7 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                     : Text(
                         s.components,
                         style: GoogleFonts.plusJakartaSans(
-                          fontSize: 10,
+                          fontSize: 9.5,
                           fontWeight: FontWeight.w600,
                           color: const Color(0xFF64748B),
                         ),
@@ -2572,12 +2591,9 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                     ),
                     child: IconButton(
                       onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Menghubungi ${f.name}...', style: GoogleFonts.plusJakartaSans()),
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
+                        // Nomor hotline/IGD faskes Lamongan (Babat: 451099, Lamongan Kota: 321718)
+                        final phone = f.name.toLowerCase().contains('babat') ? '(0322) 451099' : '(0322) 321718';
+                        UrlHelper.makePhoneCall(context, phone);
                       },
                       icon: const Icon(Icons.phone_outlined, size: 15, color: Color(0xFF475569)),
                       padding: EdgeInsets.zero,

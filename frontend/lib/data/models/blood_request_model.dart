@@ -25,6 +25,7 @@ class BloodRequestModel {
   final String? donorName;
   final String? donorPhone;
   final int acceptedDonorsCount;
+  final int fulfilledBagsCount;
 
   BloodRequestModel({
     required this.id,
@@ -51,6 +52,7 @@ class BloodRequestModel {
     this.donorName,
     this.donorPhone,
     this.acceptedDonorsCount = 0,
+    this.fulfilledBagsCount = 0,
   }) : _rawPatientName = patientName;
 
   factory BloodRequestModel.fromJson(Map<String, dynamic> json) {
@@ -79,6 +81,7 @@ class BloodRequestModel {
       donorName: json['donor_name'] as String?,
       donorPhone: json['donor_phone'] as String?,
       acceptedDonorsCount: json['accepted_donors_count'] as int? ?? 0,
+      fulfilledBagsCount: json['fulfilled_bags_count'] as int? ?? 0,
     );
   }
 

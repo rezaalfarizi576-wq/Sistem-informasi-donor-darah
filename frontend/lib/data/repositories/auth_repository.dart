@@ -48,6 +48,26 @@ class AuthRepository {
     return UserModel.fromJson(response);
   }
 
+  Future<Map<String, dynamic>> requestPasswordResetOtp(String identifier) async {
+    final response = await _apiClient.post('/auth/forgot-password/request-otp', body: {
+      'identifier': identifier,
+    });
+    return Map<String, dynamic>.from(response);
+  }
+
+  Future<Map<String, dynamic>> resetPasswordWithOtp({
+    required String identifier,
+    required String otpCode,
+    required String newPassword,
+  }) async {
+    final response = await _apiClient.post('/auth/forgot-password/reset', body: {
+      'identifier': identifier,
+      'otp_code': otpCode,
+      'new_password': newPassword,
+    });
+    return Map<String, dynamic>.from(response);
+  }
+
   Future<UserModel?> getCurrentUser() async {
     try {
       final response = await _apiClient.get('/auth/me');

@@ -137,6 +137,16 @@ class BloodRequest(Base):
         return None
 
     @property
+    def fulfilled_bags_count(self):
+        """Jumlah kantong yang sudah selesai didonorkan oleh relawan yang telah sampai."""
+        if not self.responses:
+            return 0
+        return sum(
+            1 for resp in self.responses
+            if resp.status == "sampai"
+        )
+
+    @property
     def accepted_donors_count(self):
         """Jumlah donor yang sudah menerima/menuju lokasi."""
         if not self.responses:
@@ -182,7 +192,7 @@ class DonationHistory(Base):
     __tablename__ = "donation_history"
 
     id = Column(BigInteger, primary_key=True, index=True, autoincrement=True)
-    response_id = Column(BigInteger, ForeignKey("request_responses.id", ondelete="CASCADE"), unique=True, nullable=True)
+    response_id = Column(BigInteger, ForeignKey("request_responses.id", ondelete="CASCADE"), nullable=True)
     donor_id = Column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     request_id = Column(BigInteger, ForeignKey("blood_requests.id", ondelete="CASCADE"), nullable=True)
     tanggal_donor = Column(DateTime, nullable=False)

@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../../../core/services/routing_service.dart';
+import '../../../core/utils/url_helper.dart';
 import '../../../data/models/dispatch_ticket_model.dart';
 import '../../../data/repositories/donor_repository.dart';
 import '../../../routes/app_router.dart';
@@ -1103,13 +1104,7 @@ class _DonorDispatchScreenState extends State<DonorDispatchScreen> {
                       ),
                       ElevatedButton(
                         onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Menghubungi hotline darurat PMI Lamongan: (0322) 321-118...', style: GoogleFonts.plusJakartaSans()),
-                              backgroundColor: const Color(0xFFB91C1C),
-                              behavior: SnackBarBehavior.floating,
-                            ),
-                          );
+                          UrlHelper.makePhoneCall(context, '(0322) 321118');
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,

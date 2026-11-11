@@ -119,7 +119,28 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     validator: Validators.password,
                   ),
-                  const SizedBox(height: 28),
+                  const SizedBox(height: 8),
+
+                  // Lupa Password Link
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () => Navigator.pushNamed(context, AppRouter.forgotPasswordRoute),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      child: const Text(
+                        'Lupa Password?',
+                        style: TextStyle(
+                          color: Color(0xFFD32F2F),
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
 
                   // Login Button
                   CustomButton(

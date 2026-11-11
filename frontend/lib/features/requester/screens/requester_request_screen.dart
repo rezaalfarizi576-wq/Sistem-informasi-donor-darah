@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/utils/file_picker_helper.dart';
+import '../../../core/utils/url_helper.dart';
 import '../../../data/models/blood_request_model.dart';
 import '../../../data/repositories/blood_request_repository.dart';
 import '../../../routes/app_router.dart';
@@ -72,7 +73,7 @@ class _RequesterRequestScreenState extends State<RequesterRequestScreen> {
         BloodRequestModel? active;
         try {
           active = requests.firstWhere(
-            (r) => r.status == 'diproses' || r.status == 'menunggu' || r.urgencyLevel == 'kritis',
+            (r) => r.status == 'diproses' || r.status == 'menunggu',
           );
         } catch (_) {
           active = null;
@@ -577,6 +578,10 @@ class _RequesterRequestScreenState extends State<RequesterRequestScreen> {
       children: [
         // ─── 2. HERO BANNER HIJAU: RESPON CEPAT TANGGAP ───
         _buildHeroResponseBanner(hospital: hospital),
+        const SizedBox(height: 14),
+
+        // ─── 2B. PEMENUHAN KANTONG DARAH (X / Y KANTONG) ───
+        _buildBagsProgressCard(),
         const SizedBox(height: 14),
 
         // ─── 3. PROGRES DISTRIBUSI DARURAT (TIMELINE) ───
@@ -1787,6 +1792,135 @@ class _RequesterRequestScreenState extends State<RequesterRequestScreen> {
     );
   }
 
+  // ─── 2B. Card: Progres Pemenuhan Kantong Darah (Dinamis X/Y Kantong) ───
+  Widget _buildBagsProgressCard() {
+    final needed = _activeRequest?.bagsNeeded ?? 1;
+    final fulfilled = _activeRequest?.fulfilledBagsCount ?? 0;
+    final accepted = _activeRequest?.acceptedDonorsCount ?? 0;
+    final percent = (fulfilled / (needed > 0 ? needed : 1)).clamp(0.0, 1.0);
+    final percentInt = (percent * 100).toInt();
+    final isComplete = fulfilled >= needed;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFF1F5F9)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: isComplete ? const Color(0xFFDCFCE7) : const Color(0xFFFFF1F2),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(
+                      Icons.bloodtype_rounded,
+                      size: 18,
+                      color: isComplete ? const Color(0xFF16A34A) : const Color(0xFFDC2626),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Pemenuhan Kantong Darah',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w900,
+                          color: const Color(0xFF0F172A),
+                        ),
+                      ),
+                      Text(
+                        isComplete
+                            ? 'Seluruh kantong darah telah terpenuhi di faskes!'
+                            : '$accepted relawan siaga • $fulfilled dari $needed kantong tiba',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 11,
+                          color: const Color(0xFF64748B),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: isComplete ? const Color(0xFFDCFCE7) : const Color(0xFFFEF2F2),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: isComplete ? const Color(0xFF86EFAC) : const Color(0xFFFECDD3)),
+                ),
+                child: Text(
+                  '$fulfilled / $needed KANTONG',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w900,
+                    color: isComplete ? const Color(0xFF16A34A) : const Color(0xFFDC2626),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          // Progress Bar
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: LinearProgressIndicator(
+              value: percent,
+              minHeight: 10,
+              backgroundColor: const Color(0xFFF1F5F9),
+              valueColor: AlwaysStoppedAnimation<Color>(
+                isComplete ? const Color(0xFF16A34A) : const Color(0xFFDC2626),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Progres: $percentInt% Tercapai',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                  color: isComplete ? const Color(0xFF16A34A) : const Color(0xFFDC2626),
+                ),
+              ),
+              Text(
+                isComplete
+                    ? 'Lengkap (Siap Transfusi)'
+                    : 'Kurang ${needed - fulfilled} kantong',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF64748B),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   // ─── 3. Card: Progres Distribusi Darurat (Timeline Tracker) ───
   Widget _buildDistributionTimelineCard() {
     final status = _activeRequest?.status.toLowerCase() ?? 'menunggu';
@@ -2524,12 +2658,8 @@ class _RequesterRequestScreenState extends State<RequesterRequestScreen> {
                           // Tombol Telepon
                           InkWell(
                             onTap: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Menghubungi ${_activeRequest?.donorName ?? "Relawan"} (${_activeRequest?.donorPhone ?? "0857-xxxx"})...', style: GoogleFonts.plusJakartaSans()),
-                                  behavior: SnackBarBehavior.floating,
-                                ),
-                              );
+                              final phone = _activeRequest?.donorPhone ?? '0857-0000-0000';
+                              UrlHelper.makePhoneCall(context, phone);
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -2558,12 +2688,13 @@ class _RequesterRequestScreenState extends State<RequesterRequestScreen> {
                           // Tombol WhatsApp
                           InkWell(
                             onTap: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Membuka WhatsApp ${_activeRequest?.donorName ?? "Relawan"} (${_activeRequest?.donorPhone ?? ""})...', style: GoogleFonts.plusJakartaSans()),
-                                  backgroundColor: const Color(0xFF15803D),
-                                  behavior: SnackBarBehavior.floating,
-                                ),
+                              final phone = _activeRequest?.donorPhone ?? '';
+                              final patient = _activeRequest?.patientName ?? 'Pasien';
+                              final hospital = _activeRequest?.hospitalName ?? 'Rumah Sakit';
+                              UrlHelper.openWhatsApp(
+                                context,
+                                rawPhone: phone,
+                                message: 'Halo Relawan PMI Lamongan, saya pemohon darah atas nama pasien $patient di $hospital. Apakah Anda sedang menuju lokasi donor? Terima kasih.',
                               );
                             },
                             child: Container(

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
@@ -23,7 +24,7 @@ class DonorLiveTrackingScreen extends StatefulWidget {
 }
 
 class _DonorLiveTrackingScreenState extends State<DonorLiveTrackingScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   final _trackingRepo = TrackingRepository();
   final _requestRepo = BloodRequestRepository();
   final _donorRepo = DonorRepository();
@@ -37,6 +38,7 @@ class _DonorLiveTrackingScreenState extends State<DonorLiveTrackingScreen>
 
   LatLng _hospitalLocation = _defaultHospitalLocation;
   LatLng _donorLocation = _defaultDonorLocation;
+  double _donorBearing = 0.0; // Sudut arah rotasi kendaraan (radian)
   String _hospitalName = 'RSUD Dr. Soegiri';
 
   // Rute Jalan Riil
@@ -58,6 +60,12 @@ class _DonorLiveTrackingScreenState extends State<DonorLiveTrackingScreen>
 
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
+
+  // Controller animasi interpolasi pergerakan halus (smooth glide)
+  AnimationController? _moveAnimController;
+  Animation<double>? _moveAnimation;
+  LatLng _animStartPos = _defaultDonorLocation;
+  LatLng _animTargetPos = _defaultDonorLocation;
 
   @override
   void initState() {
@@ -81,6 +89,7 @@ class _DonorLiveTrackingScreenState extends State<DonorLiveTrackingScreen>
   @override
   void dispose() {
     _pulseController.dispose();
+    _moveAnimController?.dispose();
     _simulationTimer?.cancel();
     _gpsStreamSubscription?.cancel();
     _locationSubscription?.cancel();
@@ -98,12 +107,7 @@ class _DonorLiveTrackingScreenState extends State<DonorLiveTrackingScreen>
         if (data.containsKey('latitude') && data.containsKey('longitude')) {
           final lat = (data['latitude'] as num).toDouble();
           final lng = (data['longitude'] as num).toDouble();
-          setState(() {
-            _donorLocation = LatLng(lat, lng);
-            if (_isAutoCenter) {
-              _mapController.move(_donorLocation, _mapController.camera.zoom);
-            }
-          });
+          _animateDonorTo(LatLng(lat, lng));
         }
       }
     });
@@ -153,6 +157,62 @@ class _DonorLiveTrackingScreenState extends State<DonorLiveTrackingScreen>
     await _initGpsTracking();
   }
 
+  /// Menghitung sudut arah kendaraan (heading bearing)
+  double _calculateBearing(LatLng start, LatLng end) {
+    if (start.latitude == end.latitude && start.longitude == end.longitude) {
+      return _donorBearing;
+    }
+    final startLat = start.latitude * (math.pi / 180.0);
+    final startLng = start.longitude * (math.pi / 180.0);
+    final endLat = end.latitude * (math.pi / 180.0);
+    final endLng = end.longitude * (math.pi / 180.0);
+
+    final dLng = endLng - startLng;
+    final y = math.sin(dLng) * math.cos(endLat);
+    final x = math.cos(startLat) * math.sin(endLat) -
+        math.sin(startLat) * math.cos(endLat) * math.cos(dLng);
+
+    return math.atan2(y, x);
+  }
+
+  /// Animasi pergerakan halus (smooth glide) saat ada titik koordinat baru dari GPS/WebSocket
+  void _animateDonorTo(LatLng target, [double? speed]) {
+    if (_donorLocation.latitude == target.latitude && _donorLocation.longitude == target.longitude) {
+      return;
+    }
+    _animStartPos = _donorLocation;
+    _animTargetPos = target;
+    _donorBearing = _calculateBearing(_animStartPos, _animTargetPos);
+
+    _moveAnimController?.dispose();
+    _moveAnimController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    );
+
+    _moveAnimation = CurvedAnimation(
+      parent: _moveAnimController!,
+      curve: Curves.easeInOut,
+    )..addListener(() {
+        if (!mounted) return;
+        final t = _moveAnimation!.value;
+        setState(() {
+          _donorLocation = LatLng(
+            _animStartPos.latitude + (_animTargetPos.latitude - _animStartPos.latitude) * t,
+            _animStartPos.longitude + (_animTargetPos.longitude - _animStartPos.longitude) * t,
+          );
+          if (_isAutoCenter) {
+            _mapController.move(_donorLocation, _mapController.camera.zoom);
+          }
+        });
+      });
+
+    _moveAnimController!.forward();
+    if (speed != null) {
+      _updateMetricsFromLocation(target, speed);
+    }
+  }
+
   Future<void> _initGpsTracking() async {
     try {
       LocationPermission perm = await Geolocator.checkPermission();
@@ -187,13 +247,7 @@ class _DonorLiveTrackingScreenState extends State<DonorLiveTrackingScreen>
         ),
       ).listen((Position p) {
         if (!_isRealGps || !mounted) return;
-        setState(() {
-          _donorLocation = LatLng(p.latitude, p.longitude);
-          _updateMetricsFromLocation(_donorLocation, p.speed);
-          if (_isAutoCenter) {
-            _mapController.move(_donorLocation, _mapController.camera.zoom);
-          }
-        });
+        _animateDonorTo(LatLng(p.latitude, p.longitude), p.speed);
         _trackingRepo.updateLocation(p.latitude, p.longitude);
       });
     } catch (_) {
@@ -273,10 +327,11 @@ class _DonorLiveTrackingScreenState extends State<DonorLiveTrackingScreen>
     final totalRouteDistKm = totalRouteDistM / 1000.0;
     const simSpeedKmh = 30.0; // Kecepatan simulasi: 30 km/h
     final totalTimeSec = totalRouteDistKm / simSpeedKmh * 3600; // Detik tempuh total
-    const tickIntervalSec = 2; // Update tiap 2 detik
-    final progressPerTick = totalTimeSec > 0 ? (tickIntervalSec / totalTimeSec) : 0.02;
+    const tickIntervalMs = 50; // Update halus tiap 50 milidetik (20 FPS)
+    final progressPerTick = totalTimeSec > 0 ? (0.05 / totalTimeSec) : 0.0005;
 
-    _simulationTimer = Timer.periodic(const Duration(seconds: tickIntervalSec), (timer) {
+    int tickCounter = 0;
+    _simulationTimer = Timer.periodic(const Duration(milliseconds: tickIntervalMs), (timer) {
       if (!mounted || _routePoints.length < 2) return;
 
       _simProgress += progressPerTick;
@@ -286,26 +341,31 @@ class _DonorLiveTrackingScreenState extends State<DonorLiveTrackingScreen>
       }
 
       // Gunakan getPointAlongRoute agar mengikuti jalanan, bukan lurus
-      final currentPos = _routingService.getPointAlongRoute(_routePoints, _simProgress);
+      final nextPos = _routingService.getPointAlongRoute(_routePoints, _simProgress);
+      final bearing = _calculateBearing(_donorLocation, nextPos);
 
-      // Hitung metrik dinamis
-      final remainingDistM = const Distance().as(LengthUnit.Meter, currentPos, _hospitalLocation);
-      final remainingDistKm = remainingDistM / 1000.0;
-      final remEta = (remainingDistKm / simSpeedKmh * 60).ceil().clamp(1, 60);
+      tickCounter++;
+      // Update metrik teks & websocket tiap 1 detik (20 ticks) agar efisien
+      if (tickCounter % 20 == 0) {
+        final remainingDistM = const Distance().as(LengthUnit.Meter, nextPos, _hospitalLocation);
+        final remainingDistKm = remainingDistM / 1000.0;
+        final remEta = (remainingDistKm / simSpeedKmh * 60).ceil().clamp(1, 60);
 
-      setState(() {
-        _donorLocation = currentPos;
-        _progressValue = _simProgress.clamp(0.05, 0.98);
         _distanceDisplay = '${remainingDistKm.toStringAsFixed(1)} km';
         _etaDisplay = '$remEta mnt';
         _speedDisplay = '${simSpeedKmh.round()} km/h';
+        _progressValue = _simProgress.clamp(0.05, 0.98);
 
-        if (_isAutoCenter) {
+        _trackingRepo.updateLocation(nextPos.latitude, nextPos.longitude);
+      }
+
+      setState(() {
+        _donorBearing = bearing;
+        _donorLocation = nextPos;
+        if (_isAutoCenter && tickCounter % 5 == 0) {
           _mapController.move(_donorLocation, _mapController.camera.zoom);
         }
       });
-
-      _trackingRepo.updateLocation(currentPos.latitude, currentPos.longitude);
     });
   }
 
@@ -542,8 +602,8 @@ class _DonorLiveTrackingScreenState extends State<DonorLiveTrackingScreen>
                                     ),
                                     // Ring Tengah Putih
                                     Container(
-                                      width: 22,
-                                      height: 22,
+                                      width: 28,
+                                      height: 28,
                                       decoration: BoxDecoration(
                                         shape: BoxShape.circle,
                                         color: Colors.white,
@@ -555,13 +615,21 @@ class _DonorLiveTrackingScreenState extends State<DonorLiveTrackingScreen>
                                         ],
                                       ),
                                       child: Center(
-                                        // Titik Merah Inti
+                                        // Ikon Arah Navigasi Bergerak (Rotasi Sesuai Heading Jalan)
                                         child: Container(
-                                          width: 13,
-                                          height: 13,
+                                          width: 22,
+                                          height: 22,
                                           decoration: const BoxDecoration(
                                             shape: BoxShape.circle,
                                             color: Color(0xFFDC2626),
+                                          ),
+                                          child: Transform.rotate(
+                                            angle: _donorBearing,
+                                            child: const Icon(
+                                              Icons.navigation_rounded,
+                                              color: Colors.white,
+                                              size: 14,
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -575,7 +643,7 @@ class _DonorLiveTrackingScreenState extends State<DonorLiveTrackingScreen>
                           // ── Marker Rumah Sakit (Pin Biru + Label Badge Hijau) ──
                           Marker(
                             point: _hospitalLocation,
-                            width: 140,
+                            width: 240,
                             height: 48,
                             alignment: Alignment.centerLeft,
                             child: Row(

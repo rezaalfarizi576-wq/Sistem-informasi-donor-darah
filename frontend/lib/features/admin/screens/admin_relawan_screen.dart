@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../data/repositories/admin_repository.dart';
 import '../../../data/models/user_model.dart';
+import '../../../core/utils/url_helper.dart';
 import 'dart:math';
 
 class RelawanModel {
@@ -1471,11 +1472,10 @@ class _AdminRelawanScreenState extends State<AdminRelawanScreen> {
                   // Button 2: Hubungi WhatsApp
                   OutlinedButton.icon(
                     onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Membuka chat WhatsApp ke ${r.phone}...'),
-                          backgroundColor: const Color(0xFF25D366),
-                        ),
+                      UrlHelper.openWhatsApp(
+                        context,
+                        rawPhone: r.phone,
+                        message: 'Halo Relawan ${r.nama}, kami dari Admin UDD PMI Kabupaten Lamongan ingin berkoordinasi terkait kesiapan donor darah. Terima kasih.',
                       );
                     },
                     icon: const Icon(Icons.chat_bubble_outline_rounded, size: 15, color: Color(0xFFDC2626)),

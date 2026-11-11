@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart';
 import '../../../core/services/routing_service.dart';
+import '../../../core/utils/url_helper.dart';
 import '../../../data/models/blood_request_model.dart';
 import '../../../data/repositories/blood_request_repository.dart';
 import '../../../data/repositories/tracking_repository.dart';
@@ -26,7 +28,7 @@ class RequesterTrackingScreen extends StatefulWidget {
 }
 
 class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   final _requestRepo = BloodRequestRepository();
   final _trackingRepo = TrackingRepository();
   final _routingService = RoutingService();
@@ -42,6 +44,7 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
   static const LatLng _startDonorLocation = LatLng(-7.132500, 112.418200);
 
   LatLng _volunteerLocation = _startDonorLocation;
+  double _volunteerBearing = 0.0; // Sudut arah rotasi kendaraan (radian)
   List<LatLng> _routePoints = [];
 
   StreamSubscription? _locationSubscription;
@@ -55,6 +58,12 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
 
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
+
+  // Controller animasi interpolasi pergerakan halus (smooth glide)
+  AnimationController? _moveAnimController;
+  Animation<double>? _moveAnimation;
+  LatLng _animStartPos = _startDonorLocation;
+  LatLng _animTargetPos = _startDonorLocation;
 
   @override
   void initState() {
@@ -74,6 +83,7 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
   @override
   void dispose() {
     _pulseController.dispose();
+    _moveAnimController?.dispose();
     _simTimer?.cancel();
     _locationSubscription?.cancel();
     _trackingRepo.stopTracking();
@@ -109,7 +119,7 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
       if (req == null && myReqs.isNotEmpty) {
         try {
           req = myReqs.firstWhere(
-            (r) => r.status == 'diproses' || r.status == 'menunggu' || r.urgencyLevel == 'kritis',
+            (r) => r.status == 'diproses' || r.status == 'menunggu',
           );
         } catch (_) {
           req = null;
@@ -130,9 +140,7 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
             if (data.containsKey('latitude') && data.containsKey('longitude')) {
               final lat = (data['latitude'] as num).toDouble();
               final lng = (data['longitude'] as num).toDouble();
-              setState(() {
-                _volunteerLocation = LatLng(lat, lng);
-              });
+              _animateVolunteerTo(LatLng(lat, lng));
             }
           }
         });
@@ -150,6 +158,57 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
     if (mounted) {
       setState(() => _isLoading = false);
     }
+  }
+
+  /// Menghitung sudut derajat arah jalan kendaraan (heading bearing)
+  double _calculateBearing(LatLng start, LatLng end) {
+    if (start.latitude == end.latitude && start.longitude == end.longitude) {
+      return _volunteerBearing;
+    }
+    final startLat = start.latitude * (math.pi / 180.0);
+    final startLng = start.longitude * (math.pi / 180.0);
+    final endLat = end.latitude * (math.pi / 180.0);
+    final endLng = end.longitude * (math.pi / 180.0);
+
+    final dLng = endLng - startLng;
+    final y = math.sin(dLng) * math.cos(endLat);
+    final x = math.cos(startLat) * math.sin(endLat) -
+        math.sin(startLat) * math.cos(endLat) * math.cos(dLng);
+
+    return math.atan2(y, x); // dalam radian
+  }
+
+  /// Animasi meluncur halus saat menerima data koordinat baru dari GPS/WebSocket
+  void _animateVolunteerTo(LatLng target) {
+    if (_volunteerLocation.latitude == target.latitude &&
+        _volunteerLocation.longitude == target.longitude) {
+      return;
+    }
+    _animStartPos = _volunteerLocation;
+    _animTargetPos = target;
+    _volunteerBearing = _calculateBearing(_animStartPos, _animTargetPos);
+
+    _moveAnimController?.dispose();
+    _moveAnimController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    );
+
+    _moveAnimation = CurvedAnimation(
+      parent: _moveAnimController!,
+      curve: Curves.easeInOut,
+    )..addListener(() {
+        if (!mounted) return;
+        final t = _moveAnimation!.value;
+        setState(() {
+          _volunteerLocation = LatLng(
+            _animStartPos.latitude + (_animTargetPos.latitude - _animStartPos.latitude) * t,
+            _animStartPos.longitude + (_animTargetPos.longitude - _animStartPos.longitude) * t,
+          );
+        });
+      });
+
+    _moveAnimController!.forward();
   }
 
   Future<void> _fetchRoadRoute() async {
@@ -173,23 +232,33 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
 
   void _startSmoothSimulation() {
     _simTimer?.cancel();
-    _simTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
+    int tickCounter = 0;
+    // Update tiap 50 milidetik (20 FPS) agar pergerakan terasa sangat halus (smooth glide)
+    _simTimer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
       if (!mounted || _routePoints.length < 2) return;
 
-      _simProgress += 0.025;
+      // Pertambahan progress realistis setara kecepatan ~25-30 km/jam
+      _simProgress += 0.00035;
       if (_simProgress >= 0.96) {
         _simProgress = 0.95;
       }
 
       // Pastikan posisi selalu tepat berada di atas garis rute jalan riil
-      final currentPos = _routingService.getPointAlongRoute(_routePoints, _simProgress);
+      final nextPos = _routingService.getPointAlongRoute(_routePoints, _simProgress);
+      final bearing = _calculateBearing(_volunteerLocation, nextPos);
 
-      setState(() {
-        _volunteerLocation = currentPos;
+      tickCounter++;
+      // Metrik diperbarui tiap 1 detik agar tidak membebani performa
+      if (tickCounter % 20 == 0) {
         final remDist = (1.4 * (1.0 - _simProgress)).clamp(0.1, 1.4);
         _distanceKm = '${remDist.toStringAsFixed(1)} km';
         final remMnt = (6 * (1.0 - _simProgress)).ceil().clamp(1, 6);
         _etaMinutes = '~$remMnt Menit';
+      }
+
+      setState(() {
+        _volunteerBearing = bearing;
+        _volunteerLocation = nextPos;
       });
     });
   }
@@ -1369,7 +1438,10 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
                                   ),
                                 ],
                               ),
-                              child: const Icon(Icons.two_wheeler_rounded, color: Colors.white, size: 17),
+                              child: Transform.rotate(
+                                angle: _volunteerBearing,
+                                child: const Icon(Icons.navigation_rounded, color: Colors.white, size: 17),
+                              ),
                             ),
                             // Badge Nama Relawan di sebelah kanan
                             Positioned(
@@ -1737,12 +1809,8 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
               Expanded(
                 child: InkWell(
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Menghubungi Relawan ${_activeRequest?.donorName ?? "Terverifikasi"}...', style: GoogleFonts.plusJakartaSans()),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
+                    final phone = _activeRequest?.donorPhone ?? '0857-0000-0000';
+                    UrlHelper.makePhoneCall(context, phone);
                   },
                   child: Container(
                     height: 40,
@@ -1773,12 +1841,13 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
               Expanded(
                 child: InkWell(
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Membuka obrolan WhatsApp dengan relawan...', style: GoogleFonts.plusJakartaSans()),
-                        backgroundColor: const Color(0xFF15803D),
-                        behavior: SnackBarBehavior.floating,
-                      ),
+                    final phone = _activeRequest?.donorPhone ?? '';
+                    final patient = _activeRequest?.patientName ?? 'Pasien';
+                    final hospital = _activeRequest?.hospitalName ?? 'Rumah Sakit';
+                    UrlHelper.openWhatsApp(
+                      context,
+                      rawPhone: phone,
+                      message: 'Halo Relawan PMI Lamongan, saya pemohon darah atas nama pasien $patient di $hospital. Saya memantau pergerakan Anda di peta aplikasi. Terima kasih banyak atas bantuannya!',
                     );
                   },
                   child: Container(

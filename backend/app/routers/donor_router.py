@@ -481,32 +481,48 @@ def confirm_donor_arrival(
         )
         db.add(resp)
 
-    # Otomatis tandai permohonan darah selesai karena relawan telah sampai & mendonor
+    # Hitung total relawan yang sudah sampai (tiap relawan mendonor 1 kantong)
     if req:
-        req.status = "selesai"
+        db.flush()
+        total_arrived = (
+            db.query(DonationResponse)
+            .filter(DonationResponse.request_id == request_id, DonationResponse.status == "sampai")
+            .count()
+        )
+        # Jika seluruh kantong yang dibutuhkan sudah terpenuhi
+        if total_arrived >= req.bags_needed:
+            req.status = "selesai"
+        else:
+            req.status = "diproses"
 
     db.flush()
 
-    # Otomatis catat di DonationHistory jika belum ada
+    # Otomatis catat di DonationHistory (1 relawan = 1 kantong standar PMI)
     hospital_name = req.hospital_name if req else "RSUD Dr. Soegiri Lamongan"
-    bags = req.bags_needed if req else 1
-    existing_history = (
+    # Mencegah duplikasi jika tombol ditekan berulang dalam jeda 2 menit
+    recent_history = (
         db.query(DonationHistory)
-        .filter(DonationHistory.request_id == request_id, DonationHistory.donor_id == donor_id)
+        .filter(
+            DonationHistory.request_id == request_id,
+            DonationHistory.donor_id == donor_id,
+            DonationHistory.tanggal_donor >= datetime.utcnow() - timedelta(minutes=2),
+        )
         .first()
     )
-    if not existing_history:
+    if not recent_history:
         history = DonationHistory(
             response_id=resp.id,
             donor_id=donor_id,
             request_id=request_id,
             tanggal_donor=datetime.utcnow(),
             lokasi_donor=hospital_name,
-            jumlah_kantong=bags,
+            jumlah_kantong=1,
         )
         db.add(history)
 
     db.commit()
+
+    total_donations = db.query(DonationHistory).filter(DonationHistory.donor_id == donor_id).count()
 
     return {
         "status": "success",
@@ -514,6 +530,7 @@ def confirm_donor_arrival(
         "request_id": request_id,
         "hospital_name": hospital_name,
         "arrived_at": datetime.utcnow().isoformat(),
+        "total_donations": total_donations,
     }
 
 

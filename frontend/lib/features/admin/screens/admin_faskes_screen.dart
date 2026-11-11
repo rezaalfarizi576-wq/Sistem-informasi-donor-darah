@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../data/repositories/admin_repository.dart';
+import '../../../core/utils/url_helper.dart';
 import 'dart:math';
 
 class BloodStockModel {
@@ -1431,12 +1432,7 @@ class _AdminFaskesScreenState extends State<AdminFaskesScreen> {
                   // Button 2: Hubungi Bank Darah RS
                   OutlinedButton.icon(
                     onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Menghubungi UTD ${f.nama} di ${f.igdPhone}...'),
-                          backgroundColor: const Color(0xFFDC2626),
-                        ),
-                      );
+                      UrlHelper.makePhoneCall(context, f.igdPhone);
                     },
                     icon: const Icon(Icons.phone_in_talk_rounded, size: 15, color: Color(0xFFDC2626)),
                     label: const Text(

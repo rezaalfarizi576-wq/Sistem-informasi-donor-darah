@@ -4,6 +4,7 @@ import '../data/models/dispatch_ticket_model.dart';
 import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/register_screen.dart';
 import '../features/auth/screens/activate_account_screen.dart';
+import '../features/auth/screens/forgot_password_screen.dart';
 import '../features/requester/screens/request_form_screen.dart';
 import '../features/requester/screens/request_status_screen.dart';
 import '../features/requester/screens/requester_profile_screen.dart';
@@ -23,6 +24,7 @@ class AppRouter {
   static const String loginRoute = '/login';
   static const String registerRoute = '/register';
   static const String activateAccountRoute = '/activate';
+  static const String forgotPasswordRoute = '/forgot-password';
 
   // Requester
   static const String requesterRequestRoute = '/requester/permohonan';
@@ -55,6 +57,9 @@ class AppRouter {
 
       case activateAccountRoute:
         return MaterialPageRoute(builder: (_) => const ActivateAccountScreen());
+
+      case forgotPasswordRoute:
+        return MaterialPageRoute(builder: (_) => const ForgotPasswordScreen());
 
       case requesterRequestRoute:
         return MaterialPageRoute(builder: (_) => const RequesterRequestScreen());

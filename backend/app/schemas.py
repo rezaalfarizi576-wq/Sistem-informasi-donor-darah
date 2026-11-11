@@ -39,6 +39,16 @@ class ActivateAccount(BaseModel):
     password: str = Field(..., min_length=6)
 
 
+class ForgotPasswordRequest(BaseModel):
+    identifier: str = Field(..., min_length=3, description="Email, No HP, atau NIK pengguna")
+
+
+class ForgotPasswordReset(BaseModel):
+    identifier: str = Field(..., min_length=3)
+    otp_code: str = Field(..., min_length=4, max_length=8)
+    new_password: str = Field(..., min_length=6)
+
+
 class UserResponse(BaseModel):
     id: int
     nama: str
@@ -208,6 +218,7 @@ class BloodRequestResponse(BloodRequestBase):
     donor_name: Optional[str] = None
     donor_phone: Optional[str] = None
     accepted_donors_count: int = 0
+    fulfilled_bags_count: int = 0
     created_at: datetime
     updated_at: Optional[datetime] = None
 

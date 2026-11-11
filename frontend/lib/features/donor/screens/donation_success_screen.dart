@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../data/repositories/auth_repository.dart';
+import '../../../data/repositories/donor_repository.dart';
 import '../../../routes/app_router.dart';
 
 class DonationSuccessScreen extends StatefulWidget {
@@ -40,16 +41,17 @@ class DonationSuccessScreen extends StatefulWidget {
 class _DonationSuccessScreenState extends State<DonationSuccessScreen> {
   late String _donorName;
   late String _bloodType;
+  int? _totalDonations;
+  String? _totalVolume;
+  String? _livesSaved;
+  String? _nextDonationDate;
 
   @override
   void initState() {
     super.initState();
     _donorName = widget.donorName ?? '';
     _bloodType = widget.bloodType ?? '';
-    // Jika nama/golongan darah belum dioper, ambil dari akun yang sedang login
-    if (_donorName.isEmpty || _bloodType.isEmpty) {
-      _loadCurrentUser();
-    }
+    _loadCurrentUser();
   }
 
   Future<void> _loadCurrentUser() async {
@@ -68,21 +70,31 @@ class _DonationSuccessScreenState extends State<DonationSuccessScreen> {
           }
         });
       }
-    } catch (_) {
-      // Fallback jika gagal mengambil data user
+    } catch (_) {}
+
+    try {
+      final stats = await DonorRepository().getDonorStats();
       if (mounted) {
         setState(() {
-          if (_donorName.isEmpty) _donorName = 'Pendonor';
-          if (_bloodType.isEmpty) _bloodType = 'O+ (Rhesus +)';
+          _totalDonations = stats.totalDonations;
+          _totalVolume = stats.totalLitersDisplay;
+          _livesSaved = '${stats.totalDonations * 3}+';
+          final nextDate = DateTime.now().add(const Duration(days: 60));
+          const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+          _nextDonationDate = '${nextDate.day} ${months[nextDate.month - 1]} ${nextDate.year}';
         });
       }
-    }
+    } catch (_) {}
   }
 
   @override
   Widget build(BuildContext context) {
     final donorName = _donorName.isNotEmpty ? _donorName : 'Pendonor';
     final bloodType = _bloodType.isNotEmpty ? _bloodType : 'O+ (Rhesus +)';
+    final totalDonations = _totalDonations ?? widget.totalDonations;
+    final totalVolume = _totalVolume ?? widget.totalVolume;
+    final livesSaved = _livesSaved ?? widget.livesSaved;
+    final nextDonationDate = _nextDonationDate ?? widget.nextDonationDate;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -262,7 +274,7 @@ class _DonationSuccessScreenState extends State<DonationSuccessScreen> {
                           children: [
                             Expanded(
                               child: _buildImpactColumn(
-                                value: '${widget.totalDonations}x',
+                                value: '${totalDonations}x',
                                 label: 'Total\nDonor',
                               ),
                             ),
@@ -273,7 +285,7 @@ class _DonationSuccessScreenState extends State<DonationSuccessScreen> {
                             ),
                             Expanded(
                               child: _buildImpactColumn(
-                                value: widget.totalVolume,
+                                value: totalVolume,
                                 label: 'Total\nVolume',
                               ),
                             ),
@@ -284,7 +296,7 @@ class _DonationSuccessScreenState extends State<DonationSuccessScreen> {
                             ),
                             Expanded(
                               child: _buildImpactColumn(
-                                value: widget.livesSaved,
+                                value: livesSaved,
                                 label: 'Nyawa\nTerbantu',
                               ),
                             ),
@@ -350,7 +362,7 @@ class _DonationSuccessScreenState extends State<DonationSuccessScreen> {
                         const Text('📅', style: TextStyle(fontSize: 14)),
                         const SizedBox(width: 6),
                         Text(
-                          widget.nextDonationDate,
+                          nextDonationDate,
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 12.5,
                             fontWeight: FontWeight.w800,

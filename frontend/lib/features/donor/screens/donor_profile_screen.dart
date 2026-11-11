@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart';
+import '../../../core/utils/url_helper.dart';
 import '../../../data/models/donor_stats_model.dart';
 import '../../../data/models/user_model.dart';
 import '../../../data/repositories/auth_repository.dart';
@@ -2037,27 +2038,34 @@ class _DonorProfileScreenState extends State<DonorProfileScreen> {
             _buildSopStep('3', 'Kedatangan di Faskes', 'Tunjukkan KTA PMI dan Tiket Penugasan di ruang skrining donor darah UTD/RS.'),
             _buildSopStep('4', 'Konfirmasi Selesai', 'Setelah pengambilan kantong darah selesai, tekan "Sampai di Lokasi" untuk update status sistem.'),
             const SizedBox(height: 14),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFF1F2),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFFECDD3)),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.phone_in_talk_rounded, color: Color(0xFFDC2626), size: 22),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Hotline UTD PMI Lamongan 24 Jam:', style: GoogleFonts.plusJakartaSans(fontSize: 10, color: const Color(0xFF991B1B))),
-                        Text('(0322) 321718 • Jl. Kusuma Bangsa Lamongan', style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w800, color: const Color(0xFFDC2626))),
-                      ],
+            InkWell(
+              onTap: () {
+                UrlHelper.makePhoneCall(context, '(0322) 321718');
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF1F2),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFFECDD3)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.phone_in_talk_rounded, color: Color(0xFFDC2626), size: 22),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Hotline UTD PMI Lamongan 24 Jam (Ketuk untuk Panggil):', style: GoogleFonts.plusJakartaSans(fontSize: 10, color: const Color(0xFF991B1B))),
+                          Text('(0322) 321718 • Jl. Kusuma Bangsa Lamongan', style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w800, color: const Color(0xFFDC2626))),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                    const Icon(Icons.call_made_rounded, color: Color(0xFFDC2626), size: 16),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 14),
