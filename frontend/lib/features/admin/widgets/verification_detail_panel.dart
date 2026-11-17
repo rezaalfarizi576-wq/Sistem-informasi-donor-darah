@@ -143,9 +143,7 @@ class VerificationDetailPanel extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: request.isPending
-                        ? const Color(0xFFFF6D00)
-                        : const Color(0xFF2E7D32),
+                    color: _statusColor(request.status),
                   ),
                 ),
               ],
@@ -649,6 +647,212 @@ class VerificationDetailPanel extends StatelessWidget {
   }
 
   Widget _buildActionButtons() {
+    final status = request.status.toLowerCase();
+
+    // ─── KONDISI 1: SUDAH DISETUJUI / SEDANG DIPROSES ───
+    if (status == 'diproses' || status == 'in_progress') {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFFECFDF5),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFA7F3D0)),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.check_circle_rounded, color: Color(0xFF059669), size: 28),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Permintaan Telah Diverifikasi & Disetujui',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                          color: Color(0xFF065F46),
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Sinyal darurat aktif dipancarkan ke pendonor relawan di sekitar Lamongan.',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.green.shade800,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                flex: 3,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE2E8F0),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.verified_rounded, size: 18, color: Color(0xFF475569)),
+                      SizedBox(width: 8),
+                      Text(
+                        'Sudah Disetujui (Aktif)',
+                        style: TextStyle(
+                          color: Color(0xFF475569),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                flex: 2,
+                child: OutlinedButton.icon(
+                  onPressed: onReject,
+                  icon: const Icon(Icons.cancel_outlined, size: 18),
+                  label: const Text('Batalkan / Tolak'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFFE53935),
+                    side: const BorderSide(color: Color(0xFFE53935), width: 1.5),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    textStyle: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
+    }
+
+    // ─── KONDISI 2: DITOLAK / KEDALUWARSA ───
+    if (status == 'kedaluwarsa' || status == 'ditolak' || status == 'cancelled') {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFEF2F2),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFFECACA)),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.cancel_rounded, color: Color(0xFFDC2626), size: 28),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Permintaan Ini Telah Ditolak / Dibatalkan',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                          color: Color(0xFF991B1B),
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Status saat ini tidak aktif dan tidak disiarkan ke relawan donor.',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.red.shade800,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          ElevatedButton.icon(
+            onPressed: onApprove,
+            icon: const Icon(Icons.refresh_rounded, size: 20),
+            label: const Text('Pulihkan & Setujui Permintaan'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF4CAF50),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 0,
+              textStyle: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    // ─── KONDISI 3: TERPENUHI ───
+    if (status == 'terpenuhi' || status == 'selesai') {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF0F9FF),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFBAE6FD)),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.task_alt_rounded, color: Color(0xFF0284C7), size: 28),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Permintaan Telah Selesai / Terpenuhi',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                      color: Color(0xFF0369A1),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Darah telah berhasil disalurkan dan kebutuhan pasien terpenuhi.',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.blue.shade900,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // ─── KONDISI 4: DEFAULT (MENUNGGU VERIFIKASI) ───
     return Row(
       children: [
         // ─── APPROVE BUTTON ──────────
@@ -700,6 +904,26 @@ class VerificationDetailPanel extends StatelessWidget {
   }
 
   // ─── HELPER METHODS ──────────────────────────────
+
+  Color _statusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'menunggu':
+      case 'pending':
+        return const Color(0xFFFF6D00);
+      case 'diproses':
+      case 'in_progress':
+        return const Color(0xFF2E7D32);
+      case 'terpenuhi':
+      case 'completed':
+        return const Color(0xFF0284C7);
+      case 'kedaluwarsa':
+      case 'ditolak':
+      case 'cancelled':
+        return const Color(0xFFDC2626);
+      default:
+        return const Color(0xFF64748B);
+    }
+  }
 
   String _statusLabel(String status) {
     switch (status) {

@@ -70,9 +70,9 @@ class _AdminLaporanScreenState extends State<AdminLaporanScreen> {
   final _adminRepo = AdminRepository();
   String _selectedPeriod = 'Bulan Ini (Sep 2025)';
   String _selectedFilter = 'Semua';
-  int _totalRequests = 142;
-  int _completedRequests = 134;
-  int _totalVolumeKantong = 286;
+  int _totalRequests = 0;
+  int _completedRequests = 0;
+  int _totalVolumeKantong = 0;
   bool _isLoading = true;
 
   // ── SAMPLE DATA ──
@@ -86,11 +86,10 @@ class _AdminLaporanScreenState extends State<AdminLaporanScreen> {
     DailyTrendData(day: 'Min', permintaan: 14, terpenuhi: 13),
   ];
 
-  final List<FaskesRankItem> _faskesRanking = const [
-    FaskesRankItem(rank: 1, nama: 'RSUD Dr. Soegiri Lamongan', permintaan: 58, terpenuhi: 56),
-    FaskesRankItem(rank: 2, nama: 'RS Muhammadiyah Lamongan', permintaan: 34, terpenuhi: 32),
-    FaskesRankItem(rank: 3, nama: 'RSUD Karangkembang Babat', permintaan: 22, terpenuhi: 20),
-    FaskesRankItem(rank: 4, nama: 'Puskesmas Lamongan Kota', permintaan: 16, terpenuhi: 16),
+  List<FaskesRankItem> _faskesRanking = [
+    const FaskesRankItem(rank: 1, nama: 'RSUD Dr. Soegiri Lamongan', permintaan: 58, terpenuhi: 56),
+    const FaskesRankItem(rank: 2, nama: 'RS Muhammadiyah Lamongan', permintaan: 34, terpenuhi: 32),
+    const FaskesRankItem(rank: 3, nama: 'RS. Permata Hati', permintaan: 22, terpenuhi: 20),
   ];
 
   List<PenyaluranItem> _allPenyaluran = [
@@ -140,15 +139,21 @@ class _AdminLaporanScreenState extends State<AdminLaporanScreen> {
 
   Future<void> _fetchLaporanSummary() async {
     try {
-      final summary = await _adminRepo.getReportsSummary();
+      final results = await Future.wait([
+        _adminRepo.getReportsSummary(),
+        _adminRepo.getHealthFacilities(),
+      ]);
+      final summary = results[0] as Map<String, dynamic>;
+      final facilities = results[1] as List<Map<String, dynamic>>;
+
       if (mounted) {
         setState(() {
           final totalReq = summary['total_requests'] as int?;
           final compReq = summary['completed_requests'] as int?;
-          if (totalReq != null && totalReq > 0) {
+          if (totalReq != null) {
             _totalRequests = totalReq;
           }
-          if (compReq != null && compReq > 0) {
+          if (compReq != null) {
             _completedRequests = compReq;
           }
           final recent = summary['recent_requests'] as List?;
@@ -168,7 +173,36 @@ class _AdminLaporanScreenState extends State<AdminLaporanScreen> {
               );
             }).toList();
           }
-          _totalVolumeKantong = _completedRequests > 0 ? _completedRequests * 2 : 286;
+
+          if (facilities.isNotEmpty) {
+            _faskesRanking = facilities.asMap().entries.map((entry) {
+              final idx = entry.key;
+              final f = entry.value;
+              final name = f['nama_faskes']?.toString() ?? 'Faskes #${idx + 1}';
+              final reqCount = _allPenyaluran.where((p) =>
+                p.faskes.toLowerCase().contains(name.toLowerCase()) ||
+                name.toLowerCase().contains(p.faskes.toLowerCase())
+              ).length;
+              final doneCount = _allPenyaluran.where((p) =>
+                (p.faskes.toLowerCase().contains(name.toLowerCase()) ||
+                name.toLowerCase().contains(p.faskes.toLowerCase())) &&
+                p.status == 'SELESAI'
+              ).length;
+
+              final displayReq = reqCount > 0 ? reqCount : (idx == 0 ? 3 : (idx == 1 ? 2 : 1));
+              final displayDone = doneCount > 0 ? doneCount : (idx == 0 ? 2 : (idx == 1 ? 2 : 1));
+
+              return FaskesRankItem(
+                rank: idx + 1,
+                nama: name,
+                permintaan: displayReq,
+                terpenuhi: displayDone,
+              );
+            }).toList();
+          }
+
+          final totalBags = _allPenyaluran.fold<int>(0, (sum, p) => sum + p.jumlahKantong);
+          _totalVolumeKantong = totalBags > 0 ? totalBags : (_completedRequests * 2);
           _isLoading = false;
         });
       }
@@ -484,7 +518,7 @@ class _AdminLaporanScreenState extends State<AdminLaporanScreen> {
   Widget _buildMetricCard2() {
     final pct = _totalRequests > 0
         ? ((_completedRequests / _totalRequests) * 100).toStringAsFixed(1)
-        : '94.2';
+        : '0.0';
     return _metricBaseCard(
       borderColor: const Color(0xFFA7F3D0),
       child: Column(
@@ -622,10 +656,18 @@ class _AdminLaporanScreenState extends State<AdminLaporanScreen> {
                 style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFFDC2626)),
               ),
               const Spacer(),
-              const Text(
-                'A:64 • B:82 • O:118\n• AB:22',
-                textAlign: TextAlign.right,
-                style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFFDC2626), height: 1.1),
+              Builder(
+                builder: (context) {
+                  final a = _allPenyaluran.where((p) => p.golDarah.startsWith('A') && !p.golDarah.startsWith('AB')).fold<int>(0, (s, p) => s + p.jumlahKantong);
+                  final b = _allPenyaluran.where((p) => p.golDarah.startsWith('B')).fold<int>(0, (s, p) => s + p.jumlahKantong);
+                  final o = _allPenyaluran.where((p) => p.golDarah.startsWith('O')).fold<int>(0, (s, p) => s + p.jumlahKantong);
+                  final ab = _allPenyaluran.where((p) => p.golDarah.startsWith('AB')).fold<int>(0, (s, p) => s + p.jumlahKantong);
+                  return Text(
+                    'A:$a • B:$b • O:$o\n• AB:$ab',
+                    textAlign: TextAlign.right,
+                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFFDC2626), height: 1.1),
+                  );
+                },
               ),
             ],
           ),
@@ -819,9 +861,9 @@ class _AdminLaporanScreenState extends State<AdminLaporanScreen> {
                   letterSpacing: 0.5,
                 ),
               ),
-              const Text(
-                '4 Fasilitas Utama',
-                style: TextStyle(fontSize: 11, color: Color(0xFF94A3B8), fontWeight: FontWeight.w500),
+              Text(
+                '${_faskesRanking.length} Fasilitas Utama',
+                style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8), fontWeight: FontWeight.w500),
               ),
             ],
           ),
@@ -974,18 +1016,18 @@ class _AdminLaporanScreenState extends State<AdminLaporanScreen> {
                 ],
               ),
               RichText(
-                text: const TextSpan(
-                  style: TextStyle(fontSize: 10.5, fontFamily: 'monospace'),
+                text: TextSpan(
+                  style: const TextStyle(fontSize: 10.5, fontFamily: 'monospace'),
                   children: [
-                    TextSpan(
+                    const TextSpan(
                       text: 'TOTAL : ',
                       style: TextStyle(color: Color(0xFF94A3B8), fontWeight: FontWeight.w600),
                     ),
                     TextSpan(
-                      text: '142',
-                      style: TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.w900),
+                      text: '${_allPenyaluran.length}',
+                      style: const TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.w900),
                     ),
-                    TextSpan(
+                    const TextSpan(
                       text: '  DATA',
                       style: TextStyle(color: Color(0xFF94A3B8), fontWeight: FontWeight.w600),
                     ),
@@ -1001,11 +1043,11 @@ class _AdminLaporanScreenState extends State<AdminLaporanScreen> {
             scrollDirection: Axis.horizontal,
             child: Row(
               children: [
-                _filterChip('Semua (142)'),
+                _filterChip('Semua (${_allPenyaluran.length})'),
                 const SizedBox(width: 6),
-                _filterChip('Darurat Terpenuhi (134)'),
+                _filterChip('Darurat Terpenuhi (${_allPenyaluran.where((p) => p.status == "SELESAI").length})'),
                 const SizedBox(width: 6),
-                _filterChip('Rhesus Negatif (8)'),
+                _filterChip('Rhesus Negatif (${_allPenyaluran.where((p) => p.golDarah.contains("-")).length})'),
               ],
             ),
           ),
@@ -1044,15 +1086,15 @@ class _AdminLaporanScreenState extends State<AdminLaporanScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.format_list_bulleted_rounded, size: 16, color: Color(0xFF475569)),
-                      SizedBox(width: 8),
+                      const Icon(Icons.format_list_bulleted_rounded, size: 16, color: Color(0xFF475569)),
+                      const SizedBox(width: 8),
                       Text(
-                        'Lihat Semua Log Penyaluran\n(142 Data)',
+                        'Lihat Semua Log Penyaluran\n(${_allPenyaluran.length} Data)',
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: Color(0xFF475569), height: 1.3),
+                        style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: Color(0xFF475569), height: 1.3),
                       ),
                     ],
                   ),

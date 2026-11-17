@@ -267,10 +267,37 @@ class _AdminVerificationScreenState extends State<AdminVerificationScreen> {
               ),
             ),
           const SizedBox(width: 12),
-          // Notification bell
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined, color: Color(0xFF9E9E9E)),
-            onPressed: () {},
+          // Notification bell with badge & dialog
+          InkWell(
+            borderRadius: BorderRadius.circular(20),
+            onTap: _showAdminNotificationDialog,
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF1F5F9),
+                shape: BoxShape.circle,
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+              ),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  const Icon(Icons.notifications_none_rounded, color: Color(0xFF334155), size: 20),
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Container(
+                      width: 8,
+                      height: 8,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFE53935),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
@@ -368,25 +395,7 @@ class _AdminVerificationScreenState extends State<AdminVerificationScreen> {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: isPending
-                          ? const Color(0xFFFFF3E0)
-                          : const Color(0xFFE8F5E9),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      isPending ? 'PENDING' : 'OK',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: isPending
-                            ? const Color(0xFFFF6D00)
-                            : const Color(0xFF2E7D32),
-                      ),
-                    ),
-                  ),
+                  _buildStatusBadge(request.status),
                 ],
               ),
               const SizedBox(height: 8),
@@ -512,16 +521,246 @@ class _AdminVerificationScreenState extends State<AdminVerificationScreen> {
     );
   }
 
+  Widget _buildStatusBadge(String status) {
+    String label;
+    Color bgColor;
+    Color textColor;
+
+    switch (status.toLowerCase()) {
+      case 'menunggu':
+      case 'pending':
+        label = 'MENUNGGU';
+        bgColor = const Color(0xFFFFF3E0);
+        textColor = const Color(0xFFFF6D00);
+        break;
+      case 'diproses':
+      case 'in_progress':
+        label = 'DISETUJUI';
+        bgColor = const Color(0xFFE8F5E9);
+        textColor = const Color(0xFF2E7D32);
+        break;
+      case 'terpenuhi':
+      case 'selesai':
+      case 'completed':
+        label = 'SELESAI';
+        bgColor = const Color(0xFFE0F2FE);
+        textColor = const Color(0xFF0284C7);
+        break;
+      case 'kedaluwarsa':
+      case 'ditolak':
+      case 'cancelled':
+        label = 'DITOLAK';
+        bgColor = const Color(0xFFFFEBEE);
+        textColor = const Color(0xFFD32F2F);
+        break;
+      default:
+        label = status.toUpperCase();
+        bgColor = const Color(0xFFF1F5F9);
+        textColor = const Color(0xFF64748B);
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 10.5,
+          fontWeight: FontWeight.w800,
+          color: textColor,
+          letterSpacing: 0.3,
+        ),
+      ),
+    );
+  }
+
+  void _showAdminNotificationDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+        child: Container(
+          width: 520,
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFEE2E2),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.notifications_active_rounded, color: Color(0xFFDC2626), size: 22),
+                  ),
+                  const SizedBox(width: 14),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Pemberitahuan Posko PMI',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF1E293B),
+                          ),
+                        ),
+                        SizedBox(height: 2),
+                        Text(
+                          'Pusat Kendali Tanggap Darurat Darah Lamongan',
+                          style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Color(0xFF94A3B8)),
+                    onPressed: () => Navigator.pop(ctx),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              const Divider(height: 1),
+              const SizedBox(height: 14),
+
+              // Notification items
+              _buildNotifItem(
+                icon: Icons.emergency_rounded,
+                iconColor: const Color(0xFFDC2626),
+                bgColor: const Color(0xFFFEF2F2),
+                title: 'Permintaan Darah Masuk (RSUD Dr. Soegiri)',
+                subtitle: 'Pemohon #156 membutuhkan 2 kantong darah O+ untuk pasien rawat inap.',
+                time: 'Baru saja',
+              ),
+              const SizedBox(height: 10),
+              _buildNotifItem(
+                icon: Icons.verified_user_rounded,
+                iconColor: const Color(0xFF0284C7),
+                bgColor: const Color(0xFFF0F9FF),
+                title: 'Verifikasi Resep Dokter Berhasil',
+                subtitle: 'Lampiran foto surat dokter dari Faskes telah tervalidasi dan siap diproses.',
+                time: '15 menit lalu',
+              ),
+              const SizedBox(height: 10),
+              _buildNotifItem(
+                icon: Icons.groups_rounded,
+                iconColor: const Color(0xFF16A34A),
+                bgColor: const Color(0xFFF0FDF4),
+                title: 'Relawan Siaga Aktif di Lamongan',
+                subtitle: '12 pendonor aktif terdeteksi berada dalam radius siaga 5–10 km.',
+                time: '1 jam lalu',
+              ),
+
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Semua notifikasi ditandai telah dibaca'),
+                          behavior: SnackBarBehavior.floating,
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    },
+                    child: const Text('Tandai Semua Dibaca'),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1E293B),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                    child: const Text('Tutup'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNotifItem({
+    required IconData icon,
+    required Color iconColor,
+    required Color bgColor,
+    required String title,
+    required String subtitle,
+    required String time,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(8)),
+            child: Icon(icon, color: iconColor, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: Color(0xFF1E293B)),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Text(time, style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8))),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(subtitle, style: const TextStyle(fontSize: 12, color: Color(0xFF475569))),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _handleApprove(BloodRequestModel request) async {
     // Show confirmation dialog
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Setujui Permintaan'),
+        title: const Text('Setujui Permintaan Darah'),
         content: Text(
-          'Setujui permintaan darah ${request.bloodLabel} dari ${request.hospitalName ?? "faskes"}?\n'
-          'Notifikasi akan dikirim ke pendonor terdekat.',
+          'Setujui permintaan darah ${request.bloodLabel} dari ${request.hospitalName ?? "faskes"}?\n\n'
+          'Sinyal darurat dan notifikasi broadcast akan dikirimkan ke pendonor terdekat.',
         ),
         actions: [
           TextButton(
@@ -534,13 +773,21 @@ class _AdminVerificationScreenState extends State<AdminVerificationScreen> {
               backgroundColor: const Color(0xFF4CAF50),
               foregroundColor: Colors.white,
             ),
-            child: const Text('Setujui'),
+            child: const Text('Ya, Setujui Permintaan'),
           ),
         ],
       ),
     );
 
     if (confirmed == true) {
+      // Optimistic instant UI update
+      setState(() {
+        final idx = _requests.indexWhere((r) => r.id == request.id);
+        if (idx != -1) {
+          _requests[idx] = _requests[idx].copyWith(status: 'diproses');
+        }
+      });
+
       try {
         await _apiClient.put('/admin/requests/${request.id}', body: {
           'status': 'diproses',
@@ -549,8 +796,10 @@ class _AdminVerificationScreenState extends State<AdminVerificationScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Permintaan disetujui & notifikasi terkirim'),
-              backgroundColor: Color(0xFF4CAF50),
+              content: Text('✓ Permintaan berhasil disetujui & sinyal notifikasi relawan aktif'),
+              backgroundColor: Color(0xFF2E7D32),
+              behavior: SnackBarBehavior.floating,
+              duration: Duration(seconds: 3),
             ),
           );
         }
@@ -558,8 +807,10 @@ class _AdminVerificationScreenState extends State<AdminVerificationScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Gagal: $e'),
+              content: Text('Pemberitahuan: $e. Pastikan backend server berjalan di port 8000.'),
               backgroundColor: const Color(0xFFE53935),
+              behavior: SnackBarBehavior.floating,
+              duration: Duration(seconds: 4),
             ),
           );
         }
@@ -572,10 +823,10 @@ class _AdminVerificationScreenState extends State<AdminVerificationScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Tolak Permintaan'),
+        title: const Text('Tolak / Batalkan Permintaan'),
         content: Text(
-          'Tolak permintaan darah ${request.bloodLabel} dari ${request.hospitalName ?? "faskes"}?\n'
-          'Admin akan diarahkan untuk menghubungi faskes terkait.',
+          'Tolak permintaan darah ${request.bloodLabel} dari ${request.hospitalName ?? "faskes"}?\n\n'
+          'Status permintaan akan diubah menjadi kedaluwarsa/ditolak dan siaran relawan dihentikan.',
         ),
         actions: [
           TextButton(
@@ -588,13 +839,21 @@ class _AdminVerificationScreenState extends State<AdminVerificationScreen> {
               backgroundColor: const Color(0xFFE53935),
               foregroundColor: Colors.white,
             ),
-            child: const Text('Tolak'),
+            child: const Text('Ya, Tolak Permintaan'),
           ),
         ],
       ),
     );
 
     if (confirmed == true) {
+      // Optimistic instant UI update
+      setState(() {
+        final idx = _requests.indexWhere((r) => r.id == request.id);
+        if (idx != -1) {
+          _requests[idx] = _requests[idx].copyWith(status: 'kedaluwarsa');
+        }
+      });
+
       try {
         await _apiClient.put('/admin/requests/${request.id}', body: {
           'status': 'kedaluwarsa',
@@ -603,8 +862,10 @@ class _AdminVerificationScreenState extends State<AdminVerificationScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Permintaan ditolak'),
+              content: Text('Permintaan telah ditolak / kedaluwarsa'),
               backgroundColor: Color(0xFFE53935),
+              behavior: SnackBarBehavior.floating,
+              duration: Duration(seconds: 3),
             ),
           );
         }
@@ -612,8 +873,10 @@ class _AdminVerificationScreenState extends State<AdminVerificationScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Gagal: $e'),
+              content: Text('Pemberitahuan: $e. Pastikan backend server berjalan di port 8000.'),
               backgroundColor: const Color(0xFFE53935),
+              behavior: SnackBarBehavior.floating,
+              duration: Duration(seconds: 4),
             ),
           );
         }

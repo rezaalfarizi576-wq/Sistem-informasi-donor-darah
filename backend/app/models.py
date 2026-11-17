@@ -206,13 +206,16 @@ class DonationHistory(Base):
 
 
 class BloodStock(Base):
-    """Ketersediaan stok kantong darah di UDD PMI Lamongan (tabel `blood_stocks`)."""
+    """Ketersediaan stok kantong darah di UDD PMI Lamongan & BDRS Faskes (tabel `blood_stocks`)."""
     __tablename__ = "blood_stocks"
 
     id = Column(BigInteger, primary_key=True, index=True, autoincrement=True)
+    facility_id = Column(BigInteger, ForeignKey("health_facilities.id", ondelete="CASCADE"), nullable=True)
     blood_type = Column(String(10), nullable=False)
     rhesus = Column(String(5), nullable=False, default="+")
     label = Column(String(50), nullable=False)
     jumlah_kantong = Column(SmallInteger, nullable=False, default=0)
     status_stok = Column(String(20), nullable=False, default="Aman")
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    facility = relationship("HealthFacility", backref="blood_stocks")

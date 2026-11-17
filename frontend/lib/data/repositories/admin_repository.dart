@@ -90,6 +90,37 @@ class AdminRepository {
     await _apiClient.delete('/admin/facilities/$id');
   }
 
+  // ── Blood Stock ──
+  Future<List<Map<String, dynamic>>> getBloodStocks({bool allFacilities = true, int? facilityId}) async {
+    String endpoint = '/donor/blood-stock';
+    if (facilityId != null) {
+      endpoint += '?facility_id=$facilityId';
+    } else if (allFacilities) {
+      endpoint += '?all_facilities=true';
+    }
+    final response = await _apiClient.get(endpoint);
+    // Response structure: { total_bags: ..., stocks: [...] }
+    if (response is Map && response.containsKey('stocks')) {
+      final items = response['stocks'];
+      if (items is List) {
+        return items.map((item) => Map<String, dynamic>.from(item)).toList();
+      }
+    }
+    // Fallback: response is List directly
+    if (response is List) {
+      return response.map((item) => Map<String, dynamic>.from(item)).toList();
+    }
+    return [];
+  }
+
+  Future<Map<String, dynamic>> updateBloodStock(int stockId, int jumlahKantong) async {
+    final response = await _apiClient.put(
+      '/donor/blood-stock/$stockId',
+      body: {'bags': jumlahKantong},
+    );
+    return Map<String, dynamic>.from(response);
+  }
+
   // ── Reports & Summary ──
   Future<Map<String, dynamic>> getReportsSummary() async {
     final response = await _apiClient.get('/admin/reports/summary');

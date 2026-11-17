@@ -55,6 +55,18 @@ class _DonorDispatchScreenState extends State<DonorDispatchScreen> {
     _fetchRoadRoute();
   }
 
+  @override
+  void didUpdateWidget(covariant DonorDispatchScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialDispatch != null && widget.initialDispatch != oldWidget.initialDispatch) {
+      setState(() {
+        _dispatch = widget.initialDispatch;
+        _isLoading = false;
+      });
+      _applyDispatchCoordinates(_dispatch!);
+    }
+  }
+
   void _applyDispatchCoordinates(DispatchTicketModel d) {
     _faskesPos = LatLng(d.hospitalLat, d.hospitalLng);
     _fetchRoadRoute();
@@ -116,6 +128,9 @@ class _DonorDispatchScreenState extends State<DonorDispatchScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
+      bottomNavigationBar: widget.onNavigateToRadar == null
+          ? _buildStandaloneBottomNavBar(context)
+          : null,
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -131,7 +146,16 @@ class _DonorDispatchScreenState extends State<DonorDispatchScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Row(
                   children: [
-                    if (Navigator.canPop(context)) ...[
+                    if (widget.onNavigateToRadar != null) ...[
+                      IconButton(
+                        onPressed: widget.onNavigateToRadar,
+                        icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF0F172A), size: 22),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        tooltip: 'Kembali ke Radar',
+                      ),
+                      const SizedBox(width: 8),
+                    ] else if (Navigator.canPop(context)) ...[
                       IconButton(
                         onPressed: () => Navigator.pop(context),
                         icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF0F172A), size: 22),
@@ -1575,6 +1599,67 @@ class _DonorDispatchScreenState extends State<DonorDispatchScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildStandaloneBottomNavBar(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 10,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: BottomNavigationBar(
+        currentIndex: 1, // Tab Dispatch
+        onTap: (index) {
+          if (index == 1) return;
+          Navigator.pushReplacementNamed(
+            context,
+            AppRouter.donorDashboardRoute,
+            arguments: index,
+          );
+        },
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.white,
+        selectedItemColor: const Color(0xFFD32F2F),
+        unselectedItemColor: const Color(0xFF94A3B8),
+        selectedLabelStyle: GoogleFonts.plusJakartaSans(
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+        ),
+        unselectedLabelStyle: GoogleFonts.plusJakartaSans(
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+        ),
+        elevation: 0,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.radar_rounded),
+            activeIcon: Icon(Icons.radar_rounded, size: 26),
+            label: 'Radar',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.local_shipping_outlined),
+            activeIcon: Icon(Icons.local_shipping_rounded, size: 26),
+            label: 'Dispatch',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.account_balance_outlined),
+            activeIcon: Icon(Icons.account_balance_rounded, size: 26),
+            label: 'Bank',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline_rounded),
+            activeIcon: Icon(Icons.person_rounded, size: 26),
+            label: 'Profile',
+          ),
+        ],
+      ),
     );
   }
 }

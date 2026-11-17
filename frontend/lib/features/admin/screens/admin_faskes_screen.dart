@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import '../../../data/repositories/admin_repository.dart';
 import '../../../core/utils/url_helper.dart';
-import 'dart:math';
 
 class BloodStockModel {
+  final int? stockId; // DB ID for update
   final String type;
   final int count;
   final String status; // 'Aman', 'Kritis', 'HABIS', 'Menipis', 'Cukup'
 
   const BloodStockModel({
+    this.stockId,
     required this.type,
     required this.count,
     required this.status,
@@ -60,7 +61,7 @@ class FaskesModel {
 
   int get totalStock => inventory.fold(0, (sum, item) => sum + item.count);
 
-  factory FaskesModel.fromApi(Map<String, dynamic> data, int index) {
+  factory FaskesModel.fromApi(Map<String, dynamic> data, int index, [List<Map<String, dynamic>> bloodStocks = const []]) {
     final id = data['id']?.toString() ?? '$index';
     final nama = data['nama_faskes']?.toString() ?? 'Faskes #$id';
     final alamat = data['alamat']?.toString() ?? 'Lamongan';
@@ -83,11 +84,63 @@ class FaskesModel {
       kec = 'Kec. Deket, Lamongan';
     }
 
-    final rng = Random(int.tryParse(id) ?? index);
-    final aCount = 3 + rng.nextInt(12);
-    final bCount = 2 + rng.nextInt(15);
-    final oCount = 4 + rng.nextInt(18);
-    final abCount = 1 + rng.nextInt(8);
+    // Filter stocks belonging specifically to this facility ID
+    final facIdInt = int.tryParse(id);
+    final facStocks = bloodStocks.where((s) {
+      final sFacId = s['facility_id'];
+      if (sFacId == null) return false;
+      return sFacId == facIdInt || sFacId.toString() == id;
+    }).toList();
+
+    // If no facility-specific stock found, fallback to general bloodStocks
+    final effectiveStocks = facStocks.isNotEmpty ? facStocks : bloodStocks;
+
+    // Map label -> stock record
+    final stockMap = <String, Map<String, dynamic>>{};
+    for (final s in effectiveStocks) {
+      final lbl = s['label']?.toString() ?? '';
+      if (lbl.isNotEmpty) stockMap[lbl] = s;
+    }
+
+    String _statusFromCount(int count) {
+      if (count == 0) return 'HABIS';
+      if (count <= 2) return 'Kritis';
+      if (count <= 5) return 'Menipis';
+      if (count <= 10) return 'Cukup';
+      return 'Aman';
+    }
+
+    BloodStockModel _stockFor(String label) {
+      final s = stockMap[label];
+      if (s != null) {
+        // API returns 'bags' and 'status' (not jumlah_kantong/status_stok)
+        final count = (s['bags'] as num?)?.toInt() ?? (s['jumlah_kantong'] as num?)?.toInt() ?? 0;
+        final status = s['status']?.toString() ?? s['status_stok']?.toString() ?? _statusFromCount(count);
+        final stockId = (s['id'] as num?)?.toInt();
+        return BloodStockModel(stockId: stockId, type: label, count: count, status: status);
+      }
+      return BloodStockModel(type: label, count: 0, status: 'HABIS');
+    }
+
+    final inventory = [
+      _stockFor('A+'),
+      _stockFor('A-'),
+      _stockFor('B+'),
+      _stockFor('B-'),
+      _stockFor('O+'),
+      _stockFor('O-'),
+      _stockFor('AB+'),
+      _stockFor('AB-'),
+    ];
+
+    // Determine overall status based on inventory
+    final kritisCount = inventory.where((s) => s.status == 'Kritis' || s.status == 'HABIS').length;
+    final statusUtd = kritisCount >= 4
+        ? 'KRITIS (STOK MINIM)'
+        : (kritisCount >= 1 ? 'WASPADA (CEK STOK)' : 'SIAGA (STOK CUKUP)');
+    final statusSubtext = kritisCount >= 1
+        ? '$kritisCount jenis darah kritis'
+        : 'Stok Terpantau Aman';
 
     return FaskesModel(
       id: id,
@@ -99,22 +152,13 @@ class FaskesModel {
       igdPhone: telepon,
       kecamatan: kec,
       alamat: alamat,
-      statusUtd: (oCount <= 3 || aCount <= 2) ? 'KRITIS (STOK MINIM)' : 'SIAGA (STOK CUKUP)',
-      statusSubtext: (oCount <= 3) ? 'Sisa O+: $oCount Kantong' : 'Stok Terpantau Aman',
+      statusUtd: statusUtd,
+      statusSubtext: statusSubtext,
       badge: isRSUD ? '★ Rujukan Utama' : (isVerif ? 'Terverifikasi PMI' : null),
-      pasienKritisCount: 1 + rng.nextInt(6),
-      pasienKritisLabel: 'Pasien Kritis',
+      pasienKritisCount: kritisCount,
+      pasienKritisLabel: 'Stok Kritis',
       lastUpdate: 'Real-time sync',
-      inventory: [
-        BloodStockModel(type: 'A+', count: aCount, status: aCount > 5 ? 'Aman' : 'Menipis'),
-        BloodStockModel(type: 'A-', count: rng.nextInt(3), status: 'Kritis'),
-        BloodStockModel(type: 'B+', count: bCount, status: bCount > 5 ? 'Aman' : 'Cukup'),
-        BloodStockModel(type: 'B-', count: rng.nextInt(2), status: 'Menipis'),
-        BloodStockModel(type: 'O+', count: oCount, status: oCount > 6 ? 'Aman' : 'Kritis'),
-        BloodStockModel(type: 'O-', count: rng.nextInt(3), status: 'Menipis'),
-        BloodStockModel(type: 'AB+', count: abCount, status: 'Cukup'),
-        BloodStockModel(type: 'AB-', count: rng.nextInt(2), status: 'Kritis'),
-      ],
+      inventory: inventory,
       isVerified: isVerif,
       latitude: lat,
       longitude: lng,
@@ -244,7 +288,13 @@ class _AdminFaskesScreenState extends State<AdminFaskesScreen> {
   ];
 
   List<FaskesModel> _allFaskes = [];
+  List<Map<String, dynamic>> _bloodStocks = []; // Real blood stock from DB
   late FaskesModel _selectedFaskes;
+  bool _isUpdatingStock = false;
+  int _relawanSiagaCount = 32; // Live donor count from DB
+  int _totalActiveRequests = 3;
+  int _completedRequests = 0;
+  int _pendingRequests = 3;
 
   @override
   void initState() {
@@ -256,21 +306,83 @@ class _AdminFaskesScreenState extends State<AdminFaskesScreen> {
 
   Future<void> _fetchFacilities() async {
     try {
-      final list = await _adminRepo.getHealthFacilities();
-      if (list.isNotEmpty && mounted) {
-        final models = list.asMap().entries.map((entry) => FaskesModel.fromApi(entry.value, entry.key + 1)).toList();
+      // Fetch facilities, blood stocks, donors, and summary in parallel from live backend
+      final results = await Future.wait([
+        _adminRepo.getHealthFacilities(),
+        _adminRepo.getBloodStocks(),
+        _adminRepo.getDonors(),
+        _adminRepo.getReportsSummary(),
+      ]);
+
+      final facilityList = results[0] as List<Map<String, dynamic>>;
+      final bloodStockList = results[1] as List<Map<String, dynamic>>;
+      final donorList = results[2] as List;
+      final reportSummary = results[3] as Map<String, dynamic>;
+
+      if (mounted) {
+        setState(() {
+          _relawanSiagaCount = donorList.isNotEmpty ? donorList.length : 32;
+          _totalActiveRequests = (reportSummary['total_requests'] as num?)?.toInt() ?? 3;
+          _completedRequests = (reportSummary['completed_requests'] as num?)?.toInt() ?? 0;
+          _pendingRequests = (reportSummary['pending_requests'] as num?)?.toInt() ?? _totalActiveRequests;
+        });
+      }
+
+      if (facilityList.isNotEmpty && mounted) {
+        final models = facilityList.asMap().entries.map((entry) =>
+          FaskesModel.fromApi(entry.value, entry.key + 1, bloodStockList)
+        ).toList();
+        final currentSelectedId = _selectedFaskes.id;
+        final matchingSelected = models.firstWhere(
+          (m) => m.id == currentSelectedId,
+          orElse: () => models.first,
+        );
         setState(() {
           _allFaskes = models;
-          _selectedFaskes = models.first;
+          _bloodStocks = bloodStockList;
+          _selectedFaskes = matchingSelected;
           _isLoading = false;
         });
         return;
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('Error fetching facilities: $e');
+    }
     if (mounted) {
       setState(() {
         _isLoading = false;
       });
+    }
+  }
+
+  Future<void> _updateBloodStock(BloodStockModel item, int newCount) async {
+    if (item.stockId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Stok ini tidak terhubung ke database'), backgroundColor: Colors.orange),
+      );
+      return;
+    }
+    setState(() => _isUpdatingStock = true);
+    try {
+      await _adminRepo.updateBloodStock(item.stockId!, newCount);
+      // Refresh data
+      await _fetchFacilities();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Stok ${item.type} berhasil diperbarui menjadi $newCount kantong'),
+            backgroundColor: const Color(0xFF059669),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal memperbarui stok: $e'), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isUpdatingStock = false);
     }
   }
 
@@ -365,9 +477,9 @@ class _AdminFaskesScreenState extends State<AdminFaskesScreen> {
               ),
             ),
             const SizedBox(height: 4),
-            const Text(
-              'Selasa, 8 September 2025 • 28 Faskes Terintegrasi di Kab. Lamongan',
-              style: TextStyle(
+            Text(
+              '${_formatTanggal(DateTime.now())} • ${_allFaskes.length} Faskes Terintegrasi di Kab. Lamongan',
+              style: const TextStyle(
                 fontSize: 12.5,
                 color: Color(0xFF64748B),
                 fontWeight: FontWeight.w500,
@@ -401,9 +513,9 @@ class _AdminFaskesScreenState extends State<AdminFaskesScreen> {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  const Text(
-                    '6 Faskes Siaga Kritis (Stok Minim)',
-                    style: TextStyle(
+                  Text(
+                    '${_allFaskes.where((f) => f.statusUtd.contains("KRITIS") || f.statusUtd.contains("WASPADA")).length} Faskes Siaga Kritis (Stok Minim)',
+                    style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
                       color: Color(0xFFDC2626),
@@ -414,31 +526,35 @@ class _AdminFaskesScreenState extends State<AdminFaskesScreen> {
             ),
 
             // Notification Bell with indicator dot
-            Container(
-              width: 38,
-              height: 38,
-              decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
-                shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFFE2E8F0)),
-              ),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  const Icon(Icons.notifications_none_rounded, size: 18, color: Color(0xFF475569)),
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: Container(
-                      width: 7,
-                      height: 7,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFF59E0B),
-                        shape: BoxShape.circle,
+            InkWell(
+              borderRadius: BorderRadius.circular(20),
+              onTap: _showNotificationDialog,
+              child: Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                ),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    const Icon(Icons.notifications_none_rounded, size: 18, color: Color(0xFF475569)),
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Container(
+                        width: 7,
+                        height: 7,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFF59E0B),
+                          shape: BoxShape.circle,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
 
@@ -597,9 +713,9 @@ class _AdminFaskesScreenState extends State<AdminFaskesScreen> {
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              const Text(
-                '28',
-                style: TextStyle(
+              Text(
+                '${_allFaskes.length}',
+                style: const TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w900,
                   color: Color(0xFF0F172A),
@@ -613,7 +729,7 @@ class _AdminFaskesScreenState extends State<AdminFaskesScreen> {
               ),
               const Spacer(),
               const Text(
-                '+2 baru\nterhubung',
+                'Terintegrasi\nLamongan',
                 textAlign: TextAlign.right,
                 style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: Color(0xFF10B981), height: 1.1),
               ),
@@ -653,9 +769,9 @@ class _AdminFaskesScreenState extends State<AdminFaskesScreen> {
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              const Text(
-                '14',
-                style: TextStyle(
+              Text(
+                '$_totalActiveRequests',
+                style: const TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w900,
                   color: Color(0xFF059669),
@@ -668,10 +784,10 @@ class _AdminFaskesScreenState extends State<AdminFaskesScreen> {
                 style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFF059669)),
               ),
               const Spacer(),
-              const Text(
-                '8 Terpenuhi •\n6 Menunggu',
+              Text(
+                '$_completedRequests Terpenuhi •\n$_pendingRequests Menunggu',
                 textAlign: TextAlign.right,
-                style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFF059669), height: 1.1),
+                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFF059669), height: 1.1),
               ),
             ],
           ),
@@ -682,6 +798,7 @@ class _AdminFaskesScreenState extends State<AdminFaskesScreen> {
 
   // Card 3: Status Darah Kritis (Defisit)
   Widget _buildMetricCard3() {
+    final kritisCount = _allFaskes.where((f) => f.statusUtd.contains('KRITIS')).length;
     return _metricBaseCard(
       borderColor: const Color(0xFFFECDD3),
       child: Column(
@@ -709,9 +826,9 @@ class _AdminFaskesScreenState extends State<AdminFaskesScreen> {
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              const Text(
-                '4',
-                style: TextStyle(
+              Text(
+                '$kritisCount',
+                style: const TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w900,
                   color: Color(0xFFDC2626),
@@ -859,13 +976,13 @@ class _AdminFaskesScreenState extends State<AdminFaskesScreen> {
           scrollDirection: Axis.horizontal,
           child: Row(
             children: [
-              _filterChip('Semua (28)'),
+              _filterChip('Semua (${_allFaskes.length})'),
               const SizedBox(width: 6),
-              _filterChip('Stok Kritis (6)'),
+              _filterChip('Stok Kritis (${_allFaskes.where((f) => f.statusUtd.contains("KRITIS")).length})'),
               const SizedBox(width: 6),
-              _filterChip('RSUD & Swasta (8)'),
+              _filterChip('RSUD & Swasta (${_allFaskes.where((f) => f.nama.contains("RS")).length})'),
               const SizedBox(width: 6),
-              _filterChip('Puskesmas (20)'),
+              _filterChip('Puskesmas (${_allFaskes.where((f) => f.nama.contains("Puskesmas")).length})'),
             ],
           ),
         ),
@@ -887,11 +1004,12 @@ class _AdminFaskesScreenState extends State<AdminFaskesScreen> {
   }
 
   Widget _filterChip(String label) {
-    final isSelected = _selectedFilter == label;
+    // Match by prefix so 'Semua' matches 'Semua (3)'
+    final isSelected = label.startsWith(_selectedFilter) || _selectedFilter.startsWith(label.split(' (')[0]);
     final isKritis = label.contains('Kritis');
 
     return InkWell(
-      onTap: () => setState(() => _selectedFilter = label),
+      onTap: () => setState(() => _selectedFilter = label.split(' (')[0]),
       borderRadius: BorderRadius.circular(20),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -1147,6 +1265,7 @@ class _AdminFaskesScreenState extends State<AdminFaskesScreen> {
   Widget _buildRightDetailPanel() {
     final f = _selectedFaskes;
     final isKritis = f.statusUtd.contains('KRITIS');
+    final isWaspada = f.statusUtd.contains('WASPADA');
 
     return Container(
       padding: const EdgeInsets.all(22),
@@ -1317,14 +1436,20 @@ class _AdminFaskesScreenState extends State<AdminFaskesScreen> {
                 ),
                 const SizedBox(width: 12),
 
-                // Status UTD Big Card (Pink Box)
+                // Status UTD Big Card
                 Container(
-                  width: 85,
+                  width: 90,
                   padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
                   decoration: BoxDecoration(
-                    color: isKritis ? const Color(0xFFFFF1F2) : const Color(0xFFF0FDF4),
+                    color: isKritis
+                        ? const Color(0xFFFFF1F2)
+                        : (isWaspada ? const Color(0xFFFEF3C7) : const Color(0xFFF0FDF4)),
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: isKritis ? const Color(0xFFFECDD3) : const Color(0xFFA7F3D0)),
+                    border: Border.all(
+                      color: isKritis
+                          ? const Color(0xFFFECDD3)
+                          : (isWaspada ? const Color(0xFFFDE68A) : const Color(0xFFA7F3D0)),
+                    ),
                   ),
                   child: Column(
                     children: [
@@ -1334,26 +1459,34 @@ class _AdminFaskesScreenState extends State<AdminFaskesScreen> {
                         style: TextStyle(
                           fontSize: 8.5,
                           fontWeight: FontWeight.w700,
-                          color: isKritis ? const Color(0xFFBE123C) : const Color(0xFF047857),
+                          color: isKritis
+                              ? const Color(0xFFBE123C)
+                              : (isWaspada ? const Color(0xFFB45309) : const Color(0xFF047857)),
                           height: 1.1,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        isKritis ? 'KRITIS' : 'AMAN',
+                        isKritis ? 'KRITIS' : (isWaspada ? 'WASPADA' : 'AMAN'),
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 15,
                           fontWeight: FontWeight.w900,
-                          color: isKritis ? const Color(0xFFE11D48) : const Color(0xFF059669),
+                          color: isKritis
+                              ? const Color(0xFFE11D48)
+                              : (isWaspada ? const Color(0xFFD97706) : const Color(0xFF059669)),
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        isKritis ? 'Defisit O+ &\nB-' : 'Stok Cukup &\nStabil',
+                        isKritis
+                            ? 'Stok Minim'
+                            : (isWaspada ? 'Cek Stok' : 'Stok Stabil'),
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 8,
-                          color: isKritis ? const Color(0xFFBE123C) : const Color(0xFF047857),
+                          color: isKritis
+                              ? const Color(0xFFBE123C)
+                              : (isWaspada ? const Color(0xFFB45309) : const Color(0xFF047857)),
                           height: 1.1,
                         ),
                       ),
@@ -1408,15 +1541,8 @@ class _AdminFaskesScreenState extends State<AdminFaskesScreen> {
                 children: [
                   // Button 1: Buka Broadcast Relawan Radius 5 km
                   ElevatedButton.icon(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Broadcast radar darurat diaktifkan untuk wilayah ${f.nama}!'),
-                          backgroundColor: const Color(0xFF059669),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.check, size: 16, color: Colors.white),
+                    onPressed: () => _showBroadcastRadiusDialog(f),
+                    icon: const Icon(Icons.podcasts_rounded, size: 16, color: Colors.white),
                     label: const Text(
                       'Buka Broadcast Relawan Radius 5 km',
                       style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white),
@@ -1518,42 +1644,123 @@ class _AdminFaskesScreenState extends State<AdminFaskesScreen> {
       statusColor = const Color(0xFFDC2626);
     }
 
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
-      decoration: BoxDecoration(
-        color: cardBg,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: borderColor),
+    return InkWell(
+      onTap: item.stockId != null ? () => _showEditStockDialog(item) : null,
+      borderRadius: BorderRadius.circular(10),
+      child: Tooltip(
+        message: item.stockId != null ? 'Klik untuk edit stok ${item.type}' : item.type,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+          decoration: BoxDecoration(
+            color: cardBg,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: borderColor),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    item.type,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF475569),
+                    ),
+                  ),
+                  if (item.stockId != null) ...[
+                    const SizedBox(width: 3),
+                    const Icon(Icons.edit_rounded, size: 9, color: Color(0xFF94A3B8)),
+                  ],
+                ],
+              ),
+              const SizedBox(height: 3),
+              Text(
+                '${item.count} Ktg',
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w900,
+                  color: numberColor,
+                  letterSpacing: -0.5,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                item.status,
+                style: TextStyle(
+                  fontSize: 9.5,
+                  fontWeight: FontWeight.w800,
+                  color: statusColor,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            item.type,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF475569),
+    );
+  }
+
+  void _showEditStockDialog(BloodStockModel item) {
+    final controller = TextEditingController(text: item.count.toString());
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        title: Row(
+          children: [
+            const Icon(Icons.water_drop_rounded, color: Color(0xFFDC2626)),
+            const SizedBox(width: 8),
+            Text('Edit Stok ${item.type}'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Jumlah kantong darah saat ini di UDD PMI Lamongan:',
+              style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
             ),
+            const SizedBox(height: 14),
+            TextField(
+              controller: controller,
+              keyboardType: TextInputType.number,
+              autofocus: true,
+              decoration: InputDecoration(
+                labelText: 'Jumlah Kantong (${item.type})',
+                suffixText: 'Ktg',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: Color(0xFFDC2626)),
+                ),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Batal'),
           ),
-          const SizedBox(height: 3),
-          Text(
-            '${item.count} Ktg',
-            style: TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.w900,
-              color: numberColor,
-              letterSpacing: -0.5,
+          ElevatedButton(
+            onPressed: () {
+              final newCount = int.tryParse(controller.text.trim());
+              if (newCount == null || newCount < 0) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Masukkan angka yang valid'), backgroundColor: Colors.orange),
+                );
+                return;
+              }
+              Navigator.pop(ctx);
+              _updateBloodStock(item, newCount);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFDC2626),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            item.status,
-            style: TextStyle(
-              fontSize: 9.5,
-              fontWeight: FontWeight.w800,
-              color: statusColor,
-            ),
+            child: const Text('Simpan', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -1568,6 +1775,14 @@ class _AdminFaskesScreenState extends State<AdminFaskesScreen> {
       return parts[0][0].toUpperCase();
     }
     return 'F';
+  }
+
+  String _formatTanggal(DateTime d) {
+    const hari = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+    const bulan = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    final namaHari = hari[d.weekday - 1];
+    return '$namaHari, ${d.day} ${bulan[d.month]} ${d.year}';
   }
 
   void _showAddFaskesDialog() {
@@ -1635,7 +1850,7 @@ class _AdminFaskesScreenState extends State<AdminFaskesScreen> {
                   'longitude': 112.4151,
                   'terverifikasi': true,
                 });
-                final model = FaskesModel.fromApi(created, _allFaskes.length + 1);
+                final model = FaskesModel.fromApi(created, _allFaskes.length + 1, _bloodStocks);
                 if (mounted) {
                   setState(() {
                     _allFaskes.insert(0, model);
@@ -1669,6 +1884,207 @@ class _AdminFaskesScreenState extends State<AdminFaskesScreen> {
     );
   }
 
+  void _showBroadcastRadiusDialog(FaskesModel f) {
+    String selectedBloodType = 'Semua Golongan';
+    final noteController = TextEditingController(
+      text: 'Dibutuhkan segera donor darah darurat untuk pasien di ${f.nama} (${f.kecamatan}). Mohon kesediaan relawan terdekat.',
+    );
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+          contentPadding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+          actionsPadding: const EdgeInsets.all(16),
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFDC2626).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.podcasts_rounded, color: Color(0xFFDC2626), size: 22),
+              ),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Broadcast Radar Darurat',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                    ),
+                    Text(
+                      'Notifikasi serentak relawan radius faskes',
+                      style: TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w500),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          content: SizedBox(
+            width: 460,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Target Faskes info card
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.local_hospital_rounded, size: 20, color: Color(0xFFDC2626)),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(f.nama, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: Color(0xFF0F172A))),
+                              Text('${f.alamat} • ${f.kecamatan}', style: const TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+
+                  // Radius & Relawan reached stat
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFECFDF5),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: const Color(0xFFA7F3D0)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('Radius Jangkauan', style: TextStyle(fontSize: 10.5, color: Color(0xFF047857), fontWeight: FontWeight.w600)),
+                              const SizedBox(height: 2),
+                              const Text('5.0 KM', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF065F46))),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFEFF6FF),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: const Color(0xFFBFDBFE)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('Relawan Terjangkau', style: TextStyle(fontSize: 10.5, color: Color(0xFF1D4ED8), fontWeight: FontWeight.w600)),
+                              const SizedBox(height: 2),
+                              Text('$_relawanSiagaCount Relawan', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF1E40AF))),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+
+                  // Blood type selector
+                  const Text('Golongan Darah Prioritas', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF334155))),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: ['Semua Golongan', 'O+', 'A+', 'B+', 'AB+', 'O-', 'A-', 'B-', 'AB-'].map((type) {
+                      final isSelected = selectedBloodType == type;
+                      return ChoiceChip(
+                        label: Text(type, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: isSelected ? Colors.white : const Color(0xFF334155))),
+                        selected: isSelected,
+                        selectedColor: const Color(0xFFDC2626),
+                        backgroundColor: const Color(0xFFF1F5F9),
+                        onSelected: (val) {
+                          if (val) setDialogState(() => selectedBloodType = type);
+                        },
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 14),
+
+                  // Message template
+                  const Text('Pesan Siaga Darurat', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF334155))),
+                  const SizedBox(height: 6),
+                  TextField(
+                    controller: noteController,
+                    maxLines: 3,
+                    style: const TextStyle(fontSize: 12),
+                    decoration: InputDecoration(
+                      hintText: 'Tuliskan pesan panggilan darurat...',
+                      filled: true,
+                      fillColor: const Color(0xFFF8FAFC),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFFDC2626))),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Batal', style: TextStyle(color: Color(0xFF64748B))),
+            ),
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Row(
+                      children: [
+                        const Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            'Broadcast radar darurat (${selectedBloodType}) berhasil disiarkan ke $_relawanSiagaCount relawan aktif dalam radius 5 KM dari ${f.nama}!',
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                      ],
+                    ),
+                    backgroundColor: const Color(0xFF059669),
+                    behavior: SnackBarBehavior.floating,
+                    duration: const Duration(seconds: 4),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.send_rounded, size: 15, color: Colors.white),
+              label: const Text('Kirimkan Radar Darurat', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFDC2626),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _showDistributionReportDialog(FaskesModel f) {
     showDialog(
       context: context,
@@ -1694,6 +2110,163 @@ class _AdminFaskesScreenState extends State<AdminFaskesScreen> {
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: const Text('Tutup'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showNotificationDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+        child: Container(
+          width: 500,
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFEF3C7),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.notifications_active_rounded, color: Color(0xFFD97706), size: 22),
+                  ),
+                  const SizedBox(width: 14),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Pemberitahuan Faskes & Posko',
+                          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Color(0xFF1E293B)),
+                        ),
+                        SizedBox(height: 2),
+                        Text(
+                          'Monitoring Distribusi Stok Darah Rumah Sakit',
+                          style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Color(0xFF94A3B8)),
+                    onPressed: () => Navigator.pop(ctx),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              const Divider(height: 1),
+              const SizedBox(height: 14),
+              _buildFaskesNotifItem(
+                icon: Icons.local_hospital_rounded,
+                iconColor: const Color(0xFF0284C7),
+                bgColor: const Color(0xFFF0F9FF),
+                title: 'Sinkronisasi BDRS RSUD Dr. Soegiri',
+                subtitle: 'Stok darah golongan O+ telah diperbarui otomatis via SIM-RS (sisa 42 kantong).',
+                time: 'Baru saja',
+              ),
+              const SizedBox(height: 10),
+              _buildFaskesNotifItem(
+                icon: Icons.warning_amber_rounded,
+                iconColor: const Color(0xFFDC2626),
+                bgColor: const Color(0xFFFEF2F2),
+                title: 'Peringatan Stok Darah Menipis',
+                subtitle: 'Stok golongan darah B- dan AB- di Faskes Muhammadiyah berada di bawah batas minimum.',
+                time: '30 menit lalu',
+              ),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Semua notifikasi faskes telah dibaca'),
+                          behavior: SnackBarBehavior.floating,
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    },
+                    child: const Text('Tandai Semua Dibaca'),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1E293B),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                    child: const Text('Tutup'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFaskesNotifItem({
+    required IconData icon,
+    required Color iconColor,
+    required Color bgColor,
+    required String title,
+    required String subtitle,
+    required String time,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(8)),
+            child: Icon(icon, color: iconColor, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: Color(0xFF1E293B)),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Text(time, style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8))),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(subtitle, style: const TextStyle(fontSize: 12, color: Color(0xFF475569))),
+              ],
+            ),
           ),
         ],
       ),

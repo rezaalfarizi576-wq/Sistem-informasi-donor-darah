@@ -368,29 +368,40 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
             ),
           ),
           const SizedBox(width: 6),
-          Text(
-            'IDENTITAS TERVERIFIKASI DUKCAPIL & KIS',
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 11,
-              fontWeight: FontWeight.w800,
-              color: const Color(0xFF15803D),
-              letterSpacing: 0.3,
+          Expanded(
+            child: Text(
+              'TERVERIFIKASI DUKCAPIL & KIS',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                color: const Color(0xFF15803D),
+                letterSpacing: 0.3,
+              ),
             ),
           ),
-          const Spacer(),
-          Row(
-            children: [
-              const Icon(Icons.location_on_rounded, size: 13, color: Color(0xFF94A3B8)),
-              const SizedBox(width: 2),
-              Text(
-                hospital.contains('Soegiri') ? 'RSUD Soegiri (1.8 km)' : 'Lamongan',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 11,
-                  color: const Color(0xFF64748B),
-                  fontWeight: FontWeight.w500,
+          const SizedBox(width: 8),
+          Flexible(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.location_on_rounded, size: 13, color: Color(0xFF94A3B8)),
+                const SizedBox(width: 2),
+                Flexible(
+                  child: Text(
+                    hospital.contains('Soegiri') ? 'RSUD Soegiri (1.8 km)' : 'Lamongan',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 11,
+                      color: const Color(0xFF64748B),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -504,12 +515,16 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
                         children: [
                           const Icon(Icons.phone_rounded, size: 12, color: Color(0xFF16A34A)),
                           const SizedBox(width: 4),
-                          Text(
-                            phone,
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 11,
-                              color: const Color(0xFF334155),
-                              fontWeight: FontWeight.w600,
+                          Flexible(
+                            child: Text(
+                              phone,
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 11,
+                                color: const Color(0xFF334155),
+                                fontWeight: FontWeight.w600,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           const SizedBox(width: 6),
@@ -738,15 +753,19 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
             children: [
               const Icon(Icons.assignment_outlined, color: Color(0xFFDC2626), size: 20),
               const SizedBox(width: 8),
-              Text(
-                'Status Permohonan Darah',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
-                  color: const Color(0xFF0F172A),
+              Expanded(
+                child: Text(
+                  'Status Permohonan Darah',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF0F172A),
+                  ),
                 ),
               ),
-              const Spacer(),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
@@ -754,9 +773,9 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
-                  'TIDAK ADA PERMINTAAN AKTIF',
+                  'TIDAK AKTIF',
                   style: GoogleFonts.plusJakartaSans(
-                    fontSize: 9,
+                    fontSize: 9.5,
                     fontWeight: FontWeight.w800,
                     color: const Color(0xFF64748B),
                   ),
@@ -818,16 +837,18 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
             children: [
               const Icon(Icons.health_and_safety_outlined, color: Color(0xFFDC2626), size: 18),
               const SizedBox(width: 8),
-              Text(
-                'Status Permohonan &\nKebutuhan Darah',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
-                  color: const Color(0xFF0F172A),
-                  height: 1.2,
+              Expanded(
+                child: Text(
+                  'Status Permohonan &\nKebutuhan Darah',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF0F172A),
+                    height: 1.2,
+                  ),
                 ),
               ),
-              const Spacer(),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
@@ -862,26 +883,35 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
               children: [
                 Row(
                   children: [
-                    Text(
-                      'PROGRES DISPATCH RELAWAN',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
-                        color: const Color(0xFF64748B),
-                        letterSpacing: 0.4,
+                    Flexible(
+                      child: Text(
+                        'PROGRES DISPATCH RELAWAN',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                          color: const Color(0xFF64748B),
+                          letterSpacing: 0.4,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    const Spacer(),
-                    Text(
-                      _activeRequest != null && _activeRequest!.acceptedDonorsCount > 0
-                          ? '${_activeRequest!.acceptedDonorsCount} Relawan Siaga Menuju RS'
-                          : 'Belum Ada Relawan',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 11.5,
-                        fontWeight: FontWeight.w900,
-                        color: _activeRequest != null && _activeRequest!.acceptedDonorsCount > 0
-                            ? const Color(0xFFDC2626)
-                            : const Color(0xFF94A3B8),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        _activeRequest != null && _activeRequest!.acceptedDonorsCount > 0
+                            ? '${_activeRequest!.acceptedDonorsCount} Relawan Menuju RS'
+                            : 'Belum Ada Relawan',
+                        textAlign: TextAlign.end,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w900,
+                          color: _activeRequest != null && _activeRequest!.acceptedDonorsCount > 0
+                              ? const Color(0xFFDC2626)
+                              : const Color(0xFF94A3B8),
+                        ),
                       ),
                     ),
                   ],
@@ -907,19 +937,23 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
                   children: [
                     const Icon(Icons.history_rounded, size: 13, color: Color(0xFF94A3B8)),
                     const SizedBox(width: 4),
-                    Text(
-                      _activeRequest != null && _activeRequest!.acceptedDonorsCount > 0
-                          ? 'Terakhir: Resep BDRS Diverifikasi'
-                          : 'Menunggu konfirmasi relawan...',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 10.5,
-                        color: const Color(0xFF64748B),
+                    Expanded(
+                      child: Text(
+                        _activeRequest != null && _activeRequest!.acceptedDonorsCount > 0
+                            ? 'Terakhir: Resep BDRS Diverifikasi'
+                            : 'Menunggu konfirmasi relawan...',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 10.5,
+                          color: const Color(0xFF64748B),
+                        ),
                       ),
                     ),
-                    const Spacer(),
+                    const SizedBox(width: 8),
                     Text(
                       _activeRequest != null && _activeRequest!.acceptedDonorsCount > 0
-                          ? 'Est. Tiba: ~12 Menit'
+                          ? 'Est. ~12 Menit'
                           : 'Menunggu...',
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 10.5,
@@ -997,15 +1031,19 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
             children: [
               const Icon(Icons.personal_injury_outlined, color: Color(0xFFDC2626), size: 18),
               const SizedBox(width: 8),
-              Text(
-                'Data Pasien & Diagnosis Medis',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
-                  color: const Color(0xFF0F172A),
+              Expanded(
+                child: Text(
+                  'Data Pasien & Diagnosis Medis',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF0F172A),
+                  ),
                 ),
               ),
-              const Spacer(),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                 decoration: BoxDecoration(
@@ -1104,15 +1142,19 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
             children: [
               const Icon(Icons.track_changes_rounded, color: Color(0xFFDC2626), size: 18),
               const SizedBox(width: 8),
-              Text(
-                'Statistik Permohonan Darah',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
-                  color: const Color(0xFF0F172A),
+              Expanded(
+                child: Text(
+                  'Statistik Permohonan Darah',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF0F172A),
+                  ),
                 ),
               ),
-              const Spacer(),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                 decoration: BoxDecoration(
@@ -1361,11 +1403,15 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
               children: [
                 const Icon(Icons.download_rounded, size: 18),
                 const SizedBox(width: 8),
-                Text(
-                  'Unduh Bukti Permohonan Darah (PDF)',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
+                Flexible(
+                  child: Text(
+                    'Unduh Bukti Permohonan Darah (PDF)',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ),
               ],
@@ -1417,11 +1463,15 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
               children: [
                 const Icon(Icons.logout_rounded, size: 18),
                 const SizedBox(width: 8),
-                Text(
-                  'Keluar Sesi Akun Pemohon',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
+                Flexible(
+                  child: Text(
+                    'Keluar Sesi Akun Pemohon',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ),
               ],

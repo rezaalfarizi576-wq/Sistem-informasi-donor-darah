@@ -105,6 +105,48 @@ class BloodRequestModel {
     };
   }
 
+  BloodRequestModel copyWith({
+    String? status,
+    String? hospitalName,
+    String? requesterName,
+    String? requesterPhone,
+    String? patientName,
+    String? suratDokter,
+    int? bagsNeeded,
+    int? acceptedDonorsCount,
+    int? fulfilledBagsCount,
+    String? donorName,
+    String? donorPhone,
+  }) {
+    return BloodRequestModel(
+      id: id,
+      requesterId: requesterId,
+      facilityId: facilityId,
+      bloodType: bloodType,
+      rhesus: rhesus,
+      bagsNeeded: bagsNeeded ?? this.bagsNeeded,
+      urgencyLevel: urgencyLevel,
+      latitudeFaskes: latitudeFaskes,
+      longitudeFaskes: longitudeFaskes,
+      radiusKm: radiusKm,
+      notes: notes,
+      hospitalName: hospitalName ?? this.hospitalName,
+      status: status ?? this.status,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      requesterName: requesterName ?? this.requesterName,
+      requesterPhone: requesterPhone ?? this.requesterPhone,
+      patientName: patientName ?? _rawPatientName,
+      suratDokter: suratDokter ?? this.suratDokter,
+      distanceKm: distanceKm,
+      distanceDisplay: distanceDisplay,
+      donorName: donorName ?? this.donorName,
+      donorPhone: donorPhone ?? this.donorPhone,
+      acceptedDonorsCount: acceptedDonorsCount ?? this.acceptedDonorsCount,
+      fulfilledBagsCount: fulfilledBagsCount ?? this.fulfilledBagsCount,
+    );
+  }
+
   /// Backward-compatibility getters
   String get patientName => _rawPatientName ?? requesterName ?? 'Pemohon #$requesterId';
   int get bagsCollected => 0;

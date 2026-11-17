@@ -38,6 +38,7 @@ def _format_blood_stock_response(stocks: List[BloodStock]) -> dict:
     for s in stocks:
         items.append({
             "id": s.id,
+            "facility_id": s.facility_id,
             "blood_type": s.blood_type,
             "rhesus": s.rhesus,
             "label": s.label,
@@ -61,9 +62,25 @@ def _format_blood_stock_response(stocks: List[BloodStock]) -> dict:
 
 @router.get("/blood-stock")
 @stock_public_router.get("")
-def get_blood_stock(db: Session = Depends(get_db)):
-    """Mendapatkan informasi stok kantong darah live dari UDD PMI Lamongan."""
-    stocks = _ensure_blood_stocks(db)
+def get_blood_stock(
+    facility_id: Optional[int] = None,
+    all_facilities: bool = False,
+    db: Session = Depends(get_db)
+):
+    """Mendapatkan informasi stok kantong darah live (UDD PMI atau per Faskes)."""
+    if all_facilities:
+        stocks = db.query(BloodStock).all()
+        return _format_blood_stock_response(stocks)
+
+    if facility_id is not None:
+        stocks = db.query(BloodStock).filter(BloodStock.facility_id == facility_id).all()
+        if not stocks:
+            stocks = db.query(BloodStock).filter(BloodStock.facility_id.is_(None)).all()
+        return _format_blood_stock_response(stocks)
+
+    stocks = db.query(BloodStock).all()
+    if not stocks:
+        stocks = _ensure_blood_stocks(db)
     return _format_blood_stock_response(stocks)
 
 
@@ -589,5 +606,80 @@ def get_active_dispatch(
             "waktu_respon": resp.waktu_respon.isoformat() if resp.waktu_respon else None,
         }
     }
+
+
+# ─────────────────────────────────────────────────────────────
+# 7. RESERVASI DONOR SUKARELA (UDD PMI LAMONGAN)
+# ─────────────────────────────────────────────────────────────
+
+_donor_reservations: dict[int, dict] = {}
+
+
+@router.get("/reservation/active")
+def get_active_reservation(
+    current_user: Optional[User] = Depends(get_current_user_optional),
+):
+    """Mendapatkan data reservasi donor aktif relawan."""
+    donor_id = current_user.id if current_user else 1
+    res = _donor_reservations.get(donor_id)
+    return {"has_reservation": res is not None, "reservation": res}
+
+
+@router.post("/reservation")
+def create_reservation(
+    payload: dict,
+    current_user: Optional[User] = Depends(get_current_user_optional),
+):
+    """Membuat reservasi donor darah sukarela di UDD PMI Lamongan."""
+    import random
+    donor_id = current_user.id if current_user else 1
+    donor_name = current_user.nama if current_user else (payload.get("donor_name") or "Pendonor Sukarela")
+
+    today_str = datetime.utcnow().strftime("%Y%m%d")
+    seq = random.randint(10, 99)
+    ticket_code = f"RSV-{today_str}-{donor_id:04d}-{seq}"
+    queue_number = f"A-{random.randint(1, 25):02d}"
+
+    reservation_data = {
+        "ticket_code": ticket_code,
+        "queue_number": queue_number,
+        "donor_id": donor_id,
+        "donor_name": donor_name,
+        "blood_type": payload.get("blood_type", "O"),
+        "rhesus": payload.get("rhesus", "+"),
+        "reservation_date": payload.get("reservation_date", (datetime.utcnow() + timedelta(days=1)).strftime("%Y-%m-%d")),
+        "time_session": payload.get("time_session", "08.00 - 11.00 (Pagi)"),
+        "location": "UDD PMI Kabupaten Lamongan",
+        "location_address": "Jl. Kombespol M. Duryat No. 42, Jetis, Lamongan",
+        "status": "TERJADWAL",
+        "created_at": datetime.utcnow().isoformat(),
+    }
+
+    _donor_reservations[donor_id] = reservation_data
+
+    return {
+        "success": True,
+        "message": f"Reservasi donor sukarela {reservation_data['blood_type']} berhasil dikonfirmasi!",
+        "reservation": reservation_data,
+    }
+
+
+@router.delete("/reservation/{ticket_code}")
+def cancel_reservation(
+    ticket_code: str,
+    current_user: Optional[User] = Depends(get_current_user_optional),
+):
+    """Membatalkan reservasi donor darah aktif."""
+    donor_id = current_user.id if current_user else 1
+    if donor_id in _donor_reservations:
+        del _donor_reservations[donor_id]
+        return {"success": True, "message": "Reservasi berhasil dibatalkan."}
+
+    for uid, res in list(_donor_reservations.items()):
+        if res.get("ticket_code") == ticket_code:
+            del _donor_reservations[uid]
+            return {"success": True, "message": "Reservasi berhasil dibatalkan."}
+
+    return {"success": True, "message": "Reservasi dibatalkan."}
 
 

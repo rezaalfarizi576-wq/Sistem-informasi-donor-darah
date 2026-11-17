@@ -72,4 +72,42 @@ class DonorRepository {
     } catch (_) {}
     return null;
   }
+
+  /// Mengambil data reservasi donor aktif
+  Future<Map<String, dynamic>?> getActiveReservation() async {
+    try {
+      final response = await _apiClient.get('/donor/reservation/active');
+      if (response is Map<String, dynamic> &&
+          response['has_reservation'] == true &&
+          response['reservation'] != null) {
+        return response['reservation'] as Map<String, dynamic>;
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  /// Membuat reservasi donor sukarela baru
+  Future<Map<String, dynamic>> createReservation({
+    required String bloodType,
+    required String rhesus,
+    required String reservationDate,
+    required String timeSession,
+    String? donorName,
+  }) async {
+    final response = await _apiClient.post('/donor/reservation', body: {
+      'blood_type': bloodType,
+      'rhesus': rhesus,
+      'reservation_date': reservationDate,
+      'time_session': timeSession,
+      if (donorName != null) 'donor_name': donorName,
+    });
+    return response as Map<String, dynamic>;
+  }
+
+  /// Membatalkan reservasi donor aktif
+  Future<void> cancelReservation(String ticketCode) async {
+    try {
+      await _apiClient.delete('/donor/reservation/$ticketCode');
+    } catch (_) {}
+  }
 }

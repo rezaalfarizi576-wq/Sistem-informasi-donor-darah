@@ -81,12 +81,18 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const RequesterProfileScreen());
 
       case donorDashboardRoute:
-        return MaterialPageRoute(builder: (_) => const DonorDashboardScreen());
+        final initialIndex = settings.arguments is int ? settings.arguments as int : 0;
+        return MaterialPageRoute(
+          builder: (_) => DonorDashboardScreen(initialTabIndex: initialIndex),
+        );
 
       case donorDispatchRoute:
         final dispatch = settings.arguments as DispatchTicketModel?;
         return MaterialPageRoute(
-          builder: (_) => DonorDispatchScreen(initialDispatch: dispatch),
+          builder: (_) => DonorDashboardScreen(
+            initialTabIndex: 1,
+            initialDispatch: dispatch,
+          ),
         );
 
       case donorNotificationRoute:

@@ -183,6 +183,16 @@ class _AdminRelawanScreenState extends State<AdminRelawanScreen> {
     super.dispose();
   }
 
+  String get _currentDateFormatted {
+    final now = DateTime.now();
+    const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+    const months = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    return '${days[now.weekday - 1]}, ${now.day} ${months[now.month]} ${now.year}';
+  }
+
+  int get _siagaCount => _allRelawan.isNotEmpty ? _allRelawan.where((r) => r.statusSiaga == 'SIAGA').length : 18;
+  int get _rareCount => _allRelawan.isNotEmpty ? _allRelawan.where((r) => r.rhesus.contains('Negatif') || r.goldar.startsWith('AB') || r.badge == 'Langka').length : 6;
+
   List<RelawanModel> get _filteredRelawan {
     final query = _searchController.text.trim().toLowerCase();
     return _allRelawan.where((r) {
@@ -265,9 +275,9 @@ class _AdminRelawanScreenState extends State<AdminRelawanScreen> {
               ),
             ),
             const SizedBox(height: 4),
-            const Text(
-              'Selasa, 8 September 2025 • Total 1.248 Relawan Terdaftar',
-              style: TextStyle(
+            Text(
+              '$_currentDateFormatted • Total ${_allRelawan.isNotEmpty ? _allRelawan.length : 32} Relawan Terdaftar',
+              style: const TextStyle(
                 fontSize: 12.5,
                 color: Color(0xFF64748B),
                 fontWeight: FontWeight.w500,
@@ -301,9 +311,9 @@ class _AdminRelawanScreenState extends State<AdminRelawanScreen> {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  const Text(
-                    '84 Relawan Siaga Radius 5 km',
-                    style: TextStyle(
+                  Text(
+                    '$_siagaCount Relawan Siaga Radius 5 km',
+                    style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
                       color: Color(0xFF047857),
@@ -314,39 +324,41 @@ class _AdminRelawanScreenState extends State<AdminRelawanScreen> {
             ),
 
             // Notification Bell Icon with Dot
-            Container(
-              width: 38,
-              height: 38,
-              decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
-                shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFFE2E8F0)),
-              ),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  const Icon(Icons.notifications_none_rounded, size: 18, color: Color(0xFF475569)),
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: Container(
-                      width: 7,
-                      height: 7,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFF59E0B),
-                        shape: BoxShape.circle,
+            InkWell(
+              borderRadius: BorderRadius.circular(20),
+              onTap: _showNotificationDialog,
+              child: Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                ),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    const Icon(Icons.notifications_none_rounded, size: 18, color: Color(0xFF475569)),
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Container(
+                        width: 7,
+                        height: 7,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFF59E0B),
+                          shape: BoxShape.circle,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
 
             // Red Add/Broadcast Button
             ElevatedButton.icon(
-              onPressed: () {
-                _showBroadcastDialog();
-              },
+              onPressed: _showActionMenuDialog,
               icon: const Icon(Icons.add_rounded, size: 18, color: Colors.white),
               label: const Text(
                 'Tambah Relawan / Broadcast',
@@ -497,9 +509,9 @@ class _AdminRelawanScreenState extends State<AdminRelawanScreen> {
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              const Text(
-                '1.248',
-                style: TextStyle(
+              Text(
+                '${_allRelawan.isNotEmpty ? _allRelawan.length : 32}',
+                style: const TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w900,
                   color: Color(0xFF0F172A),
@@ -551,9 +563,9 @@ class _AdminRelawanScreenState extends State<AdminRelawanScreen> {
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              const Text(
-                '84',
-                style: TextStyle(
+              Text(
+                '$_siagaCount',
+                style: const TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w900,
                   color: Color(0xFF059669),
@@ -604,9 +616,9 @@ class _AdminRelawanScreenState extends State<AdminRelawanScreen> {
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              const Text(
-                '32 Relawan',
-                style: TextStyle(
+              Text(
+                '$_rareCount Relawan',
+                style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w900,
                   color: Color(0xFFDC2626),
@@ -615,8 +627,8 @@ class _AdminRelawanScreenState extends State<AdminRelawanScreen> {
               ),
               const SizedBox(width: 6),
               const Text(
-                'AB-, B-, O-',
-                style: TextStyle(
+                'AB, B-, A-',
+                style: const TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFFDC2626),
@@ -1538,13 +1550,13 @@ class _AdminRelawanScreenState extends State<AdminRelawanScreen> {
             Text('Broadcast Siaga Darurat'),
           ],
         ),
-        content: const Column(
+        content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Kirimkan notifikasi darurat serentak ke 84 Relawan Siaga dalam radius 5 KM dari Faskes Lamongan?',
-              style: TextStyle(fontSize: 13, height: 1.4),
+              'Kirimkan notifikasi darurat serentak ke $_siagaCount Relawan Siaga dalam radius 5 KM dari Faskes Lamongan?',
+              style: const TextStyle(fontSize: 13, height: 1.4),
             ),
           ],
         ),
@@ -1557,9 +1569,11 @@ class _AdminRelawanScreenState extends State<AdminRelawanScreen> {
             onPressed: () {
               Navigator.pop(ctx);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Broadcast darurat berhasil disebarkan ke 84 relawan aktif!'),
-                  backgroundColor: Color(0xFFDC2626),
+                SnackBar(
+                  content: Text('Broadcast darurat berhasil disebarkan ke $_siagaCount relawan aktif!'),
+                  backgroundColor: const Color(0xFFDC2626),
+                  behavior: SnackBarBehavior.floating,
+                  duration: const Duration(seconds: 3),
                 ),
               );
             },
@@ -1567,6 +1581,642 @@ class _AdminRelawanScreenState extends State<AdminRelawanScreen> {
               backgroundColor: const Color(0xFFDC2626),
             ),
             child: const Text('Kirimkan Broadcast Sekarang', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showActionMenuDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+        child: Container(
+          width: 500,
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFEE2E2),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.flash_on_rounded, color: Color(0xFFDC2626), size: 22),
+                  ),
+                  const SizedBox(width: 14),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Aksi Cepat Relawan & Posko',
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF1E293B),
+                          ),
+                        ),
+                        SizedBox(height: 2),
+                        Text(
+                          'Pilih opsi tindakan yang ingin Anda lakukan:',
+                          style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Color(0xFF94A3B8)),
+                    onPressed: () => Navigator.pop(ctx),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+
+              // Opsi 1: Broadcast Siaga Darurat
+              Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    _showBroadcastDialog();
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF1F2),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFFECDD3)),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFDC2626),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.podcasts_rounded, color: Colors.white, size: 24),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Kirim Broadcast Siaga Darurat',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF991B1B),
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Kirimkan notifikasi darurat serentak ke $_siagaCount Relawan Siaga aktif dalam radius Faskes.',
+                                style: const TextStyle(fontSize: 12, color: Color(0xFFB91C1C), height: 1.3),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(Icons.chevron_right_rounded, color: Color(0xFFDC2626)),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              // Opsi 2: Tambah / Daftarkan Relawan Baru
+              Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    _showAddRelawanDialog();
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF0FDF4),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFBBF7D0)),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF16A34A),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.person_add_alt_1_rounded, color: Colors.white, size: 24),
+                        ),
+                        const SizedBox(width: 16),
+                        const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Daftarkan Relawan Pendonor Baru',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF166534),
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                'Input data identitas relawan baru (NIK, No. HP, Golongan Darah, & Wilayah) ke database PMI.',
+                                style: TextStyle(fontSize: 12, color: Color(0xFF15803D), height: 1.3),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(Icons.chevron_right_rounded, color: Color(0xFF16A34A)),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showAddRelawanDialog() {
+    final nameCtrl = TextEditingController();
+    final nikCtrl = TextEditingController();
+    final phoneCtrl = TextEditingController();
+    final ageCtrl = TextEditingController(text: '25');
+    String selectedGoldar = 'O+';
+    String selectedKecamatan = 'Kec. Lamongan Kota';
+
+    final kecamatans = [
+      'Kec. Lamongan Kota',
+      'Kec. Babat, Lamongan',
+      'Kec. Tikung, Lamongan',
+      'Kec. Deket, Lamongan',
+      'Kec. Paciran, Lamongan',
+      'Kec. Brondong, Lamongan',
+      'Kec. Kedungpring, Lamongan',
+      'Kec. Sukodadi, Lamongan',
+      'Kec. Mantup, Lamongan',
+    ];
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) => Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+          child: Container(
+            width: 540,
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFDCFCE7),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(Icons.person_add_rounded, color: Color(0xFF16A34A), size: 22),
+                      ),
+                      const SizedBox(width: 14),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Formulir Registrasi Relawan Baru',
+                              style: TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF1E293B),
+                              ),
+                            ),
+                            SizedBox(height: 2),
+                            Text(
+                              'Pendaftaran pendonor siaga Markas PMI Kab. Lamongan',
+                              style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, color: Color(0xFF94A3B8)),
+                        onPressed: () => Navigator.pop(ctx),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 18),
+                  const Divider(height: 1),
+                  const SizedBox(height: 16),
+
+                  // Nama Lengkap
+                  const Text('Nama Lengkap Relawan', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: Color(0xFF334155))),
+                  const SizedBox(height: 6),
+                  TextField(
+                    controller: nameCtrl,
+                    decoration: InputDecoration(
+                      hintText: 'Contoh: Muhammad Rizky, S.T.',
+                      prefixIcon: const Icon(Icons.person_outline, size: 20),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+
+                  // NIK & Usia Row
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('NIK (Nomor Induk Kependudukan)', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: Color(0xFF334155))),
+                            const SizedBox(height: 6),
+                            TextField(
+                              controller: nikCtrl,
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                hintText: '16 digit NIK Lamongan',
+                                prefixIcon: const Icon(Icons.badge_outlined, size: 20),
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 1,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Usia (Thn)', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: Color(0xFF334155))),
+                            const SizedBox(height: 6),
+                            TextField(
+                              controller: ageCtrl,
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                hintText: '25',
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+
+                  // No. WhatsApp / HP
+                  const Text('Nomor WhatsApp / HP Aktif', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: Color(0xFF334155))),
+                  const SizedBox(height: 6),
+                  TextField(
+                    controller: phoneCtrl,
+                    keyboardType: TextInputType.phone,
+                    decoration: InputDecoration(
+                      hintText: '081234567890',
+                      prefixIcon: const Icon(Icons.phone_outlined, size: 20),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+
+                  // Golongan Darah & Wilayah Row
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 1,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Gol. Darah', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: Color(0xFF334155))),
+                            const SizedBox(height: 6),
+                            DropdownButtonFormField<String>(
+                              value: selectedGoldar,
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                              ),
+                              items: const [
+                                DropdownMenuItem(value: 'O+', child: Text('O+ (Positif)')),
+                                DropdownMenuItem(value: 'O-', child: Text('O- (Negatif)')),
+                                DropdownMenuItem(value: 'A+', child: Text('A+ (Positif)')),
+                                DropdownMenuItem(value: 'A-', child: Text('A- (Negatif)')),
+                                DropdownMenuItem(value: 'B+', child: Text('B+ (Positif)')),
+                                DropdownMenuItem(value: 'B-', child: Text('B- (Negatif)')),
+                                DropdownMenuItem(value: 'AB+', child: Text('AB+ (Positif)')),
+                                DropdownMenuItem(value: 'AB-', child: Text('AB- (Negatif)')),
+                              ],
+                              onChanged: (val) {
+                                if (val != null) setDialogState(() => selectedGoldar = val);
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 2,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Wilayah / Kecamatan', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: Color(0xFF334155))),
+                            const SizedBox(height: 6),
+                            DropdownButtonFormField<String>(
+                              value: selectedKecamatan,
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                              ),
+                              items: kecamatans
+                                  .map((k) => DropdownMenuItem(value: k, child: Text(k, overflow: TextOverflow.ellipsis)))
+                                  .toList(),
+                              onChanged: (val) {
+                                if (val != null) setDialogState(() => selectedKecamatan = val);
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Actions
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx),
+                        child: const Text('Batal'),
+                      ),
+                      const SizedBox(width: 10),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          final name = nameCtrl.text.trim();
+                          if (name.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Nama lengkap relawan wajib diisi!'),
+                                backgroundColor: Color(0xFFE53935),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                            return;
+                          }
+
+                          final newRelawan = RelawanModel(
+                            id: 'REL-2025-${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}',
+                            nama: name,
+                            nik: nikCtrl.text.trim().isNotEmpty ? nikCtrl.text.trim() : '3524000000000001',
+                            usia: int.tryParse(ageCtrl.text) ?? 25,
+                            goldar: selectedGoldar,
+                            rhesus: selectedGoldar.contains('-') ? 'Negatif (Langka)' : 'Positif',
+                            statusSiaga: 'SIAGA',
+                            distance: '1.2 KM',
+                            eta: '5 mnt ke RSUD',
+                            totalDonor: 1,
+                            lastDonor: 'Hari ini',
+                            kecamatan: selectedKecamatan,
+                            badge: selectedGoldar.contains('-') ? 'Langka' : null,
+                            phone: phoneCtrl.text.trim().isNotEmpty ? phoneCtrl.text.trim() : '+62 812-0000-0000',
+                            healthStatus: 'Memenuhi Syarat (Fit untuk Donor)',
+                            targetHospital: 'RSUD DR. SOEGIRI',
+                            avgResponseTime: '< 5 menit',
+                            donorLat: -7.1198,
+                            donorLng: 112.4152,
+                          );
+
+                          setState(() {
+                            _allRelawan.insert(0, newRelawan);
+                          });
+
+                          Navigator.pop(ctx);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('✓ Relawan $name berhasil didaftarkan dan aktif di sistem!'),
+                              backgroundColor: const Color(0xFF16A34A),
+                              behavior: SnackBarBehavior.floating,
+                              duration: const Duration(seconds: 4),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.check, size: 18),
+                        label: const Text('Simpan & Daftarkan Relawan'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF16A34A),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showNotificationDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+        child: Container(
+          width: 520,
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFEF3C7),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.notifications_active_rounded, color: Color(0xFFD97706), size: 22),
+                  ),
+                  const SizedBox(width: 14),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Pemberitahuan Posko Relawan PMI',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF1E293B),
+                          ),
+                        ),
+                        SizedBox(height: 2),
+                        Text(
+                          'Aktivitas Kesiapsiagaan & Radar Relawan Lamongan',
+                          style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Color(0xFF94A3B8)),
+                    onPressed: () => Navigator.pop(ctx),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              const Divider(height: 1),
+              const SizedBox(height: 14),
+              _buildNotifItem(
+                icon: Icons.cell_tower_rounded,
+                iconColor: const Color(0xFF16A34A),
+                bgColor: const Color(0xFFDCFCE7),
+                title: '84 Relawan Siaga GPS Terdeteksi',
+                subtitle: '84 relawan aktif dalam radius 5 KM siap menerima panggilan donor darah darurat.',
+                time: 'Baru saja',
+              ),
+              const SizedBox(height: 10),
+              _buildNotifItem(
+                icon: Icons.person_pin_circle_rounded,
+                iconColor: const Color(0xFF2563EB),
+                bgColor: const Color(0xFFDBEAFE),
+                title: 'Budi Santoso Menuju RSUD Dr. Soegiri',
+                subtitle: 'Relawan sedang dalam perjalanan mengantar darah (estimasi tiba ~8 menit).',
+                time: '12 menit lalu',
+              ),
+              const SizedBox(height: 10),
+              _buildNotifItem(
+                icon: Icons.bloodtype_rounded,
+                iconColor: const Color(0xFFDC2626),
+                bgColor: const Color(0xFFFEE2E2),
+                title: 'Peringatan Stok Darah Langka',
+                subtitle: '32 relawan terdata bergolongan AB-, B-, O- dalam status standby panggilan khusus.',
+                time: '1 jam lalu',
+              ),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Semua notifikasi relawan telah dibaca'),
+                          behavior: SnackBarBehavior.floating,
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    },
+                    child: const Text('Tandai Semua Dibaca'),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1E293B),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                    child: const Text('Tutup'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNotifItem({
+    required IconData icon,
+    required Color iconColor,
+    required Color bgColor,
+    required String title,
+    required String subtitle,
+    required String time,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(8)),
+            child: Icon(icon, color: iconColor, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: Color(0xFF1E293B)),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Text(time, style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8))),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(subtitle, style: const TextStyle(fontSize: 12, color: Color(0xFF475569))),
+              ],
+            ),
           ),
         ],
       ),
