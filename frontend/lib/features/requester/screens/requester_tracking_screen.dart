@@ -480,28 +480,44 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
 
           const SizedBox(height: 20),
           // Bantuan Posko Box
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => _showPoskoHelpModal(context),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.phone_in_talk_rounded, color: Color(0xFFDC2626), size: 20),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    'Butuh darah mendesak? Hubungi Posko Siaga UDD PMI Lamongan: (0322) 321118',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: const Color(0xFF334155),
-                    ),
-                  ),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
                 ),
-              ],
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFEF2F2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(Icons.phone_in_talk_rounded, color: Color(0xFFDC2626), size: 18),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        'Butuh darah mendesak? Hubungi Posko Siaga UDD PMI Lamongan: (0322) 321118',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF334155),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    const Icon(Icons.chevron_right_rounded, color: Color(0xFF94A3B8), size: 18),
+                  ],
+                ),
+              ),
             ),
           ),
         ],
@@ -2018,15 +2034,7 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
             width: double.infinity,
             height: 44,
             child: ElevatedButton.icon(
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Menghubungi Posko Siaga BDRS PMI Lamongan: (0322) 321118', style: GoogleFonts.plusJakartaSans()),
-                    backgroundColor: const Color(0xFFDC2626),
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
-              },
+              onPressed: () => _showPoskoHelpModal(context),
               icon: const Icon(Icons.headset_mic_rounded, size: 16, color: Colors.white),
               label: Text(
                 'Bantuan Petugas Posko PMI Lamongan',
@@ -2081,6 +2089,360 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
                 fontWeight: isDone ? FontWeight.w700 : FontWeight.w600,
                 color: isDone ? const Color(0xFF1E293B) : const Color(0xFF64748B),
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // MODAL BANTUAN PETUGAS POSKO SIAGA PMI LAMONGAN
+  // ─────────────────────────────────────────────────────────────
+  void _showPoskoHelpModal(BuildContext context) {
+    final patientName = _activeRequest?.patientName ?? 'Pasien Darurat';
+    final hospital = _activeRequest?.hospitalName ?? 'RSUD Dr. Soegiri Lamongan';
+    final bloodType = _activeRequest?.bloodType ?? 'O';
+    final rhesus = _activeRequest?.rhesus ?? '+';
+    final reqCode = _activeRequest?.id != null ? 'REQ-${_activeRequest!.id}' : 'DARURAT-PMI';
+
+    final waMessage = 'Halo Petugas Posko Siaga UTD PMI Lamongan, saya pemohon darah untuk pasien $patientName di $hospital (Golongan Darah $bloodType$rhesus, Kode: $reqCode). Saya membutuhkan informasi dan bantuan terkait pemenuhan donor darah ini. Terima kasih.';
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: EdgeInsets.only(
+          left: 20,
+          right: 20,
+          top: 16,
+          bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Handle bar
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFCBD5E1),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Header
+              Row(
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFEF2F2),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFFECDD3)),
+                    ),
+                    child: const Icon(Icons.headset_mic_rounded, color: Color(0xFFDC2626), size: 24),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Pusat Bantuan Posko PMI Lamongan',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                            color: const Color(0xFF0F172A),
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Layanan Siaga Darurat UTD & BDRS 24 Jam',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 11,
+                            color: const Color(0xFF64748B),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    icon: const Icon(Icons.close_rounded, color: Color(0xFF64748B)),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              // Status Siaga Card
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFFEF2F2), Color(0xFFFFF1F2)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFFECDD3)),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.only(top: 3),
+                      width: 8,
+                      height: 8,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF16A34A),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'PETUGAS PIKET POSKO SIAGA AKTIF (24 JAM)',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w800,
+                              color: const Color(0xFF991B1B),
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+                          const SizedBox(height: 3),
+                          Text(
+                            'Markas UTD PMI Kabupaten Lamongan terhubung langsung dengan sistem Bank Darah RSUD Dr. Soegiri & faskes rujukan.',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 10.5,
+                              color: const Color(0xFF7F1D1D),
+                              height: 1.35,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 18),
+
+              Text(
+                'PILIHAN SALURAN RESPON CEPAT',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF94A3B8),
+                  letterSpacing: 0.6,
+                ),
+              ),
+              const SizedBox(height: 10),
+
+              // Opsi 1: Panggilan Telepon Hotline
+              _buildHelpActionCard(
+                icon: Icons.phone_in_talk_rounded,
+                iconColor: const Color(0xFFDC2626),
+                iconBgColor: const Color(0xFFFEF2F2),
+                title: 'Hotline Siaga Darurat (Telepon)',
+                subtitle: '(0322) 321118 • Bebas Pulsa & Siaga 24 Jam',
+                btnText: 'Panggil',
+                btnColor: const Color(0xFFDC2626),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  UrlHelper.makePhoneCall(context, '(0322) 321118');
+                },
+              ),
+              const SizedBox(height: 10),
+
+              // Opsi 2: Chat WhatsApp Resmi Posko
+              _buildHelpActionCard(
+                icon: Icons.chat_bubble_rounded,
+                iconColor: const Color(0xFF16A34A),
+                iconBgColor: const Color(0xFFDCFCE7),
+                title: 'WhatsApp Resmi Posko UTD PMI',
+                subtitle: '0812-3456-7890 • Kirim format data otomatis',
+                btnText: 'Chat WA',
+                btnColor: const Color(0xFF16A34A),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  UrlHelper.openWhatsApp(
+                    context,
+                    rawPhone: '0812-3456-7890',
+                    message: waMessage,
+                  );
+                },
+              ),
+              const SizedBox(height: 10),
+
+              // Opsi 3: Lokasi Posko UTD Markas Lamongan
+              _buildHelpActionCard(
+                icon: Icons.location_on_rounded,
+                iconColor: const Color(0xFF0284C7),
+                iconBgColor: const Color(0xFFE0F2FE),
+                title: 'Lokasi Posko UTD PMI Lamongan',
+                subtitle: 'Jl. Kusuma Bangsa No. 7, Lamongan',
+                btnText: 'Buka Maps',
+                btnColor: const Color(0xFF0284C7),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  UrlHelper.openUrl(context, 'https://maps.google.com/?q=PMI+Kabupaten+Lamongan+Jl+Kusuma+Bangsa');
+                },
+              ),
+              const SizedBox(height: 18),
+
+              // Panduan Darurat
+              Text(
+                'PANDUAN DARURAT KELUARGA PASIEN',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF94A3B8),
+                  letterSpacing: 0.6,
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              _buildFaqInfoItem(
+                title: 'Kapan relawan pendonor tiba di RS?',
+                desc: 'Petugas posko memantau radar GPS relawan secara real-time. Jika relawan mengalami kendala, sistem akan otomatis mengalihkan panggilan ke relawan cadangan.',
+              ),
+              const SizedBox(height: 6),
+              _buildFaqInfoItem(
+                title: 'Apakah ada biaya kantong darah?',
+                desc: 'Permintaan darah untuk pasien rawat inap rumah sakit ditanggung oleh jaminan BPJS / KIS sesuai prosedur administrasi BDRS.',
+              ),
+              const SizedBox(height: 6),
+              _buildFaqInfoItem(
+                title: 'Dokumen apa yang harus diserahkan di BDRS?',
+                desc: 'Siapkan Surat Permohonan Darah dari dokter penanggung jawab pasien, sampel darah pasien (crossmatch), dan fotokopi KTP/KIS.',
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHelpActionCard({
+    required IconData icon,
+    required Color iconColor,
+    required Color iconBgColor,
+    required String title,
+    required String subtitle,
+    required String btnText,
+    required Color btnColor,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: iconBgColor,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: iconColor, size: 18),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF0F172A),
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 10,
+                    color: const Color(0xFF64748B),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          ElevatedButton(
+            onPressed: onTap,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: btnColor,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              minimumSize: const Size(0, 32),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            child: Text(
+              btnText,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 10.5,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFaqInfoItem({required String title, required String desc}) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF1F5F9),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF334155),
+            ),
+          ),
+          const SizedBox(height: 3),
+          Text(
+            desc,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 10,
+              color: const Color(0xFF64748B),
+              height: 1.35,
             ),
           ),
         ],

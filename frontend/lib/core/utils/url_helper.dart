@@ -76,6 +76,26 @@ class UrlHelper {
     }
   }
 
+  /// Membuka tautan eksternal (web atau Google Maps)
+  static Future<bool> openUrl(BuildContext context, String rawUrl) async {
+    final uri = Uri.parse(rawUrl);
+    try {
+      final launched = await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+      );
+      if (!launched && context.mounted) {
+        _showToast(context, 'Tidak dapat membuka tautan');
+      }
+      return launched;
+    } catch (e) {
+      if (context.mounted) {
+        _showToast(context, 'Gagal membuka tautan: $e');
+      }
+      return false;
+    }
+  }
+
   static void _showToast(BuildContext context, String text) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

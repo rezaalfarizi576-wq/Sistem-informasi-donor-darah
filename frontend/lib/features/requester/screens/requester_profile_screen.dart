@@ -138,9 +138,327 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
     }
   }
 
+  // ─────────────────────────────────────────────────────────────
+  // MODAL: UBAH DATA PROFIL
+  // ─────────────────────────────────────────────────────────────
+  void _showEditProfileModal(BuildContext context) {
+    final nameCtrl = TextEditingController(text: _resolveDisplayName() == 'Pemohon Siaga' ? '' : _resolveDisplayName());
+    final phoneCtrl = TextEditingController(text: _currentUser?.phone?.trim() == 'string' ? '' : (_currentUser?.phone?.trim() ?? ''));
+    final addressCtrl = TextEditingController(text: _currentUser?.address?.trim() ?? '');
+    String selectedBloodType = _currentUser?.bloodType ?? 'A';
+    String selectedRhesus = _currentUser?.rhesus ?? '+';
+    bool isSaving = false;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setModalState) => Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          padding: EdgeInsets.only(
+            left: 20,
+            right: 20,
+            top: 20,
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Handle bar
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFCBD5E1),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Header
+                Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFEF2F2),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(Icons.edit_note_rounded, color: Color(0xFFDC2626), size: 22),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Ubah Data Profil',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                              color: const Color(0xFF0F172A),
+                            ),
+                          ),
+                          Text(
+                            'Perbarui informasi akun pemohon Anda',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 11,
+                              color: const Color(0xFF64748B),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      icon: const Icon(Icons.close_rounded, color: Color(0xFF64748B)),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                const Divider(height: 1, color: Color(0xFFE2E8F0)),
+                const SizedBox(height: 20),
+
+                // Field: Nama Lengkap
+                Text('Nama Lengkap', style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w700, color: const Color(0xFF334155))),
+                const SizedBox(height: 6),
+                TextField(
+                  controller: nameCtrl,
+                  style: GoogleFonts.plusJakartaSans(fontSize: 13, color: const Color(0xFF0F172A)),
+                  decoration: InputDecoration(
+                    hintText: 'Masukkan nama lengkap',
+                    hintStyle: GoogleFonts.plusJakartaSans(fontSize: 13, color: const Color(0xFF94A3B8)),
+                    prefixIcon: const Icon(Icons.person_outline_rounded, size: 18, color: Color(0xFF64748B)),
+                    filled: true,
+                    fillColor: const Color(0xFFF8FAFC),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFDC2626), width: 1.5)),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  ),
+                ),
+                const SizedBox(height: 14),
+
+                // Field: Nomor HP
+                Text('Nomor HP / WhatsApp', style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w700, color: const Color(0xFF334155))),
+                const SizedBox(height: 6),
+                TextField(
+                  controller: phoneCtrl,
+                  keyboardType: TextInputType.phone,
+                  style: GoogleFonts.plusJakartaSans(fontSize: 13, color: const Color(0xFF0F172A)),
+                  decoration: InputDecoration(
+                    hintText: 'Contoh: 08123456789',
+                    hintStyle: GoogleFonts.plusJakartaSans(fontSize: 13, color: const Color(0xFF94A3B8)),
+                    prefixIcon: const Icon(Icons.phone_outlined, size: 18, color: Color(0xFF64748B)),
+                    filled: true,
+                    fillColor: const Color(0xFFF8FAFC),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFDC2626), width: 1.5)),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  ),
+                ),
+                const SizedBox(height: 14),
+
+                // Field: Alamat
+                Text('Alamat Domisili', style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w700, color: const Color(0xFF334155))),
+                const SizedBox(height: 6),
+                TextField(
+                  controller: addressCtrl,
+                  maxLines: 2,
+                  style: GoogleFonts.plusJakartaSans(fontSize: 13, color: const Color(0xFF0F172A)),
+                  decoration: InputDecoration(
+                    hintText: 'Masukkan alamat lengkap',
+                    hintStyle: GoogleFonts.plusJakartaSans(fontSize: 13, color: const Color(0xFF94A3B8)),
+                    prefixIcon: const Padding(
+                      padding: EdgeInsets.only(bottom: 24),
+                      child: Icon(Icons.location_on_outlined, size: 18, color: Color(0xFF64748B)),
+                    ),
+                    filled: true,
+                    fillColor: const Color(0xFFF8FAFC),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFDC2626), width: 1.5)),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  ),
+                ),
+                const SizedBox(height: 14),
+
+                // Field: Golongan Darah & Rhesus
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Golongan Darah', style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w700, color: const Color(0xFF334155))),
+                          const SizedBox(height: 6),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF8FAFC),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: const Color(0xFFE2E8F0)),
+                            ),
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<String>(
+                                value: selectedBloodType,
+                                isExpanded: true,
+                                padding: const EdgeInsets.symmetric(horizontal: 14),
+                                borderRadius: BorderRadius.circular(10),
+                                style: GoogleFonts.plusJakartaSans(fontSize: 13, color: const Color(0xFF0F172A)),
+                                items: ['A', 'B', 'AB', 'O'].map((bt) => DropdownMenuItem(value: bt, child: Text(bt))).toList(),
+                                onChanged: (v) => setModalState(() => selectedBloodType = v!),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Rhesus', style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w700, color: const Color(0xFF334155))),
+                          const SizedBox(height: 6),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF8FAFC),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: const Color(0xFFE2E8F0)),
+                            ),
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<String>(
+                                value: selectedRhesus,
+                                isExpanded: true,
+                                padding: const EdgeInsets.symmetric(horizontal: 14),
+                                borderRadius: BorderRadius.circular(10),
+                                style: GoogleFonts.plusJakartaSans(fontSize: 13, color: const Color(0xFF0F172A)),
+                                items: ['+', '-'].map((r) => DropdownMenuItem(value: r, child: Text(r == '+' ? 'Positif (+)' : 'Negatif (-)'))).toList(),
+                                onChanged: (v) => setModalState(() => selectedRhesus = v!),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+
+                // Info email (read-only)
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.lock_outline_rounded, size: 15, color: Color(0xFF94A3B8)),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Email: ${_resolveEmail()} (tidak dapat diubah)',
+                          style: GoogleFonts.plusJakartaSans(fontSize: 11, color: const Color(0xFF64748B)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Tombol Simpan
+                SizedBox(
+                  width: double.infinity,
+                  height: 46,
+                  child: ElevatedButton(
+                    onPressed: isSaving
+                        ? null
+                        : () async {
+                            setModalState(() => isSaving = true);
+                            try {
+                              await _authRepo.updateProfile(
+                                name: nameCtrl.text.trim(),
+                                phone: phoneCtrl.text.trim(),
+                                address: addressCtrl.text.trim(),
+                                bloodType: selectedBloodType,
+                                rhesus: selectedRhesus,
+                              );
+                              if (mounted) {
+                                Navigator.pop(ctx);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Row(
+                                      children: [
+                                        const Icon(Icons.check_circle_rounded, color: Colors.white, size: 18),
+                                        const SizedBox(width: 10),
+                                        Text('Profil berhasil diperbarui!', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600)),
+                                      ],
+                                    ),
+                                    backgroundColor: const Color(0xFF16A34A),
+                                    behavior: SnackBarBehavior.floating,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                  ),
+                                );
+                                // Reload data profil setelah simpan
+                                _loadProfileData();
+                              }
+                            } catch (e) {
+                              setModalState(() => isSaving = false);
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Gagal menyimpan: ${e.toString().replaceAll('Exception: ', '')}',
+                                        style: GoogleFonts.plusJakartaSans()),
+                                    backgroundColor: const Color(0xFFDC2626),
+                                    behavior: SnackBarBehavior.floating,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFDC2626),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: isSaving
+                        ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.save_rounded, size: 18),
+                              const SizedBox(width: 8),
+                              Text('Simpan Perubahan', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800)),
+                            ],
+                          ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
-  Widget build(BuildContext context) {
-    final displayName = _resolveDisplayName();
+  Widget build(BuildContext context) {    final displayName = _resolveDisplayName();
     final userEmail = _resolveEmail();
     final patientName = _resolvePatientName();
     final bloodType = _currentUser?.bloodType ?? _activeRequest?.bloodType ?? 'A';
@@ -672,14 +990,7 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
               children: [
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Membuka form pembaruan profil pemohon...', style: GoogleFonts.plusJakartaSans()),
-                          behavior: SnackBarBehavior.floating,
-                        ),
-                      );
-                    },
+                    onPressed: () => _showEditProfileModal(context),
                     icon: const Icon(Icons.edit_note_rounded, size: 16),
                     label: Text(
                       'Ubah Data Profil',

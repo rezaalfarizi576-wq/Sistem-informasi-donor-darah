@@ -77,6 +77,24 @@ class AuthRepository {
     }
   }
 
+  Future<Map<String, dynamic>> updateProfile({
+    String? name,
+    String? phone,
+    String? address,
+    String? bloodType,
+    String? rhesus,
+  }) async {
+    final body = <String, dynamic>{};
+    if (name != null && name.isNotEmpty) body['nama'] = name;
+    if (phone != null && phone.isNotEmpty) body['no_hp'] = phone;
+    if (address != null) body['address'] = address;
+    if (bloodType != null) body['blood_type'] = bloodType;
+    if (rhesus != null) body['rhesus'] = rhesus;
+
+    final response = await _apiClient.put('/auth/me', body: body);
+    return Map<String, dynamic>.from(response);
+  }
+
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('access_token');

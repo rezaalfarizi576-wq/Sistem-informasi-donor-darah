@@ -193,6 +193,47 @@ def read_current_user(current_user: User = Depends(get_current_user)):
     return current_user
 
 
+@router.put("/me")
+def update_current_user(
+    payload: dict,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Perbarui data profil pengguna yang sedang login (nama, no HP, alamat)."""
+    allowed_fields = {"nama", "no_hp", "address", "blood_type", "rhesus"}
+
+    for key, value in payload.items():
+        if key in allowed_fields and value is not None:
+            # Validasi no_hp tidak dipakai akun lain
+            if key == "no_hp" and value:
+                existing = db.query(User).filter(
+                    User.no_hp == value, User.id != current_user.id
+                ).first()
+                if existing:
+                    raise HTTPException(
+                        status_code=status.HTTP_409_CONFLICT,
+                        detail="Nomor HP sudah digunakan akun lain.",
+                    )
+            setattr(current_user, key, value)
+
+    db.commit()
+    db.refresh(current_user)
+    return {
+        "status": "success",
+        "message": "Profil berhasil diperbarui.",
+        "user": {
+            "id": current_user.id,
+            "nama": current_user.nama,
+            "email": current_user.email,
+            "no_hp": current_user.no_hp,
+            "blood_type": current_user.blood_type,
+            "rhesus": current_user.rhesus,
+            "address": current_user.address,
+            "role": current_user.role,
+        },
+    }
+
+
 def _find_user_by_identifier(db: Session, identifier: str) -> User | None:
     """Helper untuk mencari pengguna berdasarkan email, no_hp, atau NIK (dengan variasi nomor telepon)."""
     clean_id = identifier.strip()

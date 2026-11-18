@@ -1359,15 +1359,19 @@ class _DonorProfileScreenState extends State<DonorProfileScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => Container(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(ctx).size.height * 0.88,
+        ),
         padding: const EdgeInsets.all(20),
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
             Container(
               width: 40,
               height: 4,
@@ -1532,8 +1536,9 @@ class _DonorProfileScreenState extends State<DonorProfileScreen> {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   // ─────────────────────────────────────────────────────────────
   // MODAL 2: HASIL SKRINING IMLTD & UJI LAB
@@ -1544,133 +1549,138 @@ class _DonorProfileScreenState extends State<DonorProfileScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => Container(
-        padding: const EdgeInsets.all(20),
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(ctx).size.height * 0.88,
+        ),
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE2E8F0),
-                  borderRadius: BorderRadius.circular(2),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE2E8F0),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                const Icon(Icons.biotech_rounded, color: Color(0xFF16A34A), size: 24),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Hasil Uji Saring IMLTD & Lab',
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  const Icon(Icons.biotech_rounded, color: Color(0xFF16A34A), size: 24),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Hasil Uji Saring IMLTD & Lab',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                            color: const Color(0xFF0F172A),
+                          ),
+                        ),
+                        Text(
+                          'UTD PMI Cabang Kabupaten Lamongan',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 11,
+                            color: const Color(0xFF64748B),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    icon: const Icon(Icons.close_rounded, color: Color(0xFF64748B)),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF0FDF4),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFBBF7D0)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.check_circle_rounded, color: Color(0xFF16A34A), size: 22),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        'Semua parameter infeksi dinyatakan NON-REAKTIF. Darah aman untuk transfusi.',
                         style: GoogleFonts.plusJakartaSans(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w800,
-                          color: const Color(0xFF0F172A),
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF15803D),
                         ),
                       ),
-                      Text(
-                        'UTD PMI Cabang Kabupaten Lamongan',
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 14),
+              Text(
+                'Rincian Parameter Uji Saring Darah:',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF0F172A),
+                ),
+              ),
+              const SizedBox(height: 8),
+              _buildLabRow('HIV 1 & 2', 'Antibodi / Antigen p24', 'NON-REAKTIF'),
+              _buildLabRow('Hepatitis B', 'HBsAg (Surface Antigen)', 'NON-REAKTIF'),
+              _buildLabRow('Hepatitis C', 'Anti-HCV', 'NON-REAKTIF'),
+              _buildLabRow('Sifilis', 'TP Rapid / Treponema Pallidum', 'NON-REAKTIF'),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.verified_user_outlined, color: Color(0xFF64748B), size: 16),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Standar Uji: Permenkes RI No. 91/2015 • Lab UTD PMI Lamongan',
                         style: GoogleFonts.plusJakartaSans(
-                          fontSize: 11,
+                          fontSize: 10,
                           color: const Color(0xFF64748B),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                IconButton(
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                height: 42,
+                child: OutlinedButton(
                   onPressed: () => Navigator.pop(ctx),
-                  icon: const Icon(Icons.close_rounded, color: Color(0xFF64748B)),
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF0FDF4),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFBBF7D0)),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.check_circle_rounded, color: Color(0xFF16A34A), size: 22),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      'Semua parameter infeksi dinyatakan NON-REAKTIF. Darah aman untuk transfusi.',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 11.5,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF15803D),
-                      ),
-                    ),
+                  style: OutlinedButton.styleFrom(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 14),
-            Text(
-              'Rincian Parameter Uji Saring Darah:',
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 12,
-                fontWeight: FontWeight.w800,
-                color: const Color(0xFF0F172A),
-              ),
-            ),
-            const SizedBox(height: 8),
-            _buildLabRow('HIV 1 & 2', 'Antibodi / Antigen p24', 'NON-REAKTIF'),
-            _buildLabRow('Hepatitis B', 'HBsAg (Surface Antigen)', 'NON-REAKTIF'),
-            _buildLabRow('Hepatitis C', 'Anti-HCV', 'NON-REAKTIF'),
-            _buildLabRow('Sifilis', 'TP Rapid / Treponema Pallidum', 'NON-REAKTIF'),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.verified_user_outlined, color: Color(0xFF64748B), size: 16),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Standar Uji: Permenkes RI No. 91/2015 • Lab UTD PMI Lamongan',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 10,
-                        color: const Color(0xFF64748B),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              height: 42,
-              child: OutlinedButton(
-                onPressed: () => Navigator.pop(ctx),
-                style: OutlinedButton.styleFrom(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  child: Text('Tutup', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700)),
                 ),
-                child: Text('Tutup', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700)),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -1723,15 +1733,19 @@ class _DonorProfileScreenState extends State<DonorProfileScreen> {
       backgroundColor: Colors.transparent,
       builder: (ctx) => StatefulBuilder(
         builder: (context, setModalState) => Container(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(ctx).size.height * 0.88,
+          ),
           padding: const EdgeInsets.all(20),
           decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
               Center(
                 child: Container(
                   width: 40,
@@ -1859,8 +1873,9 @@ class _DonorProfileScreenState extends State<DonorProfileScreen> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   // ─────────────────────────────────────────────────────────────
   // MODAL 4: KONTAK DARURAT KELUARGA
@@ -1877,15 +1892,19 @@ class _DonorProfileScreenState extends State<DonorProfileScreen> {
       builder: (ctx) => Padding(
         padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
         child: Container(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(ctx).size.height * 0.88,
+          ),
           padding: const EdgeInsets.all(20),
           decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
               Center(
                 child: Container(
                   width: 40,
@@ -1981,8 +2000,9 @@ class _DonorProfileScreenState extends State<DonorProfileScreen> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   // ─────────────────────────────────────────────────────────────
   // MODAL 5: SOP RELAWAN & BANTUAN UDD
@@ -1993,94 +2013,99 @@ class _DonorProfileScreenState extends State<DonorProfileScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => Container(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(ctx).size.height * 0.88,
+        ),
         padding: const EdgeInsets.all(20),
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE2E8F0),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                const Icon(Icons.menu_book_rounded, color: Color(0xFFDC2626), size: 24),
-                const SizedBox(width: 8),
-                Text(
-                  'SOP & Panduan Relawan PMI',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    color: const Color(0xFF0F172A),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE2E8F0),
+                    borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-                const Spacer(),
-                IconButton(
-                  onPressed: () => Navigator.pop(ctx),
-                  icon: const Icon(Icons.close_rounded, color: Color(0xFF64748B)),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            _buildSopStep('1', 'Panggilan Darurat', 'Pastikan tubuh dalam kondisi fit, tidur min. 5 jam, dan telah makan sebelum merespons panggilan.'),
-            _buildSopStep('2', 'Penerbitan Tiket Fast-Track', 'Tekan "Bantu Sekarang" untuk mendapatkan kode tiket triase IGD prioritas tanpa antre umum.'),
-            _buildSopStep('3', 'Kedatangan di Faskes', 'Tunjukkan KTA PMI dan Tiket Penugasan di ruang skrining donor darah UTD/RS.'),
-            _buildSopStep('4', 'Konfirmasi Selesai', 'Setelah pengambilan kantong darah selesai, tekan "Sampai di Lokasi" untuk update status sistem.'),
-            const SizedBox(height: 14),
-            InkWell(
-              onTap: () {
-                UrlHelper.makePhoneCall(context, '(0322) 321718');
-              },
-              borderRadius: BorderRadius.circular(12),
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFF1F2),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFFECDD3)),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.phone_in_talk_rounded, color: Color(0xFFDC2626), size: 22),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Hotline UTD PMI Lamongan 24 Jam (Ketuk untuk Panggil):', style: GoogleFonts.plusJakartaSans(fontSize: 10, color: const Color(0xFF991B1B))),
-                          Text('(0322) 321718 • Jl. Kusuma Bangsa Lamongan', style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w800, color: const Color(0xFFDC2626))),
-                        ],
-                      ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  const Icon(Icons.menu_book_rounded, color: Color(0xFFDC2626), size: 24),
+                  const SizedBox(width: 8),
+                  Text(
+                    'SOP & Panduan Relawan PMI',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                      color: const Color(0xFF0F172A),
                     ),
-                    const Icon(Icons.call_made_rounded, color: Color(0xFFDC2626), size: 16),
-                  ],
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    icon: const Icon(Icons.close_rounded, color: Color(0xFF64748B)),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              _buildSopStep('1', 'Panggilan Darurat', 'Pastikan tubuh dalam kondisi fit, tidur min. 5 jam, dan telah makan sebelum merespons panggilan.'),
+              _buildSopStep('2', 'Penerbitan Tiket Fast-Track', 'Tekan "Bantu Sekarang" untuk mendapatkan kode tiket triase IGD prioritas tanpa antre umum.'),
+              _buildSopStep('3', 'Kedatangan di Faskes', 'Tunjukkan KTA PMI dan Tiket Penugasan di ruang skrining donor darah UTD/RS.'),
+              _buildSopStep('4', 'Konfirmasi Selesai', 'Setelah pengambilan kantong darah selesai, tekan "Sampai di Lokasi" untuk update status sistem.'),
+              const SizedBox(height: 14),
+              InkWell(
+                onTap: () {
+                  UrlHelper.makePhoneCall(context, '(0322) 321718');
+                },
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF1F2),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFFECDD3)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.phone_in_talk_rounded, color: Color(0xFFDC2626), size: 22),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Hotline UTD PMI Lamongan 24 Jam (Ketuk untuk Panggil):', style: GoogleFonts.plusJakartaSans(fontSize: 10, color: const Color(0xFF991B1B))),
+                            Text('(0322) 321718 • Jl. Kusuma Bangsa Lamongan', style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w800, color: const Color(0xFFDC2626))),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.call_made_rounded, color: Color(0xFFDC2626), size: 16),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 14),
-            SizedBox(
-              width: double.infinity,
-              height: 42,
-              child: OutlinedButton(
-                onPressed: () => Navigator.pop(ctx),
-                style: OutlinedButton.styleFrom(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              const SizedBox(height: 14),
+              SizedBox(
+                width: double.infinity,
+                height: 42,
+                child: OutlinedButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  style: OutlinedButton.styleFrom(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  child: Text('Tutup', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700)),
                 ),
-                child: Text('Tutup', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700)),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -2199,29 +2224,33 @@ class _DonorProfileScreenState extends State<DonorProfileScreen> {
                           child: const Icon(Icons.water_drop_rounded, color: Color(0xFFDC2626), size: 20),
                         ),
                         const SizedBox(width: 10),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'PALANG MERAH INDONESIA',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w900,
-                                color: Colors.white,
-                                letterSpacing: 0.6,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'PALANG MERAH INDONESIA',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w900,
+                                  color: Colors.white,
+                                  letterSpacing: 0.6,
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
-                            ),
-                            Text(
-                              'KABUPATEN LAMONGAN • UTD RESMI',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 9,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white.withValues(alpha: 0.85),
+                              Text(
+                                'KABUPATEN LAMONGAN • UTD RESMI',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white.withValues(alpha: 0.85),
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                        const Spacer(),
+                        const SizedBox(width: 8),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
