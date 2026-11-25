@@ -136,9 +136,11 @@ class _RequestFormScreenState extends State<RequestFormScreen> {
               children: [
                 const Icon(Icons.check_circle_rounded, color: Colors.white),
                 const SizedBox(width: 10),
-                Text(
-                  'Permohonan berhasil dikirim! Menunggu verifikasi PMI.',
-                  style: GoogleFonts.plusJakartaSans(),
+                Expanded(
+                  child: Text(
+                    'Permohonan berhasil dikirim! Menunggu verifikasi PMI.',
+                    style: GoogleFonts.plusJakartaSans(),
+                  ),
                 ),
               ],
             ),

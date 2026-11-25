@@ -408,7 +408,9 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
                                       children: [
                                         const Icon(Icons.check_circle_rounded, color: Colors.white, size: 18),
                                         const SizedBox(width: 10),
-                                        Text('Profil berhasil diperbarui!', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600)),
+                                        Expanded(
+                                          child: Text('Profil berhasil diperbarui!', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600)),
+                                        ),
                                       ],
                                     ),
                                     backgroundColor: const Color(0xFF16A34A),
@@ -2460,22 +2462,28 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
                     child: const Icon(Icons.cell_tower_rounded, color: Color(0xFF4F46E5), size: 20),
                   ),
                   const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Radar Siaga Relawan & Alert',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800,
-                          color: const Color(0xFF0F172A),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Radar Siaga Relawan & Alert',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                            color: const Color(0xFF0F172A),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                      Text(
-                        'Konfigurasi jangkauan siaga relawan donor terdekat',
-                        style: GoogleFonts.plusJakartaSans(fontSize: 11, color: const Color(0xFF64748B)),
-                      ),
-                    ],
+                        Text(
+                          'Konfigurasi jangkauan siaga relawan donor terdekat',
+                          style: GoogleFonts.plusJakartaSans(fontSize: 11, color: const Color(0xFF64748B)),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -2520,10 +2528,15 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'Radius Radar Jangkauan Relawan',
-                    style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700),
+                  Expanded(
+                    child: Text(
+                      'Radius Radar Jangkauan Relawan',
+                      style: GoogleFonts.plusJakartaSans(fontSize: 12.5, fontWeight: FontWeight.w700),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
+                  const SizedBox(width: 8),
                   Text(
                     '${_radarRadiusKm.toInt()} Km',
                     style: GoogleFonts.plusJakartaSans(

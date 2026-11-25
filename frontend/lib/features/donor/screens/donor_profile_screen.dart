@@ -1385,15 +1385,18 @@ class _DonorProfileScreenState extends State<DonorProfileScreen> {
               children: [
                 const Icon(Icons.workspace_premium_rounded, color: Color(0xFFD97706), size: 24),
                 const SizedBox(width: 8),
-                Text(
-                  'Piagam Penghargaan Relawan',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    color: const Color(0xFF0F172A),
+                Expanded(
+                  child: Text(
+                    'Piagam Penghargaan Relawan',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                      color: const Color(0xFF0F172A),
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                const Spacer(),
                 IconButton(
                   onPressed: () => Navigator.pop(ctx),
                   icon: const Icon(Icons.close_rounded, color: Color(0xFF64748B)),
@@ -1493,19 +1496,34 @@ class _DonorProfileScreenState extends State<DonorProfileScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Total Donasi:', style: GoogleFonts.plusJakartaSans(fontSize: 10, color: const Color(0xFF92400E))),
-                          Text('$totalDonations Kali ($totalVolumeMl mL)', style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w800, color: const Color(0xFF0F172A))),
-                        ],
+                      Flexible(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Total Donasi:', style: GoogleFonts.plusJakartaSans(fontSize: 10, color: const Color(0xFF92400E))),
+                            Text(
+                              '$totalDonations Kali ($totalVolumeMl mL)',
+                              style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w800, color: const Color(0xFF0F172A)),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
                       ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text('Status Verifikasi:', style: GoogleFonts.plusJakartaSans(fontSize: 10, color: const Color(0xFF92400E))),
-                          Text('Tervalidasi PMI Pusat', style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w800, color: const Color(0xFF16A34A))),
-                        ],
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text('Status Verifikasi:', style: GoogleFonts.plusJakartaSans(fontSize: 10, color: const Color(0xFF92400E))),
+                            Text(
+                              'Tervalidasi PMI Pusat',
+                              style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w800, color: const Color(0xFF16A34A)),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -1761,18 +1779,23 @@ class _DonorProfileScreenState extends State<DonorProfileScreen> {
                 children: [
                   const Icon(Icons.radar_rounded, color: Color(0xFF4F46E5), size: 24),
                   const SizedBox(width: 8),
-                  Text(
-                    'Pengaturan Radius Geofencing',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                      color: const Color(0xFF0F172A),
+                  Expanded(
+                    child: Text(
+                      'Pengaturan Radius Geofencing',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: const Color(0xFF0F172A),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  const Spacer(),
                   IconButton(
                     onPressed: () => Navigator.pop(ctx),
                     icon: const Icon(Icons.close_rounded, color: Color(0xFF64748B)),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
                   ),
                 ],
               ),
@@ -1920,18 +1943,23 @@ class _DonorProfileScreenState extends State<DonorProfileScreen> {
                 children: [
                   const Icon(Icons.contact_phone_rounded, color: Color(0xFFDC2626), size: 24),
                   const SizedBox(width: 8),
-                  Text(
-                    'Kontak Darurat Keluarga',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                      color: const Color(0xFF0F172A),
+                  Expanded(
+                    child: Text(
+                      'Kontak Darurat Keluarga',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: const Color(0xFF0F172A),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  const Spacer(),
                   IconButton(
                     onPressed: () => Navigator.pop(ctx),
                     icon: const Icon(Icons.close_rounded, color: Color(0xFF64748B)),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
                   ),
                 ],
               ),
@@ -2041,18 +2069,23 @@ class _DonorProfileScreenState extends State<DonorProfileScreen> {
                 children: [
                   const Icon(Icons.menu_book_rounded, color: Color(0xFFDC2626), size: 24),
                   const SizedBox(width: 8),
-                  Text(
-                    'SOP & Panduan Relawan PMI',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                      color: const Color(0xFF0F172A),
+                  Expanded(
+                    child: Text(
+                      'SOP & Panduan Relawan PMI',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: const Color(0xFF0F172A),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  const Spacer(),
                   IconButton(
                     onPressed: () => Navigator.pop(ctx),
                     icon: const Icon(Icons.close_rounded, color: Color(0xFF64748B)),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
                   ),
                 ],
               ),

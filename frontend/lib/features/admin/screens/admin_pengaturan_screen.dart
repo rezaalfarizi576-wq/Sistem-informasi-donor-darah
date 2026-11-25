@@ -170,9 +170,11 @@ class _AdminPengaturanScreenState extends State<AdminPengaturanScreen> {
           const SnackBar(
             content: Row(
               children: [
-                Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
-                SizedBox(width: 10),
-                Text('Konfigurasi sistem berhasil disimpan ke database backend!'),
+                const Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text('Konfigurasi sistem berhasil disimpan ke database backend!'),
+                ),
               ],
             ),
             backgroundColor: Color(0xFF059669),

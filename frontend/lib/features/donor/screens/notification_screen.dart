@@ -334,6 +334,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
   }
 
   Future<void> _handleAccept(BloodRequestModel req) async {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
@@ -344,15 +345,20 @@ class _NotificationScreenState extends State<NotificationScreen> {
               child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
             ),
             const SizedBox(width: 12),
-            Text(
-              'Menghubungkan ke UTD PMI & Menerbitkan Tiket Triase...',
-              style: GoogleFonts.plusJakartaSans(fontSize: 12.5),
+            Expanded(
+              child: Text(
+                'Menghubungkan ke UTD PMI & Menerbitkan Tiket Triase...',
+                style: GoogleFonts.plusJakartaSans(fontSize: 12.5, color: Colors.white),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),
         backgroundColor: const Color(0xFF0F172A),
         duration: const Duration(seconds: 2),
         behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
 

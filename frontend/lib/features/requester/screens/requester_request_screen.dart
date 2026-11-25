@@ -340,7 +340,7 @@ class _RequesterRequestScreenState extends State<RequesterRequestScreen> {
               onTap: () => setState(() => _permohonanViewMode = 0),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 180),
-                padding: const EdgeInsets.symmetric(vertical: 8),
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
                 decoration: BoxDecoration(
                   color: _permohonanViewMode == 0 ? Colors.white : Colors.transparent,
                   borderRadius: BorderRadius.circular(8),
@@ -362,13 +362,17 @@ class _RequesterRequestScreenState extends State<RequesterRequestScreen> {
                       size: 16,
                       color: _permohonanViewMode == 0 ? const Color(0xFFDC2626) : const Color(0xFF64748B),
                     ),
-                    const SizedBox(width: 6),
-                    Text(
-                      'Form Permohonan',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 12,
-                        fontWeight: _permohonanViewMode == 0 ? FontWeight.w800 : FontWeight.w600,
-                        color: _permohonanViewMode == 0 ? const Color(0xFFDC2626) : const Color(0xFF64748B),
+                    const SizedBox(width: 5),
+                    Flexible(
+                      child: Text(
+                        'Form Permohonan',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 11.5,
+                          fontWeight: _permohonanViewMode == 0 ? FontWeight.w800 : FontWeight.w600,
+                          color: _permohonanViewMode == 0 ? const Color(0xFFDC2626) : const Color(0xFF64748B),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -381,7 +385,7 @@ class _RequesterRequestScreenState extends State<RequesterRequestScreen> {
               onTap: () => setState(() => _permohonanViewMode = 1),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 180),
-                padding: const EdgeInsets.symmetric(vertical: 8),
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
                 decoration: BoxDecoration(
                   color: _permohonanViewMode == 1 ? Colors.white : Colors.transparent,
                   borderRadius: BorderRadius.circular(8),
@@ -403,13 +407,17 @@ class _RequesterRequestScreenState extends State<RequesterRequestScreen> {
                       size: 16,
                       color: _permohonanViewMode == 1 ? const Color(0xFFDC2626) : const Color(0xFF64748B),
                     ),
-                    const SizedBox(width: 6),
-                    Text(
-                      'Status Terkini (${_activeRequest?.status ?? "Aktif"})',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 12,
-                        fontWeight: _permohonanViewMode == 1 ? FontWeight.w800 : FontWeight.w600,
-                        color: _permohonanViewMode == 1 ? const Color(0xFFDC2626) : const Color(0xFF64748B),
+                    const SizedBox(width: 5),
+                    Flexible(
+                      child: Text(
+                        'Status Terkini (${_activeRequest?.status ?? "Aktif"})',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 11.5,
+                          fontWeight: _permohonanViewMode == 1 ? FontWeight.w800 : FontWeight.w600,
+                          color: _permohonanViewMode == 1 ? const Color(0xFFDC2626) : const Color(0xFF64748B),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -695,14 +703,19 @@ class _RequesterRequestScreenState extends State<RequesterRequestScreen> {
 
   Widget _buildLabel(String text, {required bool required}) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          text,
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 11.5,
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF475569),
-            letterSpacing: 0.5,
+        Expanded(
+          child: Text(
+            text,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 11.5,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF475569),
+              letterSpacing: 0.5,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
         if (required) ...[
@@ -1303,49 +1316,57 @@ class _RequesterRequestScreenState extends State<RequesterRequestScreen> {
           ),
         ),
         const SizedBox(width: 10),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(
-                  'PMI LAMONGAN',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w900,
-                    color: const Color(0xFFDC2626),
-                    letterSpacing: 0.3,
-                  ),
-                ),
-                const SizedBox(width: 6),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFDC2626),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    'DARURAT',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 8,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      'PMI LAMONGAN',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w900,
+                        color: const Color(0xFFDC2626),
+                        letterSpacing: 0.3,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                ),
-              ],
-            ),
-            Text(
-              _permohonanViewMode == 0 ? 'Formulir Permohonan Darah' : 'Status Distribusi Darurat',
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 11,
-                color: const Color(0xFF64748B),
-                fontWeight: FontWeight.w600,
+                  const SizedBox(width: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFDC2626),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      'DARURAT',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 8,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
+              Text(
+                _permohonanViewMode == 0 ? 'Formulir Permohonan Darah' : 'Status Distribusi Darurat',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 11,
+                  color: const Color(0xFF64748B),
+                  fontWeight: FontWeight.w600,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
         ),
-        const Spacer(),
+        const SizedBox(width: 8),
         // Tombol Switch Mode Cepat
         if (_activeRequest != null) ...[
           InkWell(
@@ -1821,46 +1842,55 @@ class _RequesterRequestScreenState extends State<RequesterRequestScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: isComplete ? const Color(0xFFDCFCE7) : const Color(0xFFFFF1F2),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Icon(
-                      Icons.bloodtype_rounded,
-                      size: 18,
-                      color: isComplete ? const Color(0xFF16A34A) : const Color(0xFFDC2626),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Pemenuhan Kantong Darah',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w900,
-                          color: const Color(0xFF0F172A),
-                        ),
+              Expanded(
+                child: Row(
+                  children: [
+                    Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: isComplete ? const Color(0xFFDCFCE7) : const Color(0xFFFFF1F2),
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      Text(
-                        isComplete
-                            ? 'Seluruh kantong darah telah terpenuhi di faskes!'
-                            : '$accepted relawan siaga • $fulfilled dari $needed kantong tiba',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 11,
-                          color: const Color(0xFF64748B),
-                        ),
+                      child: Icon(
+                        Icons.bloodtype_rounded,
+                        size: 18,
+                        color: isComplete ? const Color(0xFF16A34A) : const Color(0xFFDC2626),
                       ),
-                    ],
-                  ),
-                ],
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Pemenuhan Kantong Darah',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w900,
+                              color: const Color(0xFF0F172A),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            isComplete
+                                ? 'Seluruh kantong darah telah terpenuhi di faskes!'
+                                : '$accepted relawan siaga • $fulfilled dari $needed kantong tiba',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 11,
+                              color: const Color(0xFF64748B),
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
@@ -1896,22 +1926,32 @@ class _RequesterRequestScreenState extends State<RequesterRequestScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Progres: $percentInt% Tercapai',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  color: isComplete ? const Color(0xFF16A34A) : const Color(0xFFDC2626),
+              Flexible(
+                child: Text(
+                  'Progres: $percentInt% Tercapai',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    color: isComplete ? const Color(0xFF16A34A) : const Color(0xFFDC2626),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              Text(
-                isComplete
-                    ? 'Lengkap (Siap Transfusi)'
-                    : 'Kurang ${needed - fulfilled} kantong',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF64748B),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  isComplete
+                      ? 'Lengkap (Siap Transfusi)'
+                      : 'Kurang ${needed - fulfilled} kantong',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF64748B),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.right,
                 ),
               ),
             ],
@@ -2154,22 +2194,33 @@ class _RequesterRequestScreenState extends State<RequesterRequestScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      title,
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w800,
-                        color: isActive ? const Color(0xFFDC2626) : const Color(0xFF0F172A),
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                          color: isActive ? const Color(0xFFDC2626) : const Color(0xFF0F172A),
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    Text(
-                      time,
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 10,
-                        fontWeight: isActive ? FontWeight.w800 : FontWeight.w600,
-                        color: isActive ? const Color(0xFFDC2626) : const Color(0xFF64748B),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        time,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 10,
+                          fontWeight: isActive ? FontWeight.w800 : FontWeight.w600,
+                          color: isActive ? const Color(0xFFDC2626) : const Color(0xFF64748B),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.right,
                       ),
                     ),
                   ],

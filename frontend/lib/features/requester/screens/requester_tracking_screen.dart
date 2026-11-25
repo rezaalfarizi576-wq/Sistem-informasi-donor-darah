@@ -36,6 +36,7 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
 
   BloodRequestModel? _activeRequest;
   bool _isLoading = true;
+  bool _isCheckingStatus = false;
   int _selectedTabIndex = 1; // Aktif di tab 1: Pantau
 
   // Koordinat Faskes RSUD Dr. Soegiri Lamongan
@@ -158,6 +159,146 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
     if (mounted) {
       setState(() => _isLoading = false);
     }
+  }
+
+  Future<void> _refreshStatus() async {
+    if (_isCheckingStatus) return;
+    setState(() => _isCheckingStatus = true);
+    await _initScreenData();
+    if (!mounted) return;
+    setState(() => _isCheckingStatus = false);
+
+    final hasDonor = _hasAcceptedDonor;
+    final msg = hasDonor
+        ? 'Relawan ditemukan! ${_activeRequest?.donorName ?? "Pendonor"} sedang menuju faskes.'
+        : 'Status diperbarui (${_activeRequest?.status ?? "menunggu"}): Belum ada relawan yang merespon.';
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(msg, style: GoogleFonts.plusJakartaSans(fontSize: 12)),
+        backgroundColor: hasDonor ? const Color(0xFF16A34A) : const Color(0xFF0F172A),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
+  void _showCallCenterBottomSheet(BuildContext context) {
+    final patient = _activeRequest?.patientName ?? '-';
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        padding: EdgeInsets.fromLTRB(20, 12, 20, MediaQuery.of(ctx).padding.bottom + 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFCBD5E1),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFEF2F2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.support_agent_rounded, color: Color(0xFFDC2626), size: 22),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Call Center UDD PMI Lamongan',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 14.5,
+                          fontWeight: FontWeight.w800,
+                          color: const Color(0xFF0F172A),
+                        ),
+                      ),
+                      Text(
+                        'Posko Siaga Darurat Darah • Layanan 24 Jam',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 11.5,
+                          color: const Color(0xFF64748B),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  UrlHelper.makePhoneCall(context, '(0322) 321118');
+                },
+                icon: const Icon(Icons.phone_in_talk_rounded, size: 18),
+                label: Text(
+                  'Telepon Hotline (0322) 321118',
+                  style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w700),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFDC2626),
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(vertical: 13),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  UrlHelper.openWhatsApp(
+                    context,
+                    rawPhone: '08113321118',
+                    message:
+                        'Halo Posko UDD PMI Lamongan, saya ingin menanyakan status permohonan darah darurat untuk pasien $patient.',
+                  );
+                },
+                icon: const Icon(Icons.chat_rounded, size: 18, color: Color(0xFF16A34A)),
+                label: Text(
+                  'Chat WhatsApp Posko PMI',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF0F172A),
+                  ),
+                ),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Color(0xFFCBD5E1)),
+                  padding: const EdgeInsets.symmetric(vertical: 13),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   /// Menghitung sudut derajat arah jalan kendaraan (heading bearing)
@@ -744,13 +885,17 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
                       ),
                     ),
                     const SizedBox(width: 5),
-                    Text(
-                      'MEMINDAI RELAWAN DI SEKITAR',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 9.5,
-                        fontWeight: FontWeight.w900,
-                        color: const Color(0xFFD97706),
-                        letterSpacing: 0.3,
+                    Flexible(
+                      child: Text(
+                        'MEMINDAI RELAWAN DI SEKITAR',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w900,
+                          color: const Color(0xFFD97706),
+                          letterSpacing: 0.3,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -769,6 +914,7 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
               ],
             ),
           ),
+          const SizedBox(width: 8),
 
           // Badge Radius
           Container(
@@ -997,17 +1143,19 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 4,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         Text(
                           'Menunggu Pendonor',
                           style: GoogleFonts.plusJakartaSans(
-                            fontSize: 14.5,
+                            fontSize: 14,
                             fontWeight: FontWeight.w900,
                             color: const Color(0xFF0F172A),
                           ),
                         ),
-                        const SizedBox(width: 6),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
                           decoration: BoxDecoration(
@@ -1033,10 +1181,13 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
                         color: const Color(0xFF64748B),
                         fontWeight: FontWeight.w600,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
               ),
+              const SizedBox(width: 10),
               // Kotak Golongan Darah
               Container(
                 width: 44,
@@ -1090,7 +1241,16 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('Nama Pasien:', style: GoogleFonts.plusJakartaSans(fontSize: 11, color: const Color(0xFF64748B))),
-                    Text(patient, style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w800, color: const Color(0xFF0F172A))),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        patient,
+                        style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w800, color: const Color(0xFF0F172A)),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.right,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 6),
@@ -1098,7 +1258,16 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('Faskes Penyerahan:', style: GoogleFonts.plusJakartaSans(fontSize: 11, color: const Color(0xFF64748B))),
-                    Text(_hospitalName, style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w800, color: const Color(0xFF0F172A))),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        _hospitalName,
+                        style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w800, color: const Color(0xFF0F172A)),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.right,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 6),
@@ -1106,7 +1275,16 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('Kebutuhan Kantong:', style: GoogleFonts.plusJakartaSans(fontSize: 11, color: const Color(0xFF64748B))),
-                    Text('$bags Kantong ($bType$rh)', style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w900, color: const Color(0xFFDC2626))),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        '$bags Kantong ($bType$rh)',
+                        style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w900, color: const Color(0xFFDC2626)),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.right,
+                      ),
+                    ),
                   ],
                 ),
               ],
@@ -1149,24 +1327,38 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
               Expanded(
                 child: SizedBox(
                   height: 42,
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      _initScreenData();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Memeriksa respon relawan pendonor...'),
-                          duration: Duration(seconds: 2),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.refresh_rounded, size: 16, color: Color(0xFF0F172A)),
-                    label: Text(
-                      'Periksa Status',
-                      style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w800, color: const Color(0xFF0F172A)),
-                    ),
+                  child: OutlinedButton(
+                    onPressed: _isCheckingStatus ? null : _refreshStatus,
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: Color(0xFFCBD5E1)),
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (_isCheckingStatus)
+                          const SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF0F172A)),
+                          )
+                        else
+                          const Icon(Icons.refresh_rounded, size: 15, color: Color(0xFF0F172A)),
+                        const SizedBox(width: 5),
+                        Flexible(
+                          child: Text(
+                            _isCheckingStatus ? 'Memeriksa...' : 'Periksa Status',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                              color: const Color(0xFF0F172A),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -1175,23 +1367,32 @@ class _RequesterTrackingScreenState extends State<RequesterTrackingScreen>
               Expanded(
                 child: SizedBox(
                   height: 42,
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Menghubungi Posko Siaga UDD PMI Lamongan: (0322) 321118'),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.phone_in_talk_rounded, size: 16, color: Colors.white),
-                    label: Text(
-                      'Call Center PMI',
-                      style: GoogleFonts.plusJakartaSans(fontSize: 11.5, fontWeight: FontWeight.w800, color: Colors.white),
-                    ),
+                  child: ElevatedButton(
+                    onPressed: () => _showCallCenterBottomSheet(context),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFDC2626),
                       elevation: 0,
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.phone_in_talk_rounded, size: 15, color: Colors.white),
+                        const SizedBox(width: 5),
+                        Flexible(
+                          child: Text(
+                            'Call Center PMI',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),

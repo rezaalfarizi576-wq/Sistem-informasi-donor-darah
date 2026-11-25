@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../../../core/utils/url_helper.dart';
 import '../../../data/models/blood_request_model.dart';
@@ -1070,6 +1072,11 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
         badgeTextColor: Color(0xFFD97706),
         hours: 'Buka 24 Jam',
         components: ['WB: 34', 'PRC: 41', 'TC: 13'],
+        latitude: -7.123447,
+        longitude: 112.417246,
+        phone: '(0322) 321718',
+        distanceText: '1.2 km',
+        etaText: '~4 Menit',
       ),
       const _FasilitasData(
         name: 'BDRS RSUD Dr. Soegiri Lamongan',
@@ -1081,6 +1088,11 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
         hours: 'Buka 24 Jam',
         components: ['WB: 4', 'PRC (O+): 1', 'TC: 7'],
         isCritical: true,
+        latitude: -7.119812,
+        longitude: 112.415155,
+        phone: '(0322) 321718',
+        distanceText: '2.5 km',
+        etaText: '~7 Menit',
       ),
       const _FasilitasData(
         name: 'BDRS RS Muhammadiyah Lamor',
@@ -1091,6 +1103,11 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
         badgeTextColor: Color(0xFF4338CA),
         hours: '07.00 - 21.00',
         components: ['WB: 10', 'PRC: 15', 'TC: 4'],
+        latitude: -7.108605,
+        longitude: 112.404840,
+        phone: '(0322) 322834',
+        distanceText: '4.1 km',
+        etaText: '~10 Menit',
       ),
     ];
 
@@ -2062,13 +2079,18 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                                       ],
                                     ),
                                   ),
-                                  const Spacer(),
-                                  Text(
-                                    _activeReservation!['ticket_code'] ?? '',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 11.5,
-                                      fontWeight: FontWeight.w800,
-                                      color: const Color(0xFF15803D),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      _activeReservation!['ticket_code'] ?? '',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 11.5,
+                                        fontWeight: FontWeight.w800,
+                                        color: const Color(0xFF15803D),
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      textAlign: TextAlign.end,
                                     ),
                                   ),
                                 ],
@@ -3154,12 +3176,7 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
                   const SizedBox(width: 6),
                   GestureDetector(
                     onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Membuka rute ke ${f.name}...', style: GoogleFonts.plusJakartaSans()),
-                          behavior: SnackBarBehavior.floating,
-                        ),
-                      );
+                      _showFaskesRouteBottomSheet(context, f);
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
@@ -3190,6 +3207,295 @@ class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  // ─── Route Bottom Sheet untuk tombol "Arah" ───
+  void _showFaskesRouteBottomSheet(BuildContext ctx, _FasilitasData f) {
+    final faskesLatLng = LatLng(f.latitude, f.longitude);
+    // Posisi donor default Lamongan tengah
+    const donorLatLng = LatLng(-7.126500, 112.418200);
+    final centerLat = (donorLatLng.latitude + faskesLatLng.latitude) / 2;
+    final centerLng = (donorLatLng.longitude + faskesLatLng.longitude) / 2;
+
+    showModalBottomSheet(
+      context: ctx,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetCtx) => Container(
+        height: MediaQuery.of(sheetCtx).size.height * 0.72,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          children: [
+            // Handle bar
+            Container(
+              margin: const EdgeInsets.only(top: 10, bottom: 4),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: const Color(0xFFCBD5E1),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            // Header
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEFF6FF),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.navigation_rounded, color: Color(0xFF2563EB), size: 18),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Rute ke Faskes',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
+                            color: const Color(0xFF0F172A),
+                          ),
+                        ),
+                        Text(
+                          f.name,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 11,
+                            color: const Color(0xFF64748B),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => Navigator.pop(sheetCtx),
+                    child: const Icon(Icons.close_rounded, color: Color(0xFF94A3B8), size: 22),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1, color: Color(0xFFF1F5F9)),
+            // Peta interaktif
+            Expanded(
+              child: FlutterMap(
+                options: MapOptions(
+                  initialCenter: LatLng(centerLat, centerLng),
+                  initialZoom: 14.0,
+                  minZoom: 11.0,
+                  maxZoom: 18.0,
+                  interactionOptions: const InteractionOptions(
+                    flags: InteractiveFlag.pinchZoom | InteractiveFlag.drag,
+                  ),
+                ),
+                children: [
+                  TileLayer(
+                    urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    userAgentPackageName: 'id.pmi.donordarah.lamongan',
+                  ),
+                  PolylineLayer(
+                    polylines: [
+                      Polyline(
+                        points: [donorLatLng, faskesLatLng],
+                        strokeWidth: 4.0,
+                        color: const Color(0xFF2563EB),
+                      ),
+                    ],
+                  ),
+                  MarkerLayer(
+                    markers: [
+                      Marker(
+                        point: donorLatLng,
+                        width: 34,
+                        height: 34,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF2563EB),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 2.5),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.2),
+                                blurRadius: 6,
+                              ),
+                            ],
+                          ),
+                          child: const Icon(Icons.person_pin_circle_rounded, color: Colors.white, size: 17),
+                        ),
+                      ),
+                      Marker(
+                        point: faskesLatLng,
+                        width: 38,
+                        height: 38,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFDC2626),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 2.5),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.25),
+                                blurRadius: 8,
+                              ),
+                            ],
+                          ),
+                          child: const Icon(Icons.local_hospital_rounded, color: Colors.white, size: 18),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            // Info rute
+            Container(
+              padding: const EdgeInsets.fromLTRB(18, 12, 18, 6),
+              decoration: const BoxDecoration(
+                color: Color(0xFFF8FAFC),
+                border: Border(top: BorderSide(color: Color(0xFFE2E8F0))),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _RouteInfoChip(
+                      icon: Icons.route_rounded,
+                      label: 'Jarak',
+                      value: f.distanceText,
+                      iconColor: const Color(0xFF2563EB),
+                    ),
+                  ),
+                  Expanded(
+                    child: _RouteInfoChip(
+                      icon: Icons.timer_outlined,
+                      label: 'Estimasi',
+                      value: f.etaText,
+                      iconColor: const Color(0xFF16A34A),
+                    ),
+                  ),
+                  Expanded(
+                    child: _RouteInfoChip(
+                      icon: Icons.access_time_rounded,
+                      label: 'Jam Layanan',
+                      value: f.hours,
+                      iconColor: const Color(0xFFD97706),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Tombol aksi
+            Padding(
+              padding: EdgeInsets.fromLTRB(18, 8, 18, MediaQuery.of(sheetCtx).padding.bottom + 14),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(sheetCtx);
+                        UrlHelper.openUrl(
+                          ctx,
+                          'https://www.google.com/maps/dir/?api=1&destination=${f.latitude},${f.longitude}',
+                        );
+                      },
+                      icon: const Icon(Icons.map_rounded, size: 16),
+                      label: Text(
+                        'Buka di Google Maps',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF2563EB),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(sheetCtx);
+                      UrlHelper.makePhoneCall(ctx, f.phone);
+                    },
+                    icon: const Icon(Icons.phone_outlined, size: 16, color: Color(0xFF0F172A)),
+                    label: Text(
+                      'Telepon',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF0F172A),
+                      ),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: const Color(0xFFF1F5F9),
+                      side: const BorderSide(color: Color(0xFFE2E8F0)),
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Widget helper chip info rute ───
+class _RouteInfoChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color iconColor;
+
+  const _RouteInfoChip({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.iconColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Icon(icon, size: 18, color: iconColor),
+        const SizedBox(height: 2),
+        Text(
+          label,
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 9.5,
+            color: const Color(0xFF94A3B8),
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        Text(
+          value,
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 11,
+            color: const Color(0xFF0F172A),
+            fontWeight: FontWeight.w700,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.center,
+        ),
+      ],
     );
   }
 }
@@ -3234,6 +3540,11 @@ class _FasilitasData {
   final String hours;
   final List<String> components;
   final bool isCritical;
+  final double latitude;
+  final double longitude;
+  final String phone;
+  final String distanceText;
+  final String etaText;
 
   const _FasilitasData({
     required this.name,
@@ -3245,6 +3556,11 @@ class _FasilitasData {
     required this.hours,
     required this.components,
     this.isCritical = false,
+    this.latitude = -7.123447,
+    this.longitude = 112.417246,
+    this.phone = '(0322) 321718',
+    this.distanceText = '1.2 km',
+    this.etaText = '~4 Menit',
   });
 }
 
