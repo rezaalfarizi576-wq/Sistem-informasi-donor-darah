@@ -1,6 +1,9 @@
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import '../../../core/utils/file_saver/file_saver.dart';
 import '../../../core/utils/url_helper.dart';
 import '../../../data/models/blood_request_model.dart';
 import '../../../data/models/user_model.dart';
@@ -2834,182 +2837,272 @@ class _RequesterProfileScreenState extends State<RequesterProfileScreen> {
     final goldar = req != null ? '${req.bloodType}${req.rhesus}' : 'O+';
     final bags = req?.bagsNeeded ?? 1;
     final reqId = req?.id != null ? 'REQ-LMG-${req!.id.toString().padLeft(5, "0")}' : 'REQ-LMG-00128';
+    final GlobalKey cardBoundaryKey = GlobalKey();
+    bool isSaving = false;
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (ctx) => Container(
-        height: MediaQuery.of(context).size.height * 0.85,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        padding: const EdgeInsets.fromLTRB(20, 14, 20, 20),
-        child: Column(
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFCBD5E1),
-                  borderRadius: BorderRadius.circular(2),
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setModalState) => Container(
+          height: MediaQuery.of(context).size.height * 0.88,
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+          child: Column(
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFCBD5E1),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 14),
-            Text(
-              'Lembar Bukti Registrasi Permohonan Darah',
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 15,
-                fontWeight: FontWeight.w800,
-                color: const Color(0xFF0F172A),
+              const SizedBox(height: 14),
+              Text(
+                'Lembar Bukti Registrasi Permohonan Darah',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF0F172A),
+                ),
               ),
-            ),
-            Text(
-              'Tunjukkan dokumen digital ini ke petugas UDD PMI / BDRS',
-              style: GoogleFonts.plusJakartaSans(fontSize: 11, color: const Color(0xFF64748B)),
-            ),
-            const SizedBox(height: 14),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.04),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      // Kop Dokumen
-                      Row(
-                        children: [
-                          Container(
-                            width: 36,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFDC2626),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: const Icon(Icons.water_drop_rounded, color: Colors.white, size: 20),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'PALANG MERAH INDONESIA',
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 10.5,
-                                    fontWeight: FontWeight.w900,
-                                    color: const Color(0xFFDC2626),
-                                  ),
-                                ),
-                                Text(
-                                  'KABUPATEN LAMONGAN',
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w800,
-                                    color: const Color(0xFF0F172A),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFDCFCE7),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              'VERIFIED',
-                              style: GoogleFonts.plusJakartaSans(fontSize: 9, fontWeight: FontWeight.w900, color: const Color(0xFF16A34A)),
-                            ),
+              Text(
+                'Tunjukkan dokumen digital ini ke petugas UDD PMI / BDRS',
+                style: GoogleFonts.plusJakartaSans(fontSize: 11, color: const Color(0xFF64748B)),
+              ),
+              const SizedBox(height: 14),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: RepaintBoundary(
+                    key: cardBoundaryKey,
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.04),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
                           ),
                         ],
                       ),
-                      const Divider(height: 20, color: Color(0xFFE2E8F0)),
+                      child: Column(
+                        children: [
+                          // Kop Dokumen
+                          Row(
+                            children: [
+                              Container(
+                                width: 36,
+                                height: 36,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFDC2626),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Icon(Icons.water_drop_rounded, color: Colors.white, size: 20),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'PALANG MERAH INDONESIA',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 10.5,
+                                        fontWeight: FontWeight.w900,
+                                        color: const Color(0xFFDC2626),
+                                      ),
+                                    ),
+                                    Text(
+                                      'KABUPATEN LAMONGAN',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w800,
+                                        color: const Color(0xFF0F172A),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFDCFCE7),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  'VERIFIED',
+                                  style: GoogleFonts.plusJakartaSans(fontSize: 9, fontWeight: FontWeight.w900, color: const Color(0xFF16A34A)),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Divider(height: 20, color: Color(0xFFE2E8F0)),
 
-                      // Barcode / QR Code
-                      Center(
-                        child: QrImageView(
-                          data: 'PMI-LAMONGAN:$reqId:$patient:$goldar:$hospital',
-                          version: QrVersions.auto,
-                          size: 130.0,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        reqId,
-                        style: GoogleFonts.robotoMono(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: const Color(0xFF64748B),
-                        ),
-                      ),
-                      const SizedBox(height: 14),
+                          // Barcode / QR Code
+                          Center(
+                            child: QrImageView(
+                              data: 'PMI-LAMONGAN:$reqId:$patient:$goldar:$hospital',
+                              version: QrVersions.auto,
+                              size: 130.0,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            reqId,
+                            style: GoogleFonts.robotoMono(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: const Color(0xFF64748B),
+                            ),
+                          ),
+                          const SizedBox(height: 14),
 
-                      _buildDataRow('Nama Pasien', patient),
-                      _buildDataRow('Golongan Darah', goldar),
-                      _buildDataRow('Jumlah Dibutuhkan', '$bags Kantong'),
-                      _buildDataRow('Faskes Tujuan', hospital),
-                      _buildDataRow('Pemohon', _resolveDisplayName()),
-                      _buildDataRow('Status', (req?.status ?? 'DIPROSES').toUpperCase()),
-                    ],
+                          _buildDataRow('Nama Pasien', patient),
+                          _buildDataRow('Golongan Darah', goldar),
+                          _buildDataRow('Jumlah Dibutuhkan', '$bags Kantong'),
+                          _buildDataRow('Faskes Tujuan', hospital),
+                          _buildDataRow('Pemohon', _resolveDisplayName()),
+                          _buildDataRow('Status', (req?.status ?? 'DIPROSES').toUpperCase()),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.pop(ctx),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      child: Text('Tutup', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 12)),
                     ),
-                    child: Text('Tutup', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700)),
                   ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.pop(ctx);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Dokumen bukti permohonan $reqId berhasil disimpan ke perangkat.', style: GoogleFonts.plusJakartaSans()),
-                          backgroundColor: const Color(0xFF16A34A),
-                          behavior: SnackBarBehavior.floating,
+                  const SizedBox(width: 8),
+                  Expanded(
+                    flex: 1,
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        FileSaver.printHtmlDocument(
+                          reqId: reqId,
+                          patientName: patient,
+                          bloodType: goldar,
+                          bags: '$bags Kantong',
+                          hospital: hospital,
+                          requester: _resolveDisplayName(),
+                          status: (req?.status ?? 'DIPROSES').toUpperCase(),
+                          qrData: 'PMI-LAMONGAN:$reqId:$patient:$goldar:$hospital',
+                        );
+                      },
+                      icon: const Icon(Icons.picture_as_pdf_rounded, size: 15, color: Color(0xFFDC2626)),
+                      label: Text(
+                        'Cetak PDF',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF0F172A),
+                          fontSize: 12,
                         ),
-                      );
-                    },
-                    icon: const Icon(Icons.file_download_done_rounded, size: 16),
-                    label: Text('Simpan File', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFDC2626),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        side: const BorderSide(color: Color(0xFFCBD5E1)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                  const SizedBox(width: 8),
+                  Expanded(
+                    flex: 1,
+                    child: ElevatedButton.icon(
+                      onPressed: isSaving
+                          ? null
+                          : () async {
+                              setModalState(() => isSaving = true);
+                              try {
+                                final boundary = cardBoundaryKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+                                if (boundary != null) {
+                                  final ui.Image image = await boundary.toImage(pixelRatio: 3.0);
+                                  final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+                                  if (byteData != null) {
+                                    final pngBytes = byteData.buffer.asUint8List();
+                                    final filename = 'Bukti_Permohonan_$reqId.png';
+                                    await FileSaver.saveImageFile(pngBytes, filename);
+                                    if (mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Row(
+                                            children: [
+                                              const Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
+                                              const SizedBox(width: 8),
+                                              Expanded(
+                                                child: Text(
+                                                  'File $filename berhasil disimpan ke perangkat!',
+                                                  style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          backgroundColor: const Color(0xFF16A34A),
+                                          behavior: SnackBarBehavior.floating,
+                                          duration: const Duration(seconds: 4),
+                                        ),
+                                      );
+                                    }
+                                  }
+                                }
+                              } catch (e) {
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('Gagal menyimpan file: $e'),
+                                      backgroundColor: const Color(0xFFDC2626),
+                                      behavior: SnackBarBehavior.floating,
+                                    ),
+                                  );
+                                }
+                              } finally {
+                                setModalState(() => isSaving = false);
+                              }
+                            },
+                      icon: isSaving
+                          ? const SizedBox(
+                              width: 14,
+                              height: 14,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                            )
+                          : const Icon(Icons.file_download_rounded, size: 16),
+                      label: Text(
+                        isSaving ? 'Menyimpan...' : 'Simpan File',
+                        style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 12),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFDC2626),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
